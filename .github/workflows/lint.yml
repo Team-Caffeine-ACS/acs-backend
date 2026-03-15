@@ -1,9 +1,9 @@
-name: CI
+name: Lint and Format Check
 
 # Controls when the workflow will run
 on:
-  # push: - I think we don't need this, because we push into PRs anyway?
   pull_request:
+    branches: [ main ] # Trigger only on PRs targeting main
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,7 +16,6 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -33,18 +32,15 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 1. Check Formatting
       - name: Check Java Formatting
         if: github.event.inputs.skip_linting != 'true'
         run: ./gradlew spotlessCheck
 
-      # 2. Check Linting (Static Analysis)
-      - name: Run Checkstyle
+      - name: Check Linting (Static Analysis)
         if: github.event.inputs.skip_linting != 'true'
         run: ./gradlew checkstyleMain
 
-      # 3. Lint Dockerfiles
-      - name: Hadolint Action
+      - name: Lint Dockerfiles
         if: github.event.inputs.skip_linting != 'true'
         uses: hadolint/hadolint-action@v3.1.0
         with:
