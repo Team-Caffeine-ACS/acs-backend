@@ -1,0 +1,62 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  push:
+  pull_request:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      # Skip three formatting/linting related steps
+      skip_linting:
+        description: 'Skip Java and Dockerfile linting? (true/false)'
+        default: 'false'
+        required: false
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 1. Check Formatting
+      - name: Check Java Formatting
+        if: github.event.inputs.skip_linting != 'true'
+        run: ./gradlew spotlessCheck
+
+      # 2. Check Linting (Static Analysis)
+      - name: Run Checkstyle
+        if: github.event.inputs.skip_linting != 'true'
+        run: ./gradlew checkstyleMain
+
+      # 3. Lint Dockerfiles
+      - name: Hadolint Action
+        if: github.event.inputs.skip_linting != 'true'
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "**/Dockerfile*"
+          recursive: true
