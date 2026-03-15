@@ -2,7 +2,7 @@ name: CI
 
 # Controls when the workflow will run
 on:
-  push:
+  # push: - I think we don't need this, because we push into PRs anyway?
   pull_request:
 
   # Allows you to run this workflow manually from the Actions tab
