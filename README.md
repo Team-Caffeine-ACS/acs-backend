@@ -1,5 +1,8 @@
-## Container Image
+# acs-backend
+Backend for Team Caffeine AccessControlSystem
 
+
+## Container Image
 Backend image is stored in GitHub Container Registry (GHCR):
 ghcr.io/team-caffeine-acs/acs-backend
 
