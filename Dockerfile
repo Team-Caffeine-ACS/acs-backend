@@ -1,20 +1,21 @@
-FROM eclipse-temurin:21-jdk AS build
+# ===== Stage 1: Build =====
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-COPY gradlew .
-COPY gradlew.bat .
-COPY gradle ./gradle
-COPY build.gradle .
-COPY settings.gradle .
+# Copy pom.xml first and download dependencies (better layer caching)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source and build
 COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-RUN chmod +x ./gradlew
-RUN ./gradlew bootJar --no-daemon
-
+# ===== Stage 2: Run =====
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-COPY --from=build /app/build/libs/*.jar app.jar
+# Copy the built JAR from build stage
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
