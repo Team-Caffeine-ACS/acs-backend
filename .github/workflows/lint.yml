@@ -8,11 +8,6 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      # Skip three formatting/linting related steps
-      skip_linting:
-        description: 'Skip Java and Dockerfile linting? (true/false)'
-        default: 'false'
-        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -30,15 +25,12 @@ jobs:
           cache: 'maven'
 
       - name: Java Formatting
-        if: github.event.inputs.skip_linting != 'true'
         run: mvn spotless:check
 
       - name: Java Linting with Checkstyle
-        if: github.event.inputs.skip_linting != 'true'
         run: mvn checkstyle:check
 
       - name: Dockerfile Linting with Hadolint
-        if: github.event.inputs.skip_linting != 'true'
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: "**/Dockerfile*"
