@@ -25,10 +25,10 @@ jobs:
           cache: 'maven'
 
       - name: Java Formatting
-        run: mvn spotless:check
+        run: mvn --no-transfer-progress spotless:check
 
       - name: Java Linting with Checkstyle
-        run: mvn checkstyle:check
+        run: mvn --no-transfer-progress checkstyle:check
 
       - name: Dockerfile Linting with Hadolint
         uses: hadolint/hadolint-action@v3.1.0
