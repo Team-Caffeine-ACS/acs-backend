@@ -38,7 +38,6 @@
 ## **3\. Test Scope**  
 **In Scope**
 
-* Inventory CRUD operations.  
 * Transaction creation and history.  
 * API communication between frontend and backend.  
 * Database migrations via Liquibase.
