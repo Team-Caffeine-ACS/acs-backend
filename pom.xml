@@ -181,22 +181,20 @@
                             <nrOfIndentSpace>4</nrOfIndentSpace>
                         </sortPom>
                     </pom>
-                    <xml>
-                        <includes>
-                            <include>src/**/*.xml</include>
-                            <include>pom.xml</include>
-                            <include>checkstyle-suppressions.xml</include>
-                        </includes>
-                        <eclipseWtp>
-                            <type>XML</type>
-                        </eclipseWtp>
-                        <trimTrailingWhitespace/>
-                        <endWithNewline/>
-                        <indent>
-                            <spaces>true</spaces>
-                            <num>4</num>
-                        </indent>
-                    </xml>
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>checkstyle-suppressions.xml</include>
+                                <include>src/**/*.xml</include>
+                            </includes>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                            <indent>
+                                <spaces>true</spaces>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
                 </configuration>
             </plugin>
             <plugin>
