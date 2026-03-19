@@ -27,20 +27,17 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
+          cache: 'maven'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Check Java Formatting
+      - name: Java Formatting
         if: github.event.inputs.skip_linting != 'true'
-        run: ./gradlew spotlessCheck
+        run: mvn spotless:check
 
-      - name: Check Linting (Static Analysis)
+      - name: Java Linting with Checkstyle
         if: github.event.inputs.skip_linting != 'true'
-        run: ./gradlew checkstyleMain
+        run: mvn checkstyle:check
 
-      - name: Lint Dockerfiles
+      - name: Dockerfile Linting with Hadolint
         if: github.event.inputs.skip_linting != 'true'
         uses: hadolint/hadolint-action@v3.1.0
         with:
