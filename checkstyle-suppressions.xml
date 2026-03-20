@@ -18,4 +18,6 @@
   <!-- Star imports are used consistently across all entity classes -->
   <suppress checks="AvoidStarImport" files="entity[\\/]"/>
 
+  <!-- JPA annotations on some fields exceed 80 chars and cannot be shortened -->
+  <suppress checks="LineLength" files="entity[\\/]"/>
 </suppressions>

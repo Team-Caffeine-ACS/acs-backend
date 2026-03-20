@@ -13,12 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 public class Keycard extends BaseEntity {
 
-  @Column(
-          name = "keycard_number",
-          nullable = false,
-          length = 128,
-          unique = true
-  )
+  @Column(name = "keycard_number", nullable = false, length = 128, unique = true)
   private String keycardNumber;
 
   // added isActive so a keycard can be
