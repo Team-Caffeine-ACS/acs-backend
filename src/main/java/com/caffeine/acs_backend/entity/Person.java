@@ -44,7 +44,11 @@ public class Person extends BaseEntity {
   private boolean isActive = true;
 
   // a person can have multiple documents
-  @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+          mappedBy = "person",
+          cascade = CascadeType.ALL,
+          orphanRemoval = true
+  )
   @Builder.Default
   private List<Document> documents = new ArrayList<>();
 }

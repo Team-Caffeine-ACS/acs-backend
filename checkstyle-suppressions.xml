@@ -4,5 +4,18 @@
   "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 
 <suppressions>
-  <suppress checks="WhitespaceAround" />
+  <suppress checks="WhitespaceAround"/>
+
+  <!-- package-info.java is not required in this project -->
+  <suppress checks="JavadocPackage"/>
+
+  <!-- Field-level Javadoc on entities is noise; JPA annotations are self-documenting -->
+  <suppress checks="JavadocVariable" files="entity[\\/]"/>
+
+  <!-- JPA column lengths (128, 1024) are idiomatic inline constants in entity classes -->
+  <suppress checks="MagicNumber" files="entity[\\/]"/>
+
+  <!-- Star imports are used consistently across all entity classes -->
+  <suppress checks="AvoidStarImport" files="entity[\\/]"/>
+
 </suppressions>

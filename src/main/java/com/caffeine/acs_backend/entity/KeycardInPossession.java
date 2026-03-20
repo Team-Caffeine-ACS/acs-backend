@@ -24,8 +24,8 @@ public class KeycardInPossession extends BaseEntity {
   private LocalDateTime returnTime;
 
   // changed from Person FK to PersonInRole FK — the role context matters
-  // (e.g. a person could be a contractor one day and an employee another. Shows in what role he
-  // holds card)
+  // (e.g. a person could be a contractor one day and an employee another.
+  // Shows in what role he holds card)
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "keycard_holder_person_in_role_id", nullable = false)
   private PersonInRole keycardHolder;

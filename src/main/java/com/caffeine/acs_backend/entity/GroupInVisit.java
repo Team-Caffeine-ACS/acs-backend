@@ -13,7 +13,8 @@ import lombok.*;
 @AllArgsConstructor
 public class GroupInVisit extends BaseEntity {
 
-  // the group-level visit event. Individual Visit records link back here via groupInVisit FK.
+  // the group-level visit event.
+  // Individual Visit records link back here via groupInVisit FK.
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "group_id", nullable = false)
