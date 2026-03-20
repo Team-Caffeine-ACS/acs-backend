@@ -12,6 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 public class Organization extends BaseEntity {
 
-    @Column(name = "name", nullable = false, length = 128)
-    private String name;
+  @Column(name = "name", nullable = false, length = 128)
+  private String name;
 }

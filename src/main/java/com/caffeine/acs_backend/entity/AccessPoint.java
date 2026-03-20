@@ -12,9 +12,9 @@ import lombok.*;
 @AllArgsConstructor
 public class AccessPoint extends BaseEntity {
 
-    @Column(name = "name", nullable = false, length = 128)
-    private String name;
+  @Column(name = "name", nullable = false, length = 128)
+  private String name;
 
-    @Column(name = "address", length = 128)
-    private String address;
+  @Column(name = "address", length = 128)
+  private String address;
 }

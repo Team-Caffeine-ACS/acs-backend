@@ -12,9 +12,9 @@ import lombok.*;
 @AllArgsConstructor
 public class Role extends BaseEntity {
 
-    @Column(name = "name", nullable = false, length = 128)
-    private String name;
+  @Column(name = "name", nullable = false, length = 128)
+  private String name;
 
-    @Column(name = "description", length = 1024)
-    private String description;
+  @Column(name = "description", length = 1024)
+  private String description;
 }

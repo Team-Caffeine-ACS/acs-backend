@@ -12,14 +12,14 @@ import lombok.*;
 @AllArgsConstructor
 public class Document extends BaseEntity {
 
-    @Column(name = "document_number", nullable = false, length = 128)
-    private String documentNumber;
+  @Column(name = "document_number", nullable = false, length = 128)
+  private String documentNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "document_type_id", nullable = false)
-    private DocumentType documentType;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "document_type_id", nullable = false)
+  private DocumentType documentType;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "person_id", nullable = false)
-    private Person person;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "person_id", nullable = false)
+  private Person person;
 }
