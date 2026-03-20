@@ -17,9 +17,4 @@ public class AccessPoint extends BaseEntity {
 
     @Column(name = "address", length = 128)
     private String address;
-
-    // access points now belong to a zone for better hierarchical authorization
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "access_zone_id")
-    private AccessZone zone;
 }
