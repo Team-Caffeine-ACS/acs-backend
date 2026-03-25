@@ -19,32 +19,32 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
+  private final AuthenticationManager authenticationManager;
 
-    public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
-        }
-
-        User user = User.builder()
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .role(UserRole.VISITOR)
-                .build();
-
-        userRepository.save(user);
-        return new AuthResponse(jwtService.generateToken(user));
+  public AuthResponse register(RegisterRequest request) {
+    if (userRepository.existsByEmail(request.email())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
     }
 
-    public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
+    User user =
+        User.builder()
+            .email(request.email())
+            .password(passwordEncoder.encode(request.password()))
+            .role(UserRole.VISITOR)
+            .build();
 
-        User user = userRepository.findByEmail(request.email()).orElseThrow();
-        return new AuthResponse(jwtService.generateToken(user));
-    }
+    userRepository.save(user);
+    return new AuthResponse(jwtService.generateToken(user));
+  }
+
+  public AuthResponse login(LoginRequest request) {
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+
+    User user = userRepository.findByEmail(request.email()).orElseThrow();
+    return new AuthResponse(jwtService.generateToken(user));
+  }
 }

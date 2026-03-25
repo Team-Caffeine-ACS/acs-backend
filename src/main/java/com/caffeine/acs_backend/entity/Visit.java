@@ -1,6 +1,5 @@
 package com.caffeine.acs_backend.entity;
 
-import com.caffeine.acs_backend.enums.VisitStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;

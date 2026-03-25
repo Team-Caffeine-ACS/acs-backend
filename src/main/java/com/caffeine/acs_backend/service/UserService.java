@@ -12,26 +12,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
-    public UserResponse getMe(User currentUser) {
-        return UserResponse.from(currentUser);
+  public UserResponse getMe(User currentUser) {
+    return UserResponse.from(currentUser);
+  }
+
+  public UserResponse updateMe(User currentUser, UpdateUserRequest request) {
+    if (request.email() != null && !request.email().isBlank()) {
+      if (!request.email().equals(currentUser.getEmail())
+          && userRepository.existsByEmail(request.email())) {
+        throw new IllegalArgumentException("Email already in use");
+      }
+      currentUser.setEmail(request.email());
     }
 
-    public UserResponse updateMe(User currentUser, UpdateUserRequest request) {
-        if (request.email() != null && !request.email().isBlank()) {
-            if (!request.email().equals(currentUser.getEmail())
-                    && userRepository.existsByEmail(request.email())) {
-                throw new IllegalArgumentException("Email already in use");
-            }
-            currentUser.setEmail(request.email());
-        }
-
-        if (request.password() != null && !request.password().isBlank()) {
-            currentUser.setPassword(passwordEncoder.encode(request.password()));
-        }
-
-        return UserResponse.from(userRepository.save(currentUser));
+    if (request.password() != null && !request.password().isBlank()) {
+      currentUser.setPassword(passwordEncoder.encode(request.password()));
     }
+
+    return UserResponse.from(userRepository.save(currentUser));
+  }
 }

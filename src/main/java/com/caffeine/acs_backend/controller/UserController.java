@@ -15,18 +15,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @GetMapping("/me")
-    public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal User currentUser) {
-        return ResponseEntity.ok(userService.getMe(currentUser));
-    }
+  @GetMapping("/me")
+  public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal User currentUser) {
+    return ResponseEntity.ok(userService.getMe(currentUser));
+  }
 
-    @PatchMapping("/me")
-    public ResponseEntity<UserResponse> updateMe(
-            @AuthenticationPrincipal User currentUser,
-            @Valid @RequestBody UpdateUserRequest request
-    ) {
-        return ResponseEntity.ok(userService.updateMe(currentUser, request));
-    }
+  @PatchMapping("/me")
+  public ResponseEntity<UserResponse> updateMe(
+      @AuthenticationPrincipal User currentUser, @Valid @RequestBody UpdateUserRequest request) {
+    return ResponseEntity.ok(userService.updateMe(currentUser, request));
+  }
 }
