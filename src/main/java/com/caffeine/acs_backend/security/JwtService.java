@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,19 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expirationMs;
 
+    private SecretKey signingKey;
+
+    @PostConstruct
+    private void initSigningKey() {
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    }
+
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(signingKey())
+                .signWith(signingKey)
                 .compact();
     }
 
@@ -34,23 +42,16 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        Claims claims = extractClaims(token);
+        return claims.getSubject().equals(userDetails.getUsername())
+                && !claims.getExpiration().before(new Date());
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractClaims(token).getExpiration().before(new Date());
-    }
-
-    private Claims extractClaims(String token) {
+    public Claims extractClaims(String token) {
         return Jwts.parser()
-                .verifyWith(signingKey())
+                .verifyWith(signingKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    private SecretKey signingKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 }
