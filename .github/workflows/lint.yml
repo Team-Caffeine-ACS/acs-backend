@@ -1,0 +1,31 @@
+name: Lint and Format Check
+
+on:
+  pull_request:
+    branches: [ main ] # Trigger only on PRs targeting main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Java and XML Formatting with Spotless 
+        run: mvn --no-transfer-progress spotless:check
+
+      - name: Java Linting with Checkstyle
+        run: mvn --no-transfer-progress checkstyle:check
+
+      - name: Dockerfile Linting with Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "**/Dockerfile*"
+          recursive: true

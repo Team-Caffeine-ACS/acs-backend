@@ -12,10 +12,10 @@ import lombok.*;
 @AllArgsConstructor
 public class Nationality extends BaseEntity {
 
-    @Column(name = "name", nullable = false, length = 128)
-    private String name;
+  @Column(name = "name", nullable = false, length = 128)
+  private String name;
 
-    // ISO 3166-1 alpha-2, e.g. "EE", "US"
-    @Column(name = "country_code", nullable = false, unique = true, length = 2)
-    private String countryCode;
+  // ISO 3166-1 alpha-2, e.g. "EE", "US"
+  @Column(name = "country_code", nullable = false, unique = true, length = 2)
+  private String countryCode;
 }

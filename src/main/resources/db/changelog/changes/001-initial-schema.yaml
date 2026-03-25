@@ -1,0 +1,523 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 001-01-nationality
+      author: init
+      changes:
+        - createTable:
+            tableName: nationality
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: country_code
+                  type: varchar(2)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+  - changeSet:
+      id: 001-02-organization
+      author: init
+      changes:
+        - createTable:
+            tableName: organization
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 001-03-department
+      author: init
+      changes:
+        - createTable:
+            tableName: department
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(1024)
+
+  - changeSet:
+      id: 001-04-document-type
+      author: init
+      changes:
+        - createTable:
+            tableName: document_type
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 001-05-role
+      author: init
+      changes:
+        - createTable:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(1024)
+
+  - changeSet:
+      id: 001-06-groups
+      author: init
+      changes:
+        - createTable:
+            tableName: groups
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(1024)
+
+  - changeSet:
+      id: 001-07-keycard
+      author: init
+      changes:
+        - createTable:
+            tableName: keycard
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: keycard_number
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: valid_until
+                  type: timestamp
+
+  - changeSet:
+      id: 001-08-access-point
+      author: init
+      changes:
+        - createTable:
+            tableName: access_point
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: varchar(128)
+
+  - changeSet:
+      id: 001-09-person
+      author: init
+      changes:
+        - createTable:
+            tableName: person
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: given_name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: surname
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: job_title
+                  type: varchar(128)
+              - column:
+                  name: social_security_number
+                  type: varchar(128)
+              - column:
+                  name: nationality_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_person_nationality
+                    references: nationality(id)
+              - column:
+                  name: department_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_person_department
+                    references: department(id)
+              - column:
+                  name: organization_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_person_organization
+                    references: organization(id)
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 001-10-document
+      author: init
+      changes:
+        - createTable:
+            tableName: document
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: document_number
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: document_type_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_document_type
+                    references: document_type(id)
+              - column:
+                  name: person_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_document_person
+                    references: person(id)
+
+  - changeSet:
+      id: 001-11-person-in-role
+      author: init
+      changes:
+        - createTable:
+            tableName: person_in_role
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: person_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_person_in_role_person
+                    references: person(id)
+              - column:
+                  name: role_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_person_in_role_role
+                    references: role(id)
+              - column:
+                  name: comment
+                  type: varchar(1024)
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: valid_until
+                  type: timestamp
+
+  - changeSet:
+      id: 001-12-keycard-in-possession
+      author: init
+      changes:
+        - createTable:
+            tableName: keycard_in_possession
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: keycard_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_kip_keycard
+                    references: keycard(id)
+              - column:
+                  name: assigned_time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: return_time
+                  type: timestamp
+              - column:
+                  name: keycard_holder_person_in_role_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_kip_holder
+                    references: person_in_role(id)
+              - column:
+                  name: keycard_assignor_person_in_role_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_kip_assignor
+                    references: person_in_role(id)
+              - column:
+                  name: assigning_access_point_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_kip_assigning_ap
+                    references: access_point(id)
+              - column:
+                  name: return_access_point_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_kip_return_ap
+                    references: access_point(id)
+
+  - changeSet:
+      id: 001-13-person-in-group
+      author: init
+      changes:
+        - createTable:
+            tableName: person_in_group
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: person_in_role_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pig_person_in_role
+                    references: person_in_role(id)
+              - column:
+                  name: group_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_pig_group
+                    references: groups(id)
+
+  - changeSet:
+      id: 001-14-group-in-visit
+      author: init
+      changes:
+        - createTable:
+            tableName: group_in_visit
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: group_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_giv_group
+                    references: groups(id)
+              - column:
+                  name: planned_arrival
+                  type: timestamp
+              - column:
+                  name: planned_exit
+                  type: timestamp
+              - column:
+                  name: comment
+                  type: varchar(1024)
+
+  - changeSet:
+      id: 001-15-visit
+      author: init
+      changes:
+        - createTable:
+            tableName: visit
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: arrival_time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: exit_time
+                  type: timestamp
+              - column:
+                  name: access_point_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_visit_access_point
+                    references: access_point(id)
+              - column:
+                  name: visitor_person_in_role_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_visit_visitor
+                    references: person_in_role(id)
+              - column:
+                  name: group_in_visit_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_visit_group_in_visit
+                    references: group_in_visit(id)
+              - column:
+                  name: assignor_person_in_role_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_visit_assignor
+                    references: person_in_role(id)
+              - column:
+                  name: host_person_in_role_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_visit_host
+                    references: person_in_role(id)
+              - column:
+                  name: escort_person_in_role_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_visit_escort
+                    references: person_in_role(id)
+              - column:
+                  name: comment
+                  type: varchar(1024)
+
+  - changeSet:
+      id: 001-16-app-user
+      author: init
+      changes:
+        - createTable:
+            tableName: app_user
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: person_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_app_user_person
+                    references: person(id)
