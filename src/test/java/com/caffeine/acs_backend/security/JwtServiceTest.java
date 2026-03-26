@@ -16,7 +16,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 class JwtServiceTest {
 
-  private static final String SECRET =
+  private static final String MOCK_TEST_SECRET =
       "dGVzdFNlY3JldEtleVdoaWNoSXNMb25nRW5vdWdoRm9ySG1hY1NoYTI1Ng==";
   private static final long EXPIRATION_MS = 86_400_000L;
 
@@ -26,7 +26,7 @@ class JwtServiceTest {
   @BeforeEach
   void setUp() {
     jwtService = new JwtService();
-    ReflectionTestUtils.setField(jwtService, "secret", SECRET);
+    ReflectionTestUtils.setField(jwtService, "secret", MOCK_TEST_SECRET);
     ReflectionTestUtils.setField(jwtService, "expirationMs", EXPIRATION_MS);
     ReflectionTestUtils.invokeMethod(jwtService, "initSigningKey");
 
@@ -84,7 +84,7 @@ class JwtServiceTest {
             .subject("test@example.com")
             .issuedAt(new Date(System.currentTimeMillis() - 2000))
             .expiration(new Date(System.currentTimeMillis() - 1000))
-            .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET)))
+            .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(MOCK_TEST_SECRET)))
             .compact();
 
     assertThatThrownBy(() -> jwtService.extractClaims(expiredToken))
