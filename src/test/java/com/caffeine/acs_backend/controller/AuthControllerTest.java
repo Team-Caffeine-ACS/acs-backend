@@ -179,9 +179,7 @@ class AuthControllerTest {
 
   @Test
   void swaggerUi_withoutToken_returns200() throws Exception {
-    mockMvc
-        .perform(get("/swagger-ui/index.html"))
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/swagger-ui/index.html")).andExpect(status().isOk());
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────

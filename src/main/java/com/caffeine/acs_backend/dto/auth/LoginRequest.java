@@ -9,4 +9,5 @@ public record LoginRequest(
         @NotBlank
         @Email(message = "E-posti formaat on vale")
         String email,
-    @Schema(description = "User password", example = "StrongPassword123!") @NotBlank String password) {}
+    @Schema(description = "User password", example = "StrongPassword123!") @NotBlank
+        String password) {}
