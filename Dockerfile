@@ -6,6 +6,8 @@ ARG SKIP_CHECKSTYLE=false
 
 # Copy pom.xml first and download dependencies (better layer caching)
 COPY pom.xml .
+COPY checkstyle-suppressions.xml .
+
 RUN if [ "$SKIP_CHECKSTYLE" = "true" ]; then \
       mvn dependency:go-offline -B -Dcheckstyle.skip=true; \
     else \
