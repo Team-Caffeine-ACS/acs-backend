@@ -170,6 +170,20 @@ class AuthControllerTest {
     assertThat(responseBody).containsIgnoringCase("VISITOR");
   }
 
+  // ── OpenAPI / Swagger endpoints ─────────────────────────────────────────────
+
+  @Test
+  void openApiDocs_withoutToken_returns200() throws Exception {
+    mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk());
+  }
+
+  @Test
+  void swaggerUi_withoutToken_returns200() throws Exception {
+    mockMvc
+        .perform(get("/swagger-ui/index.html"))
+        .andExpect(status().isOk());
+  }
+
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
   private String registerUser(String email, String password) throws Exception {

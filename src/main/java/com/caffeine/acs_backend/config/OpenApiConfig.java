@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
     info =
@@ -15,11 +14,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
             version = "1.0.0",
             description = "Visitor Management System backend API documentation",
             contact = @Contact(name = "Team Caffeine", email = "team@caffeine.com"),
-            license = @License(name = "MIT License")),
-    servers = {
-      @Server(url = "http://localhost:8080", description = "Local Development Server"),
-      @Server(url = "https://api.acs.team-caffeine.site", description = "Production Server")
-    })
+            license = @License(name = "MIT License")))
 @SecurityScheme(
     name = "bearerAuth",
     type = SecuritySchemeType.HTTP,
