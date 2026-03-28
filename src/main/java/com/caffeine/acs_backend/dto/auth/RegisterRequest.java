@@ -6,11 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 
 public record RegisterRequest(
     @Schema(description = "User email address", example = "user@example.com")
-    @NotBlank
-    @Email(message = "E-posti formaat on vale")
-    String email,
-
-    @Schema(description = "User password", example = "StrongPassword123!")
-    @NotBlank
-    String password
-) {}
+        @NotBlank
+        @Email(message = "E-posti formaat on vale")
+        String email,
+    @Schema(description = "User password", example = "StrongPassword123!") @NotBlank
+        String password) {}

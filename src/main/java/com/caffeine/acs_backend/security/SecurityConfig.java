@@ -30,27 +30,30 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.csrf(AbstractHttpConfigurer::disable)
-        /* 
+        /*
         .authorizeHttpRequests(
             auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
         */
-        .authorizeHttpRequests(auth -> auth
-            // 1. Lubame autentimise 
-            .requestMatchers("/api/auth/**").permitAll()
-            
-            // 2. LUBAME SWAGGERI JA OPENAPI
-            .requestMatchers(
-                "/v3/api-docs",          // Ilma tärnideta
-                "/v3/api-docs/**",       // Tärnidega
-                "/swagger-ui.html",      // Algne fail
-                "/swagger-ui/**",        // UI kaust
-                "/v3/api-docs**", // Ressursid
-                "/webjars/**"            // Teegid
-            ).permitAll()            
-            // Kõik muud päringud nõuavad JWT-d
-            .anyRequest().authenticated()
-        )
-        
+        .authorizeHttpRequests(
+            auth ->
+                auth
+                    // 1. Lubame autentimise
+                    .requestMatchers("/api/auth/**")
+                    .permitAll()
+
+                    // 2. LUBAME SWAGGERI JA OPENAPI
+                    .requestMatchers(
+                        "/v3/api-docs", // Ilma tärnideta
+                        "/v3/api-docs/**", // Tärnidega
+                        "/swagger-ui.html", // Algne fail
+                        "/swagger-ui/**", // UI kaust
+                        "/v3/api-docs**", // Ressursid
+                        "/webjars/**" // Teegid
+                        )
+                    .permitAll()
+                    // Kõik muud päringud nõuavad JWT-d
+                    .anyRequest()
+                    .authenticated())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(
