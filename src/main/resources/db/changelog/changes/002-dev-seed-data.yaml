@@ -1,0 +1,675 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 002-01-seed-nationalities
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: nationality
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000001" }
+              - column: { name: name, value: "Estonian" }
+              - column: { name: country_code, value: "EE" }
+        - insert:
+            tableName: nationality
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: name, value: "Finn" }
+              - column: { name: country_code, value: "FI" }
+        - insert:
+            tableName: nationality
+            columns:
+              - column: { name: id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: name, value: "Latvian" }
+              - column: { name: country_code, value: "LV" }
+
+  - changeSet:
+      id: 002-02-seed-organizations
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: organization
+            columns:
+              - column: { name: id, value: "a2000000-0000-0000-0000-000000000001" }
+              - column: { name: name, value: "KAPO" }
+        - insert:
+            tableName: organization
+            columns:
+              - column: { name: id, value: "a2000000-0000-0000-0000-000000000002" }
+              - column: { name: name, value: "NATO" }
+        - insert:
+            tableName: organization
+            columns:
+              - column: { name: id, value: "a2000000-0000-0000-0000-000000000003" }
+              - column: { name: name, value: "EU" }
+
+  - changeSet:
+      id: 002-03-seed-departments
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: department
+            columns:
+              - column: { name: id, value: "a3000000-0000-0000-0000-000000000001" }
+              - column: { name: name, value: "Security" }
+              - column: { name: description, value: "Physical security and access management" }
+        - insert:
+            tableName: department
+            columns:
+              - column: { name: id, value: "a3000000-0000-0000-0000-000000000002" }
+              - column: { name: name, value: "IT" }
+              - column: { name: description, value: "Information technology department" }
+        - insert:
+            tableName: department
+            columns:
+              - column: { name: id, value: "a3000000-0000-0000-0000-000000000003" }
+              - column: { name: name, value: "Reception" }
+              - column: { name: description, value: "Front desk and visitor management" }
+
+  - changeSet:
+      id: 002-04-seed-roles
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "a4000000-0000-0000-0000-000000000001" }
+              - column: { name: name, value: "Admin" }
+              - column: { name: description, value: "Full system administrator" }
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "a4000000-0000-0000-0000-000000000002" }
+              - column: { name: name, value: "Security Chief" }
+              - column: { name: description, value: "Oversees all security operations" }
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "a4000000-0000-0000-0000-000000000003" }
+              - column: { name: name, value: "Receptionist" }
+              - column: { name: description, value: "Handles visitor check-in and check-out, passes out keycards" }
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "a4000000-0000-0000-0000-000000000004" }
+              - column: { name: name, value: "Visitor" }
+              - column: { name: description, value: "Temporary visitor with limited access" }
+
+  - changeSet:
+      id: 002-05-seed-document-types
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000001" }
+              - column: { name: name, value: "Passport" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000002" }
+              - column: { name: name, value: "ID Card" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000003" }
+              - column: { name: name, value: "Driver License" }
+
+  - changeSet:
+      id: 002-06-seed-access-points
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: access_point
+            columns:
+              - column: { name: id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: name, value: "Main Entrance" }
+              - column: { name: address, value: "Building A, Ground Floor" }
+        - insert:
+            tableName: access_point
+            columns:
+              - column: { name: id, value: "a6000000-0000-0000-0000-000000000002" }
+              - column: { name: name, value: "Side Gate" }
+              - column: { name: address, value: "Building A, East Wing" }
+        - insert:
+            tableName: access_point
+            columns:
+              - column: { name: id, value: "a6000000-0000-0000-0000-000000000003" }
+              - column: { name: name, value: "Server Room" }
+              - column: { name: address, value: "Building B, Floor 2" }
+
+  - changeSet:
+      id: 002-07-seed-keycards
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000001" }
+              - column: { name: keycard_number, value: "KC-0001" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000002" }
+              - column: { name: keycard_number, value: "KC-0002" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000003" }
+              - column: { name: keycard_number, value: "KC-0003" }
+              - column: { name: is_active, valueBoolean: false }
+
+  - changeSet:
+      id: 002-08-seed-persons
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: id, value: "a8000000-0000-0000-0000-000000000001" }
+              - column: { name: given_name, value: "Alice" }
+              - column: { name: surname, value: "Admin" }
+              - column: { name: job_title, value: "System Administrator" }
+              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000001" }
+              - column: { name: department_id, value: "a3000000-0000-0000-0000-000000000002" }
+              - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000001" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: id, value: "a8000000-0000-0000-0000-000000000002" }
+              - column: { name: given_name, value: "Bob" }
+              - column: { name: surname, value: "Security" }
+              - column: { name: job_title, value: "Security Chief" }
+              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000002" }
+              - column: { name: department_id, value: "a3000000-0000-0000-0000-000000000001" }
+              - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000001" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: id, value: "a8000000-0000-0000-0000-000000000003" }
+              - column: { name: given_name, value: "Carol" }
+              - column: { name: surname, value: "Reception" }
+              - column: { name: job_title, value: "Receptionist" }
+              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: department_id, value: "a3000000-0000-0000-0000-000000000003" }
+              - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000003" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: id, value: "a8000000-0000-0000-0000-000000000004" }
+              - column: { name: given_name, value: "Dave" }
+              - column: { name: surname, value: "Visitor" }
+              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000001" }
+              - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
+              - column: { name: is_active, valueBoolean: true }
+
+  - changeSet:
+      id: 002-09-seed-documents
+      author: dev
+      context: dev
+      changes:
+        # Alice — Passport + ID Card
+        - insert:
+            tableName: document
+            columns:
+              - column: { name: id, value: "aa000000-0000-0000-0000-000000000001" }
+              - column: { name: document_number, value: "EA1234567" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000001" }
+        - insert:
+            tableName: document
+            columns:
+              - column: { name: id, value: "aa000000-0000-0000-0000-000000000002" }
+              - column: { name: document_number, value: "ID-AA-001" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000002" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000001" }
+        # Bob — Passport + Driver License
+        - insert:
+            tableName: document
+            columns:
+              - column: { name: id, value: "aa000000-0000-0000-0000-000000000003" }
+              - column: { name: document_number, value: "FB9876543" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000002" }
+        - insert:
+            tableName: document
+            columns:
+              - column: { name: id, value: "aa000000-0000-0000-0000-000000000004" }
+              - column: { name: document_number, value: "DL-BB-002" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000003" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000002" }
+        # Carol — ID Card only
+        - insert:
+            tableName: document
+            columns:
+              - column: { name: id, value: "aa000000-0000-0000-0000-000000000005" }
+              - column: { name: document_number, value: "ID-CC-003" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000002" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000003" }
+        # Dave — Passport + ID Card + Driver License
+        - insert:
+            tableName: document
+            columns:
+              - column: { name: id, value: "aa000000-0000-0000-0000-000000000006" }
+              - column: { name: document_number, value: "ED1112233" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
+        - insert:
+            tableName: document
+            columns:
+              - column: { name: id, value: "aa000000-0000-0000-0000-000000000007" }
+              - column: { name: document_number, value: "ID-DD-004" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000002" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
+        - insert:
+            tableName: document
+            columns:
+              - column: { name: id, value: "aa000000-0000-0000-0000-000000000008" }
+              - column: { name: document_number, value: "DL-DD-004" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000003" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
+
+  - changeSet:
+      id: 002-10-seed-app-users
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: app_user
+            columns:
+              - column: { name: id, value: "a9000000-0000-0000-0000-000000000001" }
+              - column: { name: email, value: "admin@dev.local" }
+              # bcrypt hash of "password"
+              - column: { name: password, value: "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKom4ZEpc/fVjCNqY9cqzPGGaFzm" }
+              - column: { name: role, value: "ADMIN" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000001" }
+        - insert:
+            tableName: app_user
+            columns:
+              - column: { name: id, value: "a9000000-0000-0000-0000-000000000002" }
+              - column: { name: email, value: "security@dev.local" }
+              - column: { name: password, value: "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKom4ZEpc/fVjCNqY9cqzPGGaFzm" }
+              - column: { name: role, value: "SECURITY_CHIEF" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000002" }
+        - insert:
+            tableName: app_user
+            columns:
+              - column: { name: id, value: "a9000000-0000-0000-0000-000000000003" }
+              - column: { name: email, value: "receptionist@dev.local" }
+              - column: { name: password, value: "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKom4ZEpc/fVjCNqY9cqzPGGaFzm" }
+              - column: { name: role, value: "RECEPTIONIST" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000003" }
+        - insert:
+            tableName: app_user
+            columns:
+              - column: { name: id, value: "a9000000-0000-0000-0000-000000000004" }
+              - column: { name: email, value: "visitor@dev.local" }
+              - column: { name: password, value: "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKom4ZEpc/fVjCNqY9cqzPGGaFzm" }
+              - column: { name: role, value: "VISITOR" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
+
+  - changeSet:
+      id: 002-11-seed-person-in-role-staff
+      author: dev
+      context: dev
+      changes:
+        # Alice → Admin
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000001" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000001" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000001" }
+              - column: { name: is_active, valueBoolean: true }
+        # Bob → Security Chief
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000002" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000002" }
+              - column: { name: is_active, valueBoolean: true }
+        # Carol → Receptionist
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000003" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000003" }
+              - column: { name: is_active, valueBoolean: true }
+
+  - changeSet:
+      id: 002-12-seed-queen-persons
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: id, value: "a8000000-0000-0000-0000-000000000005" }
+              - column: { name: given_name, value: "Brian" }
+              - column: { name: surname, value: "May" }
+              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: id, value: "a8000000-0000-0000-0000-000000000006" }
+              - column: { name: given_name, value: "Roger" }
+              - column: { name: surname, value: "Taylor" }
+              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: id, value: "a8000000-0000-0000-0000-000000000007" }
+              - column: { name: given_name, value: "Freddie" }
+              - column: { name: surname, value: "Mercury" }
+              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000001" }
+              - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: id, value: "a8000000-0000-0000-0000-000000000008" }
+              - column: { name: given_name, value: "John" }
+              - column: { name: surname, value: "Deacon" }
+              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000003" }
+              - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
+              - column: { name: is_active, valueBoolean: true }
+
+  - changeSet:
+      id: 002-13-seed-person-in-role-queen-visitors
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000004" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000005" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000004" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000005" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000006" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000004" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000006" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000007" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000004" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000007" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000008" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000004" }
+              - column: { name: is_active, valueBoolean: true }
+
+  - changeSet:
+      id: 002-14-seed-queen-group
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: groups
+            columns:
+              - column: { name: id, value: "ac000000-0000-0000-0000-000000000001" }
+              - column: { name: name, value: "Queen" }
+              - column: { name: description, value: "Legendary rock band visiting the premises" }
+
+  - changeSet:
+      id: 002-15-seed-queen-group-in-visit
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: group_in_visit
+            columns:
+              - column: { name: id, value: "ad000000-0000-0000-0000-000000000001" }
+              - column: { name: group_id, value: "ac000000-0000-0000-0000-000000000001" }
+              - column: { name: planned_arrival, valueDate: "2026-05-01 11:00:00" }
+              - column: { name: planned_exit, valueDate: "2026-05-01 13:37:00" }
+              - column: { name: comment, value: "Bohemians in the house" }
+
+  - changeSet:
+      id: 002-16-seed-person-in-group-queen
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: person_in_group
+            columns:
+              - column: { name: id, value: "ae000000-0000-0000-0000-000000000001" }
+              - column: { name: person_in_role_id, value: "ab000000-0000-0000-0000-000000000004" }
+              - column: { name: group_id, value: "ac000000-0000-0000-0000-000000000001" }
+        - insert:
+            tableName: person_in_group
+            columns:
+              - column: { name: id, value: "ae000000-0000-0000-0000-000000000002" }
+              - column: { name: person_in_role_id, value: "ab000000-0000-0000-0000-000000000005" }
+              - column: { name: group_id, value: "ac000000-0000-0000-0000-000000000001" }
+        - insert:
+            tableName: person_in_group
+            columns:
+              - column: { name: id, value: "ae000000-0000-0000-0000-000000000003" }
+              - column: { name: person_in_role_id, value: "ab000000-0000-0000-0000-000000000006" }
+              - column: { name: group_id, value: "ac000000-0000-0000-0000-000000000001" }
+        - insert:
+            tableName: person_in_group
+            columns:
+              - column: { name: id, value: "ae000000-0000-0000-0000-000000000004" }
+              - column: { name: person_in_role_id, value: "ab000000-0000-0000-0000-000000000007" }
+              - column: { name: group_id, value: "ac000000-0000-0000-0000-000000000001" }
+
+  - changeSet:
+      id: 002-17-seed-person-in-role-dave-visitor
+      author: dev
+      context: dev
+      changes:
+        # Dave needs a person_in_role entry to appear as a visit visitor
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000008" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000004" }
+              - column: { name: is_active, valueBoolean: true }
+
+  - changeSet:
+      id: 002-18-seed-extra-keycards
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000004" }
+              - column: { name: keycard_number, value: "KC-0004" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000005" }
+              - column: { name: keycard_number, value: "KC-0005" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000006" }
+              - column: { name: keycard_number, value: "KC-0006" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000007" }
+              - column: { name: keycard_number, value: "KC-0007" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000008" }
+              - column: { name: keycard_number, value: "KC-0008" }
+              - column: { name: is_active, valueBoolean: true }
+        - insert:
+            tableName: keycard
+            columns:
+              - column: { name: id, value: "a7000000-0000-0000-0000-000000000009" }
+              - column: { name: keycard_number, value: "KC-0009" }
+              - column: { name: is_active, valueBoolean: true }
+
+  - changeSet:
+      id: 002-19-seed-visits
+      author: dev
+      context: dev
+      changes:
+        # Dave's solo visit — morning slot
+        - insert:
+            tableName: visit
+            columns:
+              - column: { name: id, value: "af000000-0000-0000-0000-000000000001" }
+              - column: { name: arrival_time, valueDate: "2026-05-01 09:00:00" }
+              - column: { name: exit_time, valueDate: "2026-05-01 10:45:00" }
+              - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: visitor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000008" }
+              - column: { name: assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+        # Queen group visit — one record per band member, staggered by 17s, all linked to the same group_in_visit
+        # Brian May
+        - insert:
+            tableName: visit
+            columns:
+              - column: { name: id, value: "af000000-0000-0000-0000-000000000002" }
+              - column: { name: arrival_time, valueDate: "2026-05-01 12:15:00" }
+              - column: { name: exit_time, valueDate: "2026-05-01 19:27:00" }
+              - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: visitor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000004" }
+              - column: { name: assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: host_person_in_role_id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: escort_person_in_role_id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: group_in_visit_id, value: "ad000000-0000-0000-0000-000000000001" }
+        # Roger Taylor (+17s)
+        - insert:
+            tableName: visit
+            columns:
+              - column: { name: id, value: "af000000-0000-0000-0000-000000000003" }
+              - column: { name: arrival_time, valueDate: "2026-05-01 12:15:17" }
+              - column: { name: exit_time, valueDate: "2026-05-01 19:27:17" }
+              - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: visitor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000005" }
+              - column: { name: assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: host_person_in_role_id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: escort_person_in_role_id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: group_in_visit_id, value: "ad000000-0000-0000-0000-000000000001" }
+        # Freddie Mercury (+34s)
+        - insert:
+            tableName: visit
+            columns:
+              - column: { name: id, value: "af000000-0000-0000-0000-000000000004" }
+              - column: { name: arrival_time, valueDate: "2026-05-01 12:15:34" }
+              - column: { name: exit_time, valueDate: "2026-05-01 19:27:34" }
+              - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: visitor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000006" }
+              - column: { name: assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: host_person_in_role_id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: escort_person_in_role_id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: group_in_visit_id, value: "ad000000-0000-0000-0000-000000000001" }
+        # John Deacon (+51s)
+        - insert:
+            tableName: visit
+            columns:
+              - column: { name: id, value: "af000000-0000-0000-0000-000000000005" }
+              - column: { name: arrival_time, valueDate: "2026-05-01 12:15:51" }
+              - column: { name: exit_time, valueDate: "2026-05-01 19:27:51" }
+              - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: visitor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000007" }
+              - column: { name: assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: host_person_in_role_id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: escort_person_in_role_id, value: "ab000000-0000-0000-0000-000000000002" }
+              - column: { name: group_in_visit_id, value: "ad000000-0000-0000-0000-000000000001" }
+
+  - changeSet:
+      id: 002-20-seed-keycard-in-possession
+      author: dev
+      context: dev
+      changes:
+        # Dave — arrived Main Entrance, returned via Side Gate
+        - insert:
+            tableName: keycard_in_possession
+            columns:
+              - column: { name: id, value: "b0000000-0000-0000-0000-000000000001" }
+              - column: { name: keycard_id, value: "a7000000-0000-0000-0000-000000000004" }
+              - column: { name: keycard_holder_person_in_role_id, value: "ab000000-0000-0000-0000-000000000008" }
+              - column: { name: keycard_assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: assigning_access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: return_access_point_id, value: "a6000000-0000-0000-0000-000000000002" }
+              - column: { name: assigned_time, valueDate: "2026-05-01 09:00:00" }
+              - column: { name: return_time, valueDate: "2026-05-01 10:45:00" }
+        # Brian May — arrived Main Entrance, returned via Side Gate
+        - insert:
+            tableName: keycard_in_possession
+            columns:
+              - column: { name: id, value: "b0000000-0000-0000-0000-000000000002" }
+              - column: { name: keycard_id, value: "a7000000-0000-0000-0000-000000000005" }
+              - column: { name: keycard_holder_person_in_role_id, value: "ab000000-0000-0000-0000-000000000004" }
+              - column: { name: keycard_assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: assigning_access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: return_access_point_id, value: "a6000000-0000-0000-0000-000000000002" }
+              - column: { name: assigned_time, valueDate: "2026-05-01 12:15:00" }
+              - column: { name: return_time, valueDate: "2026-05-01 19:27:00" }
+        # Roger Taylor
+        - insert:
+            tableName: keycard_in_possession
+            columns:
+              - column: { name: id, value: "b0000000-0000-0000-0000-000000000003" }
+              - column: { name: keycard_id, value: "a7000000-0000-0000-0000-000000000006" }
+              - column: { name: keycard_holder_person_in_role_id, value: "ab000000-0000-0000-0000-000000000005" }
+              - column: { name: keycard_assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: assigning_access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: return_access_point_id, value: "a6000000-0000-0000-0000-000000000002" }
+              - column: { name: assigned_time, valueDate: "2026-05-01 12:15:17" }
+              - column: { name: return_time, valueDate: "2026-05-01 19:27:17" }
+        # Freddie Mercury
+        - insert:
+            tableName: keycard_in_possession
+            columns:
+              - column: { name: id, value: "b0000000-0000-0000-0000-000000000004" }
+              - column: { name: keycard_id, value: "a7000000-0000-0000-0000-000000000007" }
+              - column: { name: keycard_holder_person_in_role_id, value: "ab000000-0000-0000-0000-000000000006" }
+              - column: { name: keycard_assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: assigning_access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: return_access_point_id, value: "a6000000-0000-0000-0000-000000000002" }
+              - column: { name: assigned_time, valueDate: "2026-05-01 12:15:34" }
+              - column: { name: return_time, valueDate: "2026-05-01 19:27:34" }
+        # John Deacon
+        - insert:
+            tableName: keycard_in_possession
+            columns:
+              - column: { name: id, value: "b0000000-0000-0000-0000-000000000005" }
+              - column: { name: keycard_id, value: "a7000000-0000-0000-0000-000000000009" }
+              - column: { name: keycard_holder_person_in_role_id, value: "ab000000-0000-0000-0000-000000000007" }
+              - column: { name: keycard_assignor_person_in_role_id, value: "ab000000-0000-0000-0000-000000000003" }
+              - column: { name: assigning_access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
+              - column: { name: return_access_point_id, value: "a6000000-0000-0000-0000-000000000002" }
+              - column: { name: assigned_time, valueDate: "2026-05-01 12:15:51" }
+              - column: { name: return_time, valueDate: "2026-05-01 19:27:51" }
