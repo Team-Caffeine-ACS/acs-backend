@@ -41,8 +41,13 @@ public class PersonService {
             .build();
     personRepository.save(person);
 
-    if (request.documentNumber() != null && !request.documentNumber().isBlank()
-        && request.documentTypeId() != null) {
+    boolean hasDocumentNumber = request.documentNumber() != null && !request.documentNumber().isBlank();
+    boolean hasDocumentTypeId = request.documentTypeId() != null;
+    if (hasDocumentNumber != hasDocumentTypeId) {
+      throw new IllegalArgumentException(
+          "documentNumber and documentTypeId must both be provided together");
+    }
+    if (hasDocumentNumber) {
       DocumentType documentType =
           documentTypeRepository
               .findById(request.documentTypeId())
