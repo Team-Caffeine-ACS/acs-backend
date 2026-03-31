@@ -8,6 +8,7 @@ import com.caffeine.acs_backend.enums.UserRole;
 import com.caffeine.acs_backend.repository.UserRepository;
 import com.caffeine.acs_backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,7 +38,11 @@ public class AuthService {
             .build();
 
     userRepository.save(user);
-    return new AuthResponse(jwtService.generateToken(user));
+
+    String accessToken = jwtService.generateAccessToken(user);
+    String refreshToken = jwtService.generateRefreshToken(user);
+
+    return new AuthResponse(accessToken, refreshToken);
   }
 
   public AuthResponse login(LoginRequest request) {
@@ -45,6 +50,32 @@ public class AuthService {
         new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
     User user = userRepository.findByEmail(request.email()).orElseThrow();
-    return new AuthResponse(jwtService.generateToken(user));
+
+    String accessToken = jwtService.generateAccessToken(user);
+    String refreshToken = jwtService.generateRefreshToken(user);
+
+    return new AuthResponse(accessToken, refreshToken);
+  }
+
+  public AuthResponse refresh(String refreshToken) {
+    Claims claims = jwtService.extractClaims(refreshToken);
+
+    String type = claims.get("type", String.class);
+    if (!"refresh".equals(type)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token type");
+    }
+
+    String email = claims.getSubject();
+
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+    if (!jwtService.isTokenValid(refreshToken, user)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+    }
+
+    String newAccessToken = jwtService.generateAccessToken(user);
+
+    return new AuthResponse(newAccessToken, refreshToken);
   }
 }
