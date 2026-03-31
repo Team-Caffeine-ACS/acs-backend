@@ -2,6 +2,7 @@ package com.caffeine.acs_backend.repository;
 
 import com.caffeine.acs_backend.entity.Person;
 import com.caffeine.acs_backend.entity.PersonInRole;
+import com.caffeine.acs_backend.entity.Role;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,4 +21,6 @@ public interface PersonInRoleRepository extends JpaRepository<PersonInRole, UUID
       @Param("query") String query, @Param("role") String role);
 
   Optional<PersonInRole> findFirstByPersonAndIsActiveTrue(Person person);
+
+  Optional<PersonInRole> findByPersonAndRoleAndIsActiveTrue(Person person, Role role);
 }
