@@ -7,8 +7,8 @@ import com.caffeine.acs_backend.entity.User;
 import com.caffeine.acs_backend.enums.UserRole;
 import com.caffeine.acs_backend.repository.UserRepository;
 import com.caffeine.acs_backend.security.JwtService;
-import lombok.RequiredArgsConstructor;
 import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -67,8 +67,10 @@ public class AuthService {
 
     String email = claims.getSubject();
 
-    User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+    User user =
+        userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
     if (!jwtService.isTokenValid(refreshToken, user)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");

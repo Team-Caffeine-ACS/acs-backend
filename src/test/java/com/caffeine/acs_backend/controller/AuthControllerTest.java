@@ -132,7 +132,7 @@ class AuthControllerTest {
         .andExpect(status().isUnauthorized());
   }
 
-// ── Refresh ─────────────────────────────────────────────────────────────────
+  // ── Refresh ─────────────────────────────────────────────────────────────────
 
   @Test
   void refresh_validRefreshToken_returns200WithNewAccessToken() throws Exception {
@@ -263,9 +263,6 @@ class AuthControllerTest {
             .getContentAsString();
 
     var tree = objectMapper.readTree(responseBody);
-    return new String[]{
-        tree.get("accessToken").asText(),
-        tree.get("refreshToken").asText()
-    };
+    return new String[] {tree.get("accessToken").asText(), tree.get("refreshToken").asText()};
   }
 }

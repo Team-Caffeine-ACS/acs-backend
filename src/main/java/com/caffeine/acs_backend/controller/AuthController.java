@@ -2,8 +2,8 @@ package com.caffeine.acs_backend.controller;
 
 import com.caffeine.acs_backend.dto.auth.AuthResponse;
 import com.caffeine.acs_backend.dto.auth.LoginRequest;
-import com.caffeine.acs_backend.dto.auth.RegisterRequest;
 import com.caffeine.acs_backend.dto.auth.RefreshRequest;
+import com.caffeine.acs_backend.dto.auth.RegisterRequest;
 import com.caffeine.acs_backend.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,7 +37,8 @@ public class AuthController {
 
   @Operation(
       summary = "Authenticate user",
-      description = "Authenticates a user with email and password and returns access and refresh JWT tokens.")
+      description =
+          "Authenticates a user with email and password and returns access and refresh JWT tokens.")
   @ApiResponse(responseCode = "200", description = "User authenticated successfully")
   @ApiResponse(responseCode = "401", description = "Invalid credentials")
   @PostMapping("/login")
