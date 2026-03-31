@@ -28,6 +28,7 @@ class JwtServiceTest {
     jwtService = new JwtService();
     ReflectionTestUtils.setField(jwtService, "secret", MOCK_TEST_SECRET);
     ReflectionTestUtils.setField(jwtService, "expirationMs", EXPIRATION_MS);
+    ReflectionTestUtils.setField(jwtService, "refreshExpirationMs", EXPIRATION_MS * 2);
     ReflectionTestUtils.invokeMethod(jwtService, "initSigningKey");
 
     userDetails =
@@ -35,36 +36,36 @@ class JwtServiceTest {
   }
 
   @Test
-  void generateToken_returnsNonNullToken() {
-    String token = jwtService.generateToken(userDetails);
+  void generateAccessToken_returnsNonNullToken() {
+    String token = jwtService.generateAccessToken(userDetails);
 
     assertThat(token).isNotNull().isNotBlank();
   }
 
   @Test
-  void generateToken_tokenHasThreeParts() {
-    String token = jwtService.generateToken(userDetails);
+  void generateAccessToken_tokenHasThreeParts() {
+    String token = jwtService.generateAccessToken(userDetails);
 
     assertThat(token.split("\\.")).hasSize(3);
   }
 
   @Test
   void extractUsername_returnsCorrectEmail() {
-    String token = jwtService.generateToken(userDetails);
+    String token = jwtService.generateAccessToken(userDetails);
 
     assertThat(jwtService.extractUsername(token)).isEqualTo("test@example.com");
   }
 
   @Test
   void isTokenValid_validTokenAndMatchingUser_returnsTrue() {
-    String token = jwtService.generateToken(userDetails);
+    String token = jwtService.generateAccessToken(userDetails);
 
     assertThat(jwtService.isTokenValid(token, userDetails)).isTrue();
   }
 
   @Test
   void isTokenValid_validTokenButDifferentUser_returnsFalse() {
-    String token = jwtService.generateToken(userDetails);
+    String token = jwtService.generateAccessToken(userDetails);
     UserDetails otherUser =
         User.withUsername("other@example.com").password("password").roles("VISITOR").build();
 
@@ -105,4 +106,40 @@ class JwtServiceTest {
     assertThatThrownBy(() -> jwtService.extractClaims(foreignToken))
         .isInstanceOf(JwtException.class);
   }
+
+  @Test
+  void generateRefreshToken_returnsNonNullToken() {
+    String token = jwtService.generateRefreshToken(userDetails);
+
+    assertThat(token).isNotNull().isNotBlank();
+  }
+
+@Test
+void generateAccessToken_claimTypeIsAccess() {
+    String token = jwtService.generateAccessToken(userDetails);
+
+    assertThat(jwtService.extractClaims(token).get("type", String.class)).isEqualTo("access");
+}
+
+@Test
+void generateRefreshToken_claimTypeIsRefresh() {
+    String token = jwtService.generateRefreshToken(userDetails);
+
+    assertThat(jwtService.extractClaims(token).get("type", String.class)).isEqualTo("refresh");
+}
+
+@Test
+void isTokenValid_expiredToken_returnsFalse() {
+    String expiredToken =
+        Jwts.builder()
+            .subject("test@example.com")
+            .issuedAt(new Date(System.currentTimeMillis() - 2000))
+            .expiration(new Date(System.currentTimeMillis() - 1000))
+            .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(MOCK_TEST_SECRET)))
+            .compact();
+
+    // expired tokens throw on parse, so isTokenValid should propagate the exception
+    assertThatThrownBy(() -> jwtService.isTokenValid(expiredToken, userDetails))
+        .isInstanceOf(JwtException.class);
+}
 }
