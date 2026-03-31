@@ -136,58 +136,58 @@ class AuthControllerTest {
 
   @Test
   void refresh_validRefreshToken_returns200WithNewAccessToken() throws Exception {
-      String email = uniqueEmail();
-      String[] tokens = registerUser(email, "password123");
+    String email = uniqueEmail();
+    String[] tokens = registerUser(email, "password123");
 
-      var request = new RefreshRequest(tokens[1]);
+    var request = new RefreshRequest(tokens[1]);
 
-      mockMvc
-          .perform(
-              post("/api/auth/refresh")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$.accessToken").isNotEmpty())
-          .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+    mockMvc
+        .perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").isNotEmpty())
+        .andExpect(jsonPath("$.refreshToken").isNotEmpty());
   }
 
   @Test
   void refresh_accessTokenInsteadOfRefresh_returns401() throws Exception {
-      String email = uniqueEmail();
-      String[] tokens = registerUser(email, "password123");
+    String email = uniqueEmail();
+    String[] tokens = registerUser(email, "password123");
 
-      var request = new RefreshRequest(tokens[0]); // передаём access вместо refresh
+    var request = new RefreshRequest(tokens[0]); // передаём access вместо refresh
 
-      mockMvc
-          .perform(
-              post("/api/auth/refresh")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isUnauthorized());
+    mockMvc
+        .perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
   void refresh_invalidToken_returns401() throws Exception {
-      var request = new RefreshRequest("invalid.token.here");
+    var request = new RefreshRequest("invalid.token.here");
 
-      mockMvc
-          .perform(
-              post("/api/auth/refresh")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isUnauthorized());
+    mockMvc
+        .perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
   void refresh_blankToken_returns400() throws Exception {
-      var request = new RefreshRequest("");
+    var request = new RefreshRequest("");
 
-      mockMvc
-          .perform(
-              post("/api/auth/refresh")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isBadRequest());
+    mockMvc
+        .perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest());
   }
 
   // ── Protected endpoints ─────────────────────────────────────────────────────
@@ -250,22 +250,22 @@ class AuthControllerTest {
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
   private String[] registerUser(String email, String password) throws Exception {
-      var request = new RegisterRequest(email, password);
-      String responseBody =
-          mockMvc
-              .perform(
-                  post("/api/auth/register")
-                      .contentType(MediaType.APPLICATION_JSON)
-                      .content(objectMapper.writeValueAsString(request)))
-              .andExpect(status().isOk())
-              .andReturn()
-              .getResponse()
-              .getContentAsString();
+    var request = new RegisterRequest(email, password);
+    String responseBody =
+        mockMvc
+            .perform(
+                post("/api/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
-      var tree = objectMapper.readTree(responseBody);
-      return new String[]{
-          tree.get("accessToken").asText(),
-          tree.get("refreshToken").asText()
-      };
+    var tree = objectMapper.readTree(responseBody);
+    return new String[]{
+        tree.get("accessToken").asText(),
+        tree.get("refreshToken").asText()
+    };
   }
 }
