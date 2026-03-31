@@ -114,32 +114,32 @@ class JwtServiceTest {
     assertThat(token).isNotNull().isNotBlank();
   }
 
-@Test
-void generateAccessToken_claimTypeIsAccess() {
-    String token = jwtService.generateAccessToken(userDetails);
+  @Test
+  void generateAccessToken_claimTypeIsAccess() {
+      String token = jwtService.generateAccessToken(userDetails);
 
-    assertThat(jwtService.extractClaims(token).get("type", String.class)).isEqualTo("access");
-}
+      assertThat(jwtService.extractClaims(token).get("type", String.class)).isEqualTo("access");
+  }
 
-@Test
-void generateRefreshToken_claimTypeIsRefresh() {
-    String token = jwtService.generateRefreshToken(userDetails);
+  @Test
+  void generateRefreshToken_claimTypeIsRefresh() {
+      String token = jwtService.generateRefreshToken(userDetails);
 
-    assertThat(jwtService.extractClaims(token).get("type", String.class)).isEqualTo("refresh");
-}
+      assertThat(jwtService.extractClaims(token).get("type", String.class)).isEqualTo("refresh");
+  }
 
-@Test
-void isTokenValid_expiredToken_returnsFalse() {
-    String expiredToken =
-        Jwts.builder()
-            .subject("test@example.com")
-            .issuedAt(new Date(System.currentTimeMillis() - 2000))
-            .expiration(new Date(System.currentTimeMillis() - 1000))
-            .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(MOCK_TEST_SECRET)))
-            .compact();
+  @Test
+  void isTokenValid_expiredToken_returnsFalse() {
+      String expiredToken =
+          Jwts.builder()
+              .subject("test@example.com")
+              .issuedAt(new Date(System.currentTimeMillis() - 2000))
+              .expiration(new Date(System.currentTimeMillis() - 1000))
+              .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(MOCK_TEST_SECRET)))
+              .compact();
 
-    // expired tokens throw on parse, so isTokenValid should propagate the exception
-    assertThatThrownBy(() -> jwtService.isTokenValid(expiredToken, userDetails))
-        .isInstanceOf(JwtException.class);
-}
+      // expired tokens throw on parse, so isTokenValid should propagate the exception
+      assertThatThrownBy(() -> jwtService.isTokenValid(expiredToken, userDetails))
+          .isInstanceOf(JwtException.class);
+  }
 }
