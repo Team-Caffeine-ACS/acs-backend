@@ -10,6 +10,7 @@ public interface KeycardRepository extends JpaRepository<Keycard, UUID> {
 
   @Query(
       "SELECT k FROM Keycard k WHERE k.isActive = true"
+          + " AND (k.validUntil IS NULL OR k.validUntil > CURRENT_TIMESTAMP)"
           + " AND NOT EXISTS ("
           + "   SELECT 1 FROM KeycardInPossession kp"
           + "   WHERE kp.keycard = k AND kp.returnTime IS NULL"
