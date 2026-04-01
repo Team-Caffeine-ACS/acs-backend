@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class AdminController {
 
-    @GetMapping("/admin")
-    public String adminEndpoint() {
-        return "ADMIN_OK";
-    }
+  @GetMapping("/admin")
+  public String adminEndpoint() {
+    return "ADMIN_OK";
+  }
 }
-

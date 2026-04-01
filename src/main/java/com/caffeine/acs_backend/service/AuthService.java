@@ -15,7 +15,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,13 +27,9 @@ public class AuthService {
 
   public AuthResponse register(RegisterRequest request) {
     if (userRepository.existsByEmail(request.email())) {
-      //throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
+      // throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
       throw new BusinessException(
-        "Email already in use",
-        ErrorCode.RESOURCE_ALREADY_EXISTS,
-        HttpStatus.CONFLICT
-  );
-
+          "Email already in use", ErrorCode.RESOURCE_ALREADY_EXISTS, HttpStatus.CONFLICT);
     }
 
     User user =

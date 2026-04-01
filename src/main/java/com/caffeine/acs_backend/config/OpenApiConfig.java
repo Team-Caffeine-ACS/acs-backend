@@ -14,28 +14,26 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-    info = @Info(
-        title = "ACS Backend API",
-        version = "1.0.0",
-        description = "Visitor Management System backend API documentation",
-        contact = @Contact(name = "Team Caffeine", email = "team@caffeine.com"),
-        license = @License(name = "MIT License")
-    )
-)
+    info =
+        @Info(
+            title = "ACS Backend API",
+            version = "1.0.0",
+            description = "Visitor Management System backend API documentation",
+            contact = @Contact(name = "Team Caffeine", email = "team@caffeine.com"),
+            license = @License(name = "MIT License")))
 @SecurityScheme(
     name = "bearerAuth",
     type = SecuritySchemeType.HTTP,
     scheme = "bearer",
-    bearerFormat = "JWT"
-)
+    bearerFormat = "JWT")
 public class OpenApiConfig {
 
-    private static final String SECURITY_SCHEME_NAME = "bearerAuth";
+  private static final String SECURITY_SCHEME_NAME = "bearerAuth";
 
-    @Bean
-    public OpenAPI api() {
-        return new OpenAPI()
-                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
-                .components(new Components());
-    }
+  @Bean
+  public OpenAPI api() {
+    return new OpenAPI()
+        .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
+        .components(new Components());
+  }
 }

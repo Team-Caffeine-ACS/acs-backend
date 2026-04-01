@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ProtectedController {
 
-    @GetMapping("/protected")
-    public String protectedEndpoint() {
-        return "OK";
-    }
+  @GetMapping("/protected")
+  public String protectedEndpoint() {
+    return "OK";
+  }
 }
-

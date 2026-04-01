@@ -9,15 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/test")
 public class TestSecurityController {
 
-    @GetMapping("/protected")
-    public String protectedEndpoint() {
-        return "OK";
-    }
-    
+  @GetMapping("/protected")
+  public String protectedEndpoint() {
+    return "OK";
+  }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin")
-    public String adminEndpoint() {
-        return "ADMIN OK";
-    }
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/admin")
+  public String adminEndpoint() {
+    return "ADMIN OK";
+  }
 }
