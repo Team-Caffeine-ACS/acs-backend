@@ -13,7 +13,10 @@ import org.springframework.data.repository.query.Param;
 public interface PersonInRoleRepository extends JpaRepository<PersonInRole, UUID> {
 
   @Query(
-      "SELECT pir FROM PersonInRole pir WHERE pir.isActive = true"
+      "SELECT pir FROM PersonInRole pir"
+          + " JOIN FETCH pir.person"
+          + " JOIN FETCH pir.role"
+          + " WHERE pir.isActive = true"
           + " AND (LOWER(pir.person.givenName) LIKE LOWER(CONCAT('%', :query, '%'))"
           + " OR LOWER(pir.person.surname) LIKE LOWER(CONCAT('%', :query, '%')))"
           + " AND (:role IS NULL OR LOWER(pir.role.name) = LOWER(:role))")
