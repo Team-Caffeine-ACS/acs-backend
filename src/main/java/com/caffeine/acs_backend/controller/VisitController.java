@@ -37,8 +37,8 @@ public class VisitController {
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @PostMapping
   public ResponseEntity<CreateVisitResponse> createVisit(
-      @Valid @RequestBody CreateVisitRequest request,
-      @AuthenticationPrincipal User currentUser) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(visitService.createVisit(request, currentUser));
+      @Valid @RequestBody CreateVisitRequest request, @AuthenticationPrincipal User currentUser) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(visitService.createVisit(request, currentUser));
   }
 }

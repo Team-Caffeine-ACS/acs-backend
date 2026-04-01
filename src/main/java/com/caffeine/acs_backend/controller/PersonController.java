@@ -37,7 +37,8 @@ public class PersonController {
   @ApiResponse(responseCode = "400", description = "Validation error")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @PostMapping
-  public ResponseEntity<PersonResponse> createPerson(@Valid @RequestBody CreatePersonRequest request) {
+  public ResponseEntity<PersonResponse> createPerson(
+      @Valid @RequestBody CreatePersonRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED).body(personService.createPerson(request));
   }
 
@@ -50,10 +51,11 @@ public class PersonController {
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @GetMapping("/search")
   public ResponseEntity<List<PersonInRoleResponse>> search(
-      @Parameter(description = "Name fragment to search for", example = "Jane")
-          @RequestParam String q,
+      @Parameter(description = "Name fragment to search for", example = "Jane") @RequestParam
+          String q,
       @Parameter(description = "Role name to filter by (optional)", example = "Employee")
-          @RequestParam(required = false) String role) {
+          @RequestParam(required = false)
+          String role) {
     return ResponseEntity.ok(personService.search(q, role));
   }
 }

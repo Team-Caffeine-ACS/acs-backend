@@ -13,8 +13,6 @@ public class KeycardService {
   private final KeycardRepository keycardRepository;
 
   public List<KeycardResponse> getAvailableKeycards() {
-    return keycardRepository.findAvailableKeycards().stream()
-        .map(KeycardResponse::from)
-        .toList();
+    return keycardRepository.findAvailableKeycards().stream().map(KeycardResponse::from).toList();
   }
 }

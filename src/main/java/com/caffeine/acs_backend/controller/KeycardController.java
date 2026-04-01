@@ -24,8 +24,7 @@ public class KeycardController {
 
   @Operation(
       summary = "List available keycards",
-      description =
-          "Returns all active keycards that are not currently assigned to anyone.")
+      description = "Returns all active keycards that are not currently assigned to anyone.")
   @ApiResponse(responseCode = "200", description = "Available keycard list returned")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @GetMapping("/available")

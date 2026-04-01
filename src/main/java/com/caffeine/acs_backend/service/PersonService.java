@@ -31,7 +31,9 @@ public class PersonService {
         nationalityRepository
             .findById(request.nationalityId())
             .orElseThrow(
-                () -> new IllegalArgumentException("Nationality not found: " + request.nationalityId()));
+                () ->
+                    new IllegalArgumentException(
+                        "Nationality not found: " + request.nationalityId()));
 
     Person person =
         Person.builder()
@@ -41,7 +43,8 @@ public class PersonService {
             .build();
     personRepository.save(person);
 
-    boolean hasDocumentNumber = request.documentNumber() != null && !request.documentNumber().isBlank();
+    boolean hasDocumentNumber =
+        request.documentNumber() != null && !request.documentNumber().isBlank();
     boolean hasDocumentTypeId = request.documentTypeId() != null;
     if (hasDocumentNumber != hasDocumentTypeId) {
       throw new IllegalArgumentException(
@@ -52,13 +55,17 @@ public class PersonService {
           documentTypeRepository
               .findById(request.documentTypeId())
               .orElseThrow(
-                  () -> new IllegalArgumentException("Document type not found: " + request.documentTypeId()));
-      person.getDocuments().add(
-          Document.builder()
-              .documentNumber(request.documentNumber())
-              .documentType(documentType)
-              .person(person)
-              .build());
+                  () ->
+                      new IllegalArgumentException(
+                          "Document type not found: " + request.documentTypeId()));
+      person
+          .getDocuments()
+          .add(
+              Document.builder()
+                  .documentNumber(request.documentNumber())
+                  .documentType(documentType)
+                  .person(person)
+                  .build());
       personRepository.save(person);
     }
 

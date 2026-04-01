@@ -36,7 +36,9 @@ public class VisitService {
         accessPointRepository
             .findById(request.accessPointId())
             .orElseThrow(
-                () -> new IllegalArgumentException("Access point not found: " + request.accessPointId()));
+                () ->
+                    new IllegalArgumentException(
+                        "Access point not found: " + request.accessPointId()));
 
     Keycard keycard =
         keycardRepository
@@ -60,7 +62,9 @@ public class VisitService {
           personInRoleRepository
               .findById(request.hostPersonInRoleId())
               .orElseThrow(
-                  () -> new IllegalArgumentException("Host not found: " + request.hostPersonInRoleId()));
+                  () ->
+                      new IllegalArgumentException(
+                          "Host not found: " + request.hostPersonInRoleId()));
     }
 
     Role visitorRole =
