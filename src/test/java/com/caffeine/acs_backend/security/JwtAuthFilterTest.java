@@ -19,10 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.test.context.ActiveProfiles;
 
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles("test")
 class JwtAuthFilterTest {
 
   @Mock private JwtService jwtService;
