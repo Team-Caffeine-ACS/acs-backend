@@ -39,7 +39,8 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
-                        "/webjars/**")
+                        "/webjars/**",
+                        "/health")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -54,9 +55,9 @@ public class SecurityConfig {
 
   @Bean
   public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    // DaoAuthenticationProvider() deprecated
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider(passwordEncoder());
     provider.setUserDetailsService(userDetailsService);
-    provider.setPasswordEncoder(passwordEncoder());
     return provider;
   }
 
