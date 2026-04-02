@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.caffeine.acs_backend.dto.auth.LoginRequest;
+import com.caffeine.acs_backend.dto.auth.RefreshRequest;
 import com.caffeine.acs_backend.dto.auth.RegisterRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
@@ -40,7 +41,8 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token").isNotEmpty());
+        .andExpect(jsonPath("$.accessToken").isNotEmpty())
+        .andExpect(jsonPath("$.refreshToken").isNotEmpty());
   }
 
   @Test
@@ -99,7 +101,8 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token").isNotEmpty());
+        .andExpect(jsonPath("$.accessToken").isNotEmpty())
+        .andExpect(jsonPath("$.refreshToken").isNotEmpty());
   }
 
   @Test
@@ -129,6 +132,64 @@ class AuthControllerTest {
         .andExpect(status().isUnauthorized());
   }
 
+  // ── Refresh ─────────────────────────────────────────────────────────────────
+
+  @Test
+  void refresh_validRefreshToken_returns200WithNewAccessToken() throws Exception {
+    String email = uniqueEmail();
+    String[] tokens = registerUser(email, "password123");
+
+    var request = new RefreshRequest(tokens[1]);
+
+    mockMvc
+        .perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").isNotEmpty())
+        .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+  }
+
+  @Test
+  void refresh_accessTokenInsteadOfRefresh_returns401() throws Exception {
+    String email = uniqueEmail();
+    String[] tokens = registerUser(email, "password123");
+
+    var request = new RefreshRequest(tokens[0]); // передаём access вместо refresh
+
+    mockMvc
+        .perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void refresh_invalidToken_returns401() throws Exception {
+    var request = new RefreshRequest("invalid.token.here");
+
+    mockMvc
+        .perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void refresh_blankToken_returns400() throws Exception {
+    var request = new RefreshRequest("");
+
+    mockMvc
+        .perform(
+            post("/api/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest());
+  }
+
   // ── Protected endpoints ─────────────────────────────────────────────────────
 
   @Test
@@ -139,10 +200,12 @@ class AuthControllerTest {
   @Test
   void protectedEndpoint_withValidToken_returns200() throws Exception {
     String email = uniqueEmail();
-    String token = registerUser(email, "password123");
+    String[] tokens = registerUser(email, "password123");
+    String accessToken = tokens[0];
+    String refreshToken = tokens[1];
 
     mockMvc
-        .perform(get("/api/users/me").header("Authorization", "Bearer " + token))
+        .perform(get("/api/users/me").header("Authorization", "Bearer " + accessToken))
         .andExpect(status().isOk());
   }
 
@@ -156,11 +219,13 @@ class AuthControllerTest {
   @Test
   void register_assignsVisitorRole() throws Exception {
     String email = uniqueEmail();
-    String token = registerUser(email, "password123");
+    String[] tokens = registerUser(email, "password123");
+    String accessToken = tokens[0];
+    String refreshToken = tokens[1];
 
     String responseBody =
         mockMvc
-            .perform(get("/api/users/me").header("Authorization", "Bearer " + token))
+            .perform(get("/api/users/me").header("Authorization", "Bearer " + accessToken))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
@@ -184,7 +249,7 @@ class AuthControllerTest {
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
-  private String registerUser(String email, String password) throws Exception {
+  private String[] registerUser(String email, String password) throws Exception {
     var request = new RegisterRequest(email, password);
     String responseBody =
         mockMvc
@@ -197,6 +262,7 @@ class AuthControllerTest {
             .getResponse()
             .getContentAsString();
 
-    return objectMapper.readTree(responseBody).get("token").asText();
+    var tree = objectMapper.readTree(responseBody);
+    return new String[] {tree.get("accessToken").asText(), tree.get("refreshToken").asText()};
   }
 }
