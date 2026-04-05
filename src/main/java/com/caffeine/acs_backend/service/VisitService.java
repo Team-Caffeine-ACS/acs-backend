@@ -40,18 +40,22 @@ public class VisitService {
                     new IllegalArgumentException(
                         "Access point not found: " + request.accessPointId()));
 
-    Keycard keycard =
-        keycardRepository
-            .findById(request.keycardId())
-            .orElseThrow(
-                () -> new IllegalArgumentException("Keycard not found: " + request.keycardId()));
+    Keycard keycard = null;
+    if (request.keycardId() != null) {
+      keycard =
+          keycardRepository
+              .findById(request.keycardId())
+              .orElseThrow(
+                  () ->
+                      new IllegalArgumentException("Keycard not found: " + request.keycardId()));
 
-    if (!keycard.isActive()) {
-      throw new IllegalArgumentException("Keycard is not active: " + request.keycardId());
-    }
-    if (keycardInPossessionRepository.existsByKeycardAndReturnTimeIsNull(keycard)) {
-      throw new IllegalArgumentException(
-          "Keycard is already assigned to someone: " + keycard.getKeycardNumber());
+      if (!keycard.isActive()) {
+        throw new IllegalArgumentException("Keycard is not active: " + request.keycardId());
+      }
+      if (keycardInPossessionRepository.existsByKeycardAndReturnTimeIsNull(keycard)) {
+        throw new IllegalArgumentException(
+            "Keycard is already assigned to someone: " + keycard.getKeycardNumber());
+      }
     }
 
     PersonInRole assignor = resolveAssignor(assignorUser);
@@ -96,22 +100,25 @@ public class VisitService {
             .build();
     visitRepository.save(visit);
 
-    KeycardInPossession possession =
-        KeycardInPossession.builder()
-            .keycard(keycard)
-            .assignedTime(now)
-            .keycardHolder(visitorPersonInRole)
-            .keycardAssignor(assignor)
-            .assigningAccessPoint(accessPoint)
-            .build();
-    keycardInPossessionRepository.save(possession);
+    KeycardInPossession possession = null;
+    if (keycard != null) {
+      possession =
+          KeycardInPossession.builder()
+              .keycard(keycard)
+              .assignedTime(now)
+              .keycardHolder(visitorPersonInRole)
+              .keycardAssignor(assignor)
+              .assigningAccessPoint(accessPoint)
+              .build();
+      keycardInPossessionRepository.save(possession);
+    }
 
     return new CreateVisitResponse(
         visit.getId(),
         person.getId(),
         visitorPersonInRole.getId(),
-        possession.getId(),
-        keycard.getKeycardNumber(),
+        possession != null ? possession.getId() : null,
+        keycard != null ? keycard.getKeycardNumber() : null,
         now);
   }
 
