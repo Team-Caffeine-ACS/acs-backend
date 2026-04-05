@@ -12,7 +12,7 @@ public record CreatePersonRequest(
         String givenName,
     @Schema(description = "Last name", example = "Smith") @NotBlank @Size(max = 128) String surname,
     @Schema(description = "Nationality ID") @NotNull UUID nationalityId,
-    @Schema(description = "Document type ID — required when documentNumber is provided")
+    @Schema(description = "Identity document type ID — required when documentNumber is provided")
         UUID documentTypeId,
     @Schema(description = "Document number (e.g. passport number)", example = "AB1234567")
         @Size(max = 128)

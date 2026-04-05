@@ -16,16 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/document-types")
 @RequiredArgsConstructor
-@Tag(name = "Document Types")
+@Tag(name = "Identity document Types")
 @SecurityRequirement(name = "bearerAuth")
 public class DocumentTypeController {
 
   private final DocumentTypeService documentTypeService;
 
   @Operation(
-      summary = "List all document types",
-      description = "Returns all document types sorted alphabetically")
-  @ApiResponse(responseCode = "200", description = "Document type list returned")
+      summary = "List all identity document types",
+      description = "Returns all identity document types sorted alphabetically")
+  @ApiResponse(responseCode = "200", description = "Identity document type list returned")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @GetMapping
   public ResponseEntity<List<DocumentTypeResponse>> getAll() {
