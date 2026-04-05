@@ -46,8 +46,7 @@ public class VisitService {
           keycardRepository
               .findById(request.keycardId())
               .orElseThrow(
-                  () ->
-                      new IllegalArgumentException("Keycard not found: " + request.keycardId()));
+                  () -> new IllegalArgumentException("Keycard not found: " + request.keycardId()));
 
       if (!keycard.isActive()) {
         throw new IllegalArgumentException("Keycard is not active: " + request.keycardId());
