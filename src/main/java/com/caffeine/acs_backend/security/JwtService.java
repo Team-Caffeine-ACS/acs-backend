@@ -20,6 +20,9 @@ public class JwtService {
   @Value("${jwt.expiration}")
   private long expirationMs;
 
+  @Value("${jwt.refresh-expiration}")
+  private long refreshExpirationMs;
+
   private SecretKey signingKey;
 
   @PostConstruct
@@ -27,11 +30,20 @@ public class JwtService {
     this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
   }
 
-  public String generateToken(UserDetails userDetails) {
+  public String generateAccessToken(UserDetails userDetails) {
+    return buildToken(userDetails, expirationMs, "access");
+  }
+
+  public String generateRefreshToken(UserDetails userDetails) {
+    return buildToken(userDetails, refreshExpirationMs, "refresh");
+  }
+
+  private String buildToken(UserDetails userDetails, long expiration, String type) {
     return Jwts.builder()
         .subject(userDetails.getUsername())
+        .claim("type", type)
         .issuedAt(new Date())
-        .expiration(new Date(System.currentTimeMillis() + expirationMs))
+        .expiration(new Date(System.currentTimeMillis() + expiration))
         .signWith(signingKey)
         .compact();
   }

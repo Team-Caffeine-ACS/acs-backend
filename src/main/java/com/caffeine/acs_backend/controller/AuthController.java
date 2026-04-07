@@ -2,6 +2,7 @@ package com.caffeine.acs_backend.controller;
 
 import com.caffeine.acs_backend.dto.auth.AuthResponse;
 import com.caffeine.acs_backend.dto.auth.LoginRequest;
+import com.caffeine.acs_backend.dto.auth.RefreshRequest;
 import com.caffeine.acs_backend.dto.auth.RegisterRequest;
 import com.caffeine.acs_backend.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,11 +37,22 @@ public class AuthController {
 
   @Operation(
       summary = "Authenticate user",
-      description = "Authenticates a user with email and password and returns a JWT token.")
+      description =
+          "Authenticates a user with email and password and returns access and refresh JWT tokens.")
   @ApiResponse(responseCode = "200", description = "User authenticated successfully")
   @ApiResponse(responseCode = "401", description = "Invalid credentials")
   @PostMapping("/login")
   public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
     return ResponseEntity.ok(authService.login(request));
+  }
+
+  @Operation(
+      summary = "Refresh JWT access token",
+      description = "Refreshes JWT access token if refresh token is valid.")
+  @ApiResponse(responseCode = "200", description = "JWT access token is refreshed")
+  @ApiResponse(responseCode = "401", description = "Invalid JWT refresh token")
+  @PostMapping("/refresh")
+  public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshRequest refreshToken) {
+    return ResponseEntity.ok(authService.refresh(refreshToken.refreshToken()));
   }
 }
