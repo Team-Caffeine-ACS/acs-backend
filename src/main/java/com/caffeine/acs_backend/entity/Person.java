@@ -26,10 +26,6 @@ public class Person extends BaseEntity {
   @Column(name = "social_security_number", length = 128)
   private String socialSecurityNumber;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "nationality_id", nullable = false)
-  private Nationality nationality;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "department_id")
   private Department department;
