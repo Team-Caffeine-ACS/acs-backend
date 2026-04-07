@@ -13,8 +13,6 @@ public class CountryService {
   private final CountryRepository countryRepository;
 
   public List<CountryResponse> getAllCountries() {
-    return countryRepository.findAllByOrderByNameAsc().stream()
-        .map(CountryResponse::from)
-        .toList();
+    return countryRepository.findAllByOrderByNameAsc().stream().map(CountryResponse::from).toList();
   }
 }
