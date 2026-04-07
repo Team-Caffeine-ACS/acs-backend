@@ -1,28 +1,40 @@
 databaseChangeLog:
 
   - changeSet:
-      id: 002-01-seed-nationalities
+      id: 002-01-seed-countries
       author: dev
       context: dev
       changes:
         - insert:
-            tableName: nationality
+            tableName: country
             columns:
-              - column: { name: id, value: "a1000000-0000-0000-0000-000000000001" }
-              - column: { name: name, value: "Estonian" }
-              - column: { name: country_code, value: "EE" }
+              - column: { name: id, value: "a0000000-0000-0000-0000-000000000001" }
+              - column: { name: name, value: "Estonia" }
         - insert:
-            tableName: nationality
+            tableName: country
             columns:
-              - column: { name: id, value: "a1000000-0000-0000-0000-000000000002" }
-              - column: { name: name, value: "Finn" }
-              - column: { name: country_code, value: "FI" }
+              - column: { name: id, value: "a0000000-0000-0000-0000-000000000002" }
+              - column: { name: name, value: "Finland" }
         - insert:
-            tableName: nationality
+            tableName: country
             columns:
-              - column: { name: id, value: "a1000000-0000-0000-0000-000000000003" }
-              - column: { name: name, value: "Latvian" }
-              - column: { name: country_code, value: "LV" }
+              - column: { name: id, value: "a0000000-0000-0000-0000-000000000003" }
+              - column: { name: name, value: "Sweden" }
+        - insert:
+            tableName: country
+            columns:
+              - column: { name: id, value: "a0000000-0000-0000-0000-000000000004" }
+              - column: { name: name, value: "United Kingdom" }
+        - insert:
+            tableName: country
+            columns:
+              - column: { name: id, value: "a0000000-0000-0000-0000-000000000005" }
+              - column: { name: name, value: "Democratic Republic of Congo" }
+        - insert:
+            tableName: country
+            columns:
+              - column: { name: id, value: "a0000000-0000-0000-0000-000000000006" }
+              - column: { name: name, value: "Val Verde" }
 
   - changeSet:
       id: 002-02-seed-organizations
@@ -108,17 +120,62 @@ databaseChangeLog:
             tableName: document_type
             columns:
               - column: { name: id, value: "a5000000-0000-0000-0000-000000000001" }
-              - column: { name: name, value: "Passport" }
+              - column: { name: name, value: "Identity card" }
         - insert:
             tableName: document_type
             columns:
               - column: { name: id, value: "a5000000-0000-0000-0000-000000000002" }
-              - column: { name: name, value: "ID Card" }
+              - column: { name: name, value: "Digital identity card" }
         - insert:
             tableName: document_type
             columns:
               - column: { name: id, value: "a5000000-0000-0000-0000-000000000003" }
-              - column: { name: name, value: "Driver License" }
+              - column: { name: name, value: "Residence permit card" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000004" }
+              - column: { name: name, value: "Citizen's passport" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000005" }
+              - column: { name: name, value: "Diplomatic passport" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000006" }
+              - column: { name: name, value: "Seafarer's discharge book" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000007" }
+              - column: { name: name, value: "Alien's passport" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000008" }
+              - column: { name: name, value: "Temporary travel document" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000009" }
+              - column: { name: name, value: "Travel document for a refugee" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000010" }
+              - column: { name: name, value: "Certificate of record of service on ships" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000011" }
+              - column: { name: name, value: "European travel document for return" }
+        - insert:
+            tableName: document_type
+            columns:
+              - column: { name: id, value: "a5000000-0000-0000-0000-000000000012" }
+              - column: { name: name, value: "EU certificate of return" }
 
   - changeSet:
       id: 002-06-seed-access-points
@@ -180,7 +237,6 @@ databaseChangeLog:
               - column: { name: given_name, value: "Alice" }
               - column: { name: surname, value: "Admin" }
               - column: { name: job_title, value: "System Administrator" }
-              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000001" }
               - column: { name: department_id, value: "a3000000-0000-0000-0000-000000000002" }
               - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000001" }
               - column: { name: is_active, valueBoolean: true }
@@ -191,7 +247,6 @@ databaseChangeLog:
               - column: { name: given_name, value: "Bob" }
               - column: { name: surname, value: "Security" }
               - column: { name: job_title, value: "Security Chief" }
-              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000002" }
               - column: { name: department_id, value: "a3000000-0000-0000-0000-000000000001" }
               - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000001" }
               - column: { name: is_active, valueBoolean: true }
@@ -202,7 +257,6 @@ databaseChangeLog:
               - column: { name: given_name, value: "Carol" }
               - column: { name: surname, value: "Reception" }
               - column: { name: job_title, value: "Receptionist" }
-              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000003" }
               - column: { name: department_id, value: "a3000000-0000-0000-0000-000000000003" }
               - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000003" }
               - column: { name: is_active, valueBoolean: true }
@@ -212,7 +266,6 @@ databaseChangeLog:
               - column: { name: id, value: "a8000000-0000-0000-0000-000000000004" }
               - column: { name: given_name, value: "Dave" }
               - column: { name: surname, value: "Visitor" }
-              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000001" }
               - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
               - column: { name: is_active, valueBoolean: true }
 
@@ -221,64 +274,72 @@ databaseChangeLog:
       author: dev
       context: dev
       changes:
-        # Alice — Passport + ID Card
+        # Alice — Citizen's passport + Identity card (Estonia)
         - insert:
             tableName: document
             columns:
               - column: { name: id, value: "aa000000-0000-0000-0000-000000000001" }
               - column: { name: document_number, value: "EA1234567" }
-              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
+              - column: { name: issuing_country_id, value: "a0000000-0000-0000-0000-000000000001" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000004" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000001" }
         - insert:
             tableName: document
             columns:
               - column: { name: id, value: "aa000000-0000-0000-0000-000000000002" }
               - column: { name: document_number, value: "ID-AA-001" }
-              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000002" }
+              - column: { name: issuing_country_id, value: "a0000000-0000-0000-0000-000000000001" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000001" }
-        # Bob — Passport + Driver License
+        # Bob — Citizen's passport + Identity card (Finland)
         - insert:
             tableName: document
             columns:
               - column: { name: id, value: "aa000000-0000-0000-0000-000000000003" }
               - column: { name: document_number, value: "FB9876543" }
-              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
+              - column: { name: issuing_country_id, value: "a0000000-0000-0000-0000-000000000002" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000004" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000002" }
         - insert:
             tableName: document
             columns:
               - column: { name: id, value: "aa000000-0000-0000-0000-000000000004" }
-              - column: { name: document_number, value: "DL-BB-002" }
-              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000003" }
+              - column: { name: document_number, value: "ID-BB-002" }
+              - column: { name: issuing_country_id, value: "a0000000-0000-0000-0000-000000000002" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000002" }
-        # Carol — ID Card only
+        # Carol — Identity card only (Sweden)
         - insert:
             tableName: document
             columns:
               - column: { name: id, value: "aa000000-0000-0000-0000-000000000005" }
               - column: { name: document_number, value: "ID-CC-003" }
-              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000002" }
+              - column: { name: issuing_country_id, value: "a0000000-0000-0000-0000-000000000003" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000003" }
-        # Dave — Passport + ID Card + Driver License
+        # Dave — Citizen's passport + Identity card + Residence permit card (Estonia)
         - insert:
             tableName: document
             columns:
               - column: { name: id, value: "aa000000-0000-0000-0000-000000000006" }
               - column: { name: document_number, value: "ED1112233" }
-              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
+              - column: { name: issuing_country_id, value: "a0000000-0000-0000-0000-000000000001" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000004" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
         - insert:
             tableName: document
             columns:
               - column: { name: id, value: "aa000000-0000-0000-0000-000000000007" }
               - column: { name: document_number, value: "ID-DD-004" }
-              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000002" }
+              - column: { name: issuing_country_id, value: "a0000000-0000-0000-0000-000000000001" }
+              - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000001" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
         - insert:
             tableName: document
             columns:
               - column: { name: id, value: "aa000000-0000-0000-0000-000000000008" }
-              - column: { name: document_number, value: "DL-DD-004" }
+              - column: { name: document_number, value: "RP-DD-004" }
+              - column: { name: issuing_country_id, value: "a0000000-0000-0000-0000-000000000001" }
               - column: { name: document_type_id, value: "a5000000-0000-0000-0000-000000000003" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
 
@@ -362,7 +423,6 @@ databaseChangeLog:
               - column: { name: id, value: "a8000000-0000-0000-0000-000000000005" }
               - column: { name: given_name, value: "Brian" }
               - column: { name: surname, value: "May" }
-              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000003" }
               - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
               - column: { name: is_active, valueBoolean: true }
         - insert:
@@ -371,7 +431,6 @@ databaseChangeLog:
               - column: { name: id, value: "a8000000-0000-0000-0000-000000000006" }
               - column: { name: given_name, value: "Roger" }
               - column: { name: surname, value: "Taylor" }
-              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000003" }
               - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
               - column: { name: is_active, valueBoolean: true }
         - insert:
@@ -380,7 +439,6 @@ databaseChangeLog:
               - column: { name: id, value: "a8000000-0000-0000-0000-000000000007" }
               - column: { name: given_name, value: "Freddie" }
               - column: { name: surname, value: "Mercury" }
-              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000001" }
               - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
               - column: { name: is_active, valueBoolean: true }
         - insert:
@@ -389,7 +447,6 @@ databaseChangeLog:
               - column: { name: id, value: "a8000000-0000-0000-0000-000000000008" }
               - column: { name: given_name, value: "John" }
               - column: { name: surname, value: "Deacon" }
-              - column: { name: nationality_id, value: "a1000000-0000-0000-0000-000000000003" }
               - column: { name: organization_id, value: "a2000000-0000-0000-0000-000000000002" }
               - column: { name: is_active, valueBoolean: true }
 
@@ -433,7 +490,7 @@ databaseChangeLog:
       context: dev
       changes:
         - insert:
-            tableName: groups
+            tableName: visitor_group
             columns:
               - column: { name: id, value: "ac000000-0000-0000-0000-000000000001" }
               - column: { name: name, value: "Queen" }
