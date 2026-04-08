@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "groups") // "group" is a reserved SQL keyword
+@Table(name = "visitor_group")
 @Getter
 @Setter
 @Builder

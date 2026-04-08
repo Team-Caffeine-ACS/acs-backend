@@ -8,14 +8,9 @@ import java.util.UUID;
 public record PersonResponse(
     @Schema(description = "Person unique identifier") UUID id,
     @Schema(description = "First name", example = "John") String givenName,
-    @Schema(description = "Last name", example = "Smith") String surname,
-    @Schema(description = "Nationality name", example = "Estonian") String nationality) {
+    @Schema(description = "Last name", example = "Smith") String surname) {
 
   public static PersonResponse from(Person person) {
-    return new PersonResponse(
-        person.getId(),
-        person.getGivenName(),
-        person.getSurname(),
-        person.getNationality().getName());
+    return new PersonResponse(person.getId(), person.getGivenName(), person.getSurname());
   }
 }

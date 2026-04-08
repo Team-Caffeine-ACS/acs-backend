@@ -5,10 +5,8 @@ import com.caffeine.acs_backend.dto.person.PersonInRoleResponse;
 import com.caffeine.acs_backend.dto.person.PersonResponse;
 import com.caffeine.acs_backend.entity.Document;
 import com.caffeine.acs_backend.entity.DocumentType;
-import com.caffeine.acs_backend.entity.Nationality;
 import com.caffeine.acs_backend.entity.Person;
 import com.caffeine.acs_backend.repository.DocumentTypeRepository;
-import com.caffeine.acs_backend.repository.NationalityRepository;
 import com.caffeine.acs_backend.repository.PersonInRoleRepository;
 import com.caffeine.acs_backend.repository.PersonRepository;
 import java.util.List;
@@ -22,24 +20,14 @@ public class PersonService {
 
   private final PersonInRoleRepository personInRoleRepository;
   private final PersonRepository personRepository;
-  private final NationalityRepository nationalityRepository;
   private final DocumentTypeRepository documentTypeRepository;
 
   @Transactional
   public PersonResponse createPerson(CreatePersonRequest request) {
-    Nationality nationality =
-        nationalityRepository
-            .findById(request.nationalityId())
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Nationality not found: " + request.nationalityId()));
-
     Person person =
         Person.builder()
             .givenName(request.givenName().trim())
             .surname(request.surname().trim())
-            .nationality(nationality)
             .build();
     personRepository.save(person);
 

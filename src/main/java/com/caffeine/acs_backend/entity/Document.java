@@ -15,6 +15,10 @@ public class Document extends BaseEntity {
   @Column(name = "document_number", nullable = false, length = 128)
   private String documentNumber;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "issuing_country_id")
+  private Country issuingCountry;
+
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "document_type_id", nullable = false)
   private DocumentType documentType;
