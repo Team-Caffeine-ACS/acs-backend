@@ -34,8 +34,7 @@ public class PreRegistrationController {
   @PostMapping
   public ResponseEntity<CreatePreRegistrationResponse> create(
       @Valid @RequestBody CreatePreRegistrationRequest request) {
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(preRegistrationService.create(request));
+    return ResponseEntity.status(HttpStatus.CREATED).body(preRegistrationService.create(request));
   }
 
   @Operation(summary = "Get pre-registration by ID")
@@ -54,7 +53,8 @@ public class PreRegistrationController {
       @RequestParam(required = false) VisitStatus status,
       @RequestParam(required = false) UUID buildingId,
       Pageable pageable) {
-    return ResponseEntity.ok(preRegistrationService.getAll(date, search, status, buildingId, pageable));
+    return ResponseEntity.ok(
+        preRegistrationService.getAll(date, search, status, buildingId, pageable));
   }
 
   @Operation(summary = "Update a pre-registration")
@@ -62,8 +62,7 @@ public class PreRegistrationController {
   @ApiResponse(responseCode = "404", description = "Not found")
   @PutMapping("/{id}")
   public ResponseEntity<PreRegistrationResponse> update(
-      @PathVariable UUID id,
-      @Valid @RequestBody UpdatePreRegistrationRequest request) {
+      @PathVariable UUID id, @Valid @RequestBody UpdatePreRegistrationRequest request) {
     return ResponseEntity.ok(preRegistrationService.update(id, request));
   }
 
@@ -72,8 +71,7 @@ public class PreRegistrationController {
   @ApiResponse(responseCode = "404", description = "Not found")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> cancel(
-      @PathVariable UUID id,
-      @RequestParam(required = false) String message) {
+      @PathVariable UUID id, @RequestParam(required = false) String message) {
     preRegistrationService.cancel(id, message);
     return ResponseEntity.noContent().build();
   }
@@ -83,8 +81,7 @@ public class PreRegistrationController {
   @ApiResponse(responseCode = "400", description = "No email on file")
   @PostMapping("/{id}/notify")
   public ResponseEntity<Void> notify(
-      @PathVariable UUID id,
-      @RequestBody(required = false) NotifyRequest request) {
+      @PathVariable UUID id, @RequestBody(required = false) NotifyRequest request) {
     preRegistrationService.resendNotification(id, request);
     return ResponseEntity.noContent().build();
   }

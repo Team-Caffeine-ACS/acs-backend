@@ -1,16 +1,11 @@
 package com.caffeine.acs_backend.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-
-import lombok.*;
-import java.time.LocalDateTime;
-import org.hibernate.annotations.CreationTimestamp;
-
 import com.caffeine.acs_backend.enums.VisitAccessLevel;
 import com.caffeine.acs_backend.enums.VisitStatus;
-
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "visit")

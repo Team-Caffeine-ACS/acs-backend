@@ -37,20 +37,24 @@ public class PreRegistrationService {
 
   @Transactional
   public CreatePreRegistrationResponse create(CreatePreRegistrationRequest request) {
-    AccessPoint building = accessPointRepository.findById(request.buildingId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Building not found"));
+    AccessPoint building =
+        accessPointRepository
+            .findById(request.buildingId())
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Building not found"));
 
     User currentUser = getCurrentUser();
 
-    Visit visit = Visit.builder()
-        .arrivalTime(request.expectedArrival())
-        .accessPoint(building)
-        .visitorEmail(request.email())
-        .visitorFullName(request.fullName())
-        .notes(request.notes())
-        .VisitAccessLevel(request.VisitAccessLevel())
-        .status(VisitStatus.PRE_REGISTERED)
-        .build();
+    Visit visit =
+        Visit.builder()
+            .arrivalTime(request.expectedArrival())
+            .accessPoint(building)
+            .visitorEmail(request.email())
+            .visitorFullName(request.fullName())
+            .notes(request.notes())
+            .VisitAccessLevel(request.VisitAccessLevel())
+            .status(VisitStatus.PRE_REGISTERED)
+            .build();
 
     visitRepository.save(visit);
 
@@ -79,10 +83,10 @@ public class PreRegistrationService {
     LocalDateTime to = date != null ? date.plusDays(1).atStartOfDay() : null;
 
     return visitRepository
-      .findPreRegistrations(
-          status != null ? status.name() : null,
-          buildingId, from, to, search, pageable)
-      .map(visit -> PreRegistrationResponse.from(visit, getCurrentUser()));  }
+        .findPreRegistrations(
+            status != null ? status.name() : null, buildingId, from, to, search, pageable)
+        .map(visit -> PreRegistrationResponse.from(visit, getCurrentUser()));
+  }
 
   @Transactional
   public PreRegistrationResponse update(UUID id, UpdatePreRegistrationRequest request) {
@@ -111,10 +115,7 @@ public class PreRegistrationService {
     log.info("Pre-registration cancelled: {}", id);
 
     if (visit.getVisitorEmail() != null) {
-      emailService.sendCancellationNotification(
-          visit.getVisitorEmail(),
-          "Visitor",
-          customMessage);
+      emailService.sendCancellationNotification(visit.getVisitorEmail(), "Visitor", customMessage);
     }
   }
 
@@ -122,7 +123,8 @@ public class PreRegistrationService {
     Visit visit = findPreRegistration(id);
 
     if (visit.getVisitorEmail() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No email on file for this visitor");
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "No email on file for this visitor");
     }
 
     emailService.sendVisitorNotification(
@@ -133,8 +135,13 @@ public class PreRegistrationService {
   }
 
   private Visit findPreRegistration(UUID id) {
-    Visit visit = visitRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pre-registration not found"));
+    Visit visit =
+        visitRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Pre-registration not found"));
     if (visit.getStatus() == VisitStatus.CANCELLED) {
       throw new ResponseStatusException(HttpStatus.GONE, "Pre-registration is cancelled");
     }
@@ -143,7 +150,8 @@ public class PreRegistrationService {
 
   private User getCurrentUser() {
     String email = SecurityContextHolder.getContext().getAuthentication().getName();
-    return userRepository.findByEmail(email)
+    return userRepository
+        .findByEmail(email)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
   }
 }
