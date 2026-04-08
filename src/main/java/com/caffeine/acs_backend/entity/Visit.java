@@ -1,7 +1,15 @@
 package com.caffeine.acs_backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
+import lombok.*;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.caffeine.acs_backend.enums.VisitAccessLevel;
+import com.caffeine.acs_backend.enums.VisitStatus;
+
 import lombok.*;
 
 @Entity
@@ -46,4 +54,26 @@ public class Visit extends BaseEntity {
 
   @Column(name = "comment", length = 1024)
   private String comment;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false, length = 32)
+  @Builder.Default
+  private VisitStatus status = VisitStatus.PRE_REGISTERED;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "access_level", length = 32)
+  private VisitAccessLevel VisitAccessLevel;
+
+  @Column(name = "notes", length = 1024)
+  private String notes;
+
+  @Column(name = "visitor_email", length = 255)
+  private String visitorEmail;
+
+  @Column(name = "visitor_full_name", length = 255)
+  private String visitorFullName;
+
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
 }
