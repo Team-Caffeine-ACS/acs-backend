@@ -70,6 +70,37 @@ public class AuthService {
                         ErrorCode.INVALID_CREDENTIALS,
                         HttpStatus.UNAUTHORIZED));
 
-    return new AuthResponse(jwtService.generateToken(user));
+    return new AuthResponse(
+        jwtService.generateAccessToken(user), jwtService.generateRefreshToken(user));
+  }
+
+  public AuthResponse refresh(String refreshToken) {
+    try {
+        // Punkt 1: Püüame kinni kõik JWT-ga seotud vead (vigane süntaks, vale allkiri jne)
+        Claims claims = jwtService.extractClaims(refreshToken);
+
+        String type = claims.get("type", String.class);
+        if (!"refresh".equals(type)) {
+            // Punkt 2: Kasutame järjepidevalt BusinessExceptionit
+            throw new BusinessException("Invalid token type", ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
+        }
+
+        String email = claims.getSubject();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("User not found", ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED));
+
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new BusinessException("Token is invalid or expired", ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
+        }
+
+        String newAccessToken = jwtService.generateAccessToken(user);
+        
+        // Tagastame uue access tokeni ja vana refresh tokeni (või genereerime ka uue refresh tokeni, kui soovid)
+        return new AuthResponse(newAccessToken, refreshToken);
+
+    } catch (Exception e) {
+        // Punkt 3: Kui extractClaims viskab vea, tagastame viisaka 401, mitte 500
+        throw new BusinessException("Invalid or malformed token", ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
+    }
   }
 }

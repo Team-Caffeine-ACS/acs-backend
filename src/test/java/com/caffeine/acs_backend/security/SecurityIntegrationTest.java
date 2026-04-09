@@ -65,7 +65,7 @@ class SecurityIntegrationTest {
 
   @Test
   void adminEndpoint_withVisitorRole_returns403() throws Exception {
-    String token = jwtService.generateToken(visitor);
+    String token = jwtService.generateAccessToken(visitor);
 
     mockMvc
         .perform(get("/api/admin").header("Authorization", "Bearer " + token))
@@ -74,7 +74,7 @@ class SecurityIntegrationTest {
 
   @Test
   void adminEndpoint_withAdminRole_returns200() throws Exception {
-    String token = jwtService.generateToken(admin);
+    String token = jwtService.generateAccessToken(admin);
 
     mockMvc
         .perform(get("/api/admin").header("Authorization", "Bearer " + token))
