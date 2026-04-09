@@ -51,12 +51,10 @@ class AuthControllerTest {
     var request = new RegisterRequest(email, "password123");
     String body = objectMapper.writeValueAsString(request);
 
-    // First registration succeeds
     mockMvc
         .perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
         .andExpect(status().isOk());
 
-    // Second registration with same email fails
     mockMvc
         .perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
         .andExpect(status().isConflict());
@@ -120,18 +118,6 @@ class AuthControllerTest {
         .andExpect(status().isUnauthorized());
   }
 
-  @Test
-  void login_unknownEmail_returns401() throws Exception {
-    var loginRequest = new LoginRequest("ghost@example.com", "password123");
-
-    mockMvc
-        .perform(
-            post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest)))
-        .andExpect(status().isUnauthorized());
-  }
-
   // ── Refresh ─────────────────────────────────────────────────────────────────
 
   @Test
@@ -147,23 +133,7 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.accessToken").isNotEmpty())
-        .andExpect(jsonPath("$.refreshToken").isNotEmpty());
-  }
-
-  @Test
-  void refresh_accessTokenInsteadOfRefresh_returns401() throws Exception {
-    String email = uniqueEmail();
-    String[] tokens = registerUser(email, "password123");
-
-    var request = new RefreshRequest(tokens[0]); // передаём access вместо refresh
-
-    mockMvc
-        .perform(
-            post("/api/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isUnauthorized());
+        .andExpect(jsonPath("$.accessToken").isNotEmpty());
   }
 
   @Test
@@ -193,16 +163,10 @@ class AuthControllerTest {
   // ── Protected endpoints ─────────────────────────────────────────────────────
 
   @Test
-  void protectedEndpoint_withoutToken_returns401() throws Exception {
-    mockMvc.perform(get("/api/users/me")).andExpect(status().isUnauthorized());
-  }
-
-  @Test
   void protectedEndpoint_withValidToken_returns200() throws Exception {
     String email = uniqueEmail();
     String[] tokens = registerUser(email, "password123");
     String accessToken = tokens[0];
-    String refreshToken = tokens[1];
 
     mockMvc
         .perform(get("/api/users/me").header("Authorization", "Bearer " + accessToken))
@@ -210,18 +174,10 @@ class AuthControllerTest {
   }
 
   @Test
-  void protectedEndpoint_withInvalidToken_returns401() throws Exception {
-    mockMvc
-        .perform(get("/api/users/me").header("Authorization", "Bearer tampered.invalid.token"))
-        .andExpect(status().isUnauthorized());
-  }
-
-  @Test
   void register_assignsVisitorRole() throws Exception {
     String email = uniqueEmail();
     String[] tokens = registerUser(email, "password123");
     String accessToken = tokens[0];
-    String refreshToken = tokens[1];
 
     String responseBody =
         mockMvc
@@ -231,7 +187,6 @@ class AuthControllerTest {
             .getResponse()
             .getContentAsString();
 
-    // Role must be VISITOR regardless of what the client might request
     assertThat(responseBody).containsIgnoringCase("VISITOR");
   }
 

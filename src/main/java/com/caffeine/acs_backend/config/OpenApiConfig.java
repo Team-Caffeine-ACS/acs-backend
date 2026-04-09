@@ -6,6 +6,10 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -22,4 +26,14 @@ import org.springframework.context.annotation.Configuration;
     type = SecuritySchemeType.HTTP,
     scheme = "bearer",
     bearerFormat = "JWT")
-public class OpenApiConfig {}
+public class OpenApiConfig {
+
+  private static final String SECURITY_SCHEME_NAME = "bearerAuth";
+
+  @Bean
+  public OpenAPI api() {
+    return new OpenAPI()
+        .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
+        .components(new Components());
+  }
+}
