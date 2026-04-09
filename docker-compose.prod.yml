@@ -1,0 +1,6 @@
+services:
+  backend:
+    restart: always
+    # Prod-is me tavaliselt ei ava porte otse välja, vaid kasutame Nginx-i/Traefikut
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod

@@ -9,6 +9,7 @@ import com.caffeine.acs_backend.enums.errorcode.ErrorCode;
 import com.caffeine.acs_backend.exception.BusinessException;
 import com.caffeine.acs_backend.repository.UserRepository;
 import com.caffeine.acs_backend.security.JwtService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +43,11 @@ public class AuthService {
             .build();
 
     userRepository.save(user);
-    return new AuthResponse(jwtService.generateToken(user));
+
+    String accessToken = jwtService.generateAccessToken(user);
+    String refreshToken = jwtService.generateRefreshToken(user);
+
+    return new AuthResponse(accessToken, refreshToken);
   }
 
   public AuthResponse login(LoginRequest request) {

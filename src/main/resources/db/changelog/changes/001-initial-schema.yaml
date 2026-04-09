@@ -1,11 +1,11 @@
 databaseChangeLog:
 
   - changeSet:
-      id: 001-01-nationality
+      id: 001-01-country
       author: init
       changes:
         - createTable:
-            tableName: nationality
+            tableName: country
             columns:
               - column:
                   name: id
@@ -18,12 +18,6 @@ databaseChangeLog:
                   type: varchar(128)
                   constraints:
                     nullable: false
-              - column:
-                  name: country_code
-                  type: varchar(2)
-                  constraints:
-                    nullable: false
-                    unique: true
 
   - changeSet:
       id: 001-02-organization
@@ -112,7 +106,7 @@ databaseChangeLog:
       author: init
       changes:
         - createTable:
-            tableName: groups
+            tableName: visitor_group
             columns:
               - column:
                   name: id
@@ -210,13 +204,6 @@ databaseChangeLog:
                   name: social_security_number
                   type: varchar(128)
               - column:
-                  name: nationality_id
-                  type: uuid
-                  constraints:
-                    nullable: false
-                    foreignKeyName: fk_person_nationality
-                    references: nationality(id)
-              - column:
                   name: department_id
                   type: uuid
                   constraints:
@@ -253,6 +240,12 @@ databaseChangeLog:
                   type: varchar(128)
                   constraints:
                     nullable: false
+              - column:
+                  name: issuing_country_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_document_country
+                    references: country(id)
               - column:
                   name: document_type_id
                   type: uuid
@@ -390,7 +383,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     foreignKeyName: fk_pig_group
-                    references: groups(id)
+                    references: visitor_group(id)
 
   - changeSet:
       id: 001-14-group-in-visit
@@ -411,7 +404,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     foreignKeyName: fk_giv_group
-                    references: groups(id)
+                    references: visitor_group(id)
               - column:
                   name: planned_arrival
                   type: timestamp

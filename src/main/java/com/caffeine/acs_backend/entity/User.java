@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class User extends BaseEntity implements UserDetails {
 
   @Column(name = "email", nullable = false, unique = true, length = 255)
