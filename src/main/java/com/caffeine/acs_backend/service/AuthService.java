@@ -13,8 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +27,9 @@ public class AuthService {
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
 
+  @Transactional
   public AuthResponse register(RegisterRequest request) {
     if (userRepository.existsByEmail(request.email())) {
-      // throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
       throw new BusinessException(
           "Email already in use", ErrorCode.RESOURCE_ALREADY_EXISTS, HttpStatus.CONFLICT);
     }
@@ -44,10 +46,25 @@ public class AuthService {
   }
 
   public AuthResponse login(LoginRequest request) {
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+    try {
+      authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
-    User user = userRepository.findByEmail(request.email()).orElseThrow();
+    } catch (AuthenticationException e) {
+      throw new BusinessException(
+          "Invalid email or password", ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
+    }
+
+    User user =
+        userRepository
+            .findByEmail(request.email())
+            .orElseThrow(
+                () ->
+                    new BusinessException(
+                        "Invalid email or password",
+                        ErrorCode.INVALID_CREDENTIALS,
+                        HttpStatus.UNAUTHORIZED));
+
     return new AuthResponse(jwtService.generateToken(user));
   }
 }
