@@ -16,8 +16,10 @@ import com.caffeine.acs_backend.dto.keycard.UpdateKeycardRequest;
 import com.caffeine.acs_backend.enums.errorcode.ErrorCode;
 import com.caffeine.acs_backend.exception.BusinessException;
 import com.caffeine.acs_backend.security.JwtAccessDeniedHandler;
+import com.caffeine.acs_backend.security.JwtAuthFilter;
 import com.caffeine.acs_backend.security.JwtAuthenticationEntryPoint;
 import com.caffeine.acs_backend.security.JwtService;
+import com.caffeine.acs_backend.security.SecurityConfig;
 import com.caffeine.acs_backend.service.KeycardService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
@@ -27,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -36,6 +39,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(KeycardController.class)
+@Import({SecurityConfig.class, JwtAuthFilter.class, JwtAccessDeniedHandler.class,
+    JwtAuthenticationEntryPoint.class})
 class KeycardControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -43,11 +48,9 @@ class KeycardControllerTest {
 
   @MockBean private KeycardService keycardService;
 
-  // Real SecurityConfig runs; mock all its injected dependencies
+  // JwtAuthFilter dependencies — real filter runs, mock its collaborators
   @MockBean private JwtService jwtService;
   @MockBean private UserDetailsService userDetailsService;
-  @MockBean private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-  @MockBean private JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
   private static final UUID CARD_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
@@ -58,8 +61,8 @@ class KeycardControllerTest {
   // ── GET /api/keycards ────────────────────────────────────────────────────────
 
   @Test
-  @WithMockUser
-  void getKeycards_noFilters_returns200WithPage() throws Exception {
+  @WithMockUser(roles = "RECEPTIONIST")
+  void getKeycards_receptionist_returns200() throws Exception {
     KeycardListItemResponse item =
         new KeycardListItemResponse(CARD_ID, "KC-0001", "AVAILABLE", null, null);
     when(keycardService.getKeycards(any(), any(), any(Pageable.class)))
@@ -73,12 +76,27 @@ class KeycardControllerTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
+  void getKeycards_admin_returns200() throws Exception {
+    when(keycardService.getKeycards(any(), any(), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of()));
+
+    mockMvc.perform(get("/api/keycards")).andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockUser(roles = "VISITOR")
+  void getKeycards_visitor_returns403() throws Exception {
+    mockMvc.perform(get("/api/keycards")).andExpect(status().isForbidden());
+  }
+
+  @Test
   void getKeycards_unauthenticated_returns401() throws Exception {
     mockMvc.perform(get("/api/keycards")).andExpect(status().isUnauthorized());
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "RECEPTIONIST")
   void getKeycards_withStatusFilter_passes() throws Exception {
     when(keycardService.getKeycards(any(), eq("in_use"), any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of()));
@@ -92,8 +110,8 @@ class KeycardControllerTest {
   // ── GET /api/keycards/{cardId} ───────────────────────────────────────────────
 
   @Test
-  @WithMockUser
-  void getKeycard_exists_returns200() throws Exception {
+  @WithMockUser(roles = "RECEPTIONIST")
+  void getKeycard_receptionist_returns200() throws Exception {
     when(keycardService.getKeycard(CARD_ID)).thenReturn(sampleDetail());
 
     mockMvc
@@ -104,7 +122,13 @@ class KeycardControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "VISITOR")
+  void getKeycard_visitor_returns403() throws Exception {
+    mockMvc.perform(get("/api/keycards/{id}", CARD_ID)).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = "RECEPTIONIST")
   void getKeycard_notFound_returns404() throws Exception {
     when(keycardService.getKeycard(CARD_ID))
         .thenThrow(
@@ -117,8 +141,8 @@ class KeycardControllerTest {
   // ── POST /api/keycards ───────────────────────────────────────────────────────
 
   @Test
-  @WithMockUser
-  void createKeycard_validRequest_returns201() throws Exception {
+  @WithMockUser(roles = "ADMIN")
+  void createKeycard_admin_returns201() throws Exception {
     CreateKeycardRequest request = new CreateKeycardRequest("KC-0099", null, true);
     when(keycardService.createKeycard(any())).thenReturn(sampleDetail());
 
@@ -133,7 +157,36 @@ class KeycardControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "SECURITY_CHIEF")
+  void createKeycard_securityChief_returns201() throws Exception {
+    CreateKeycardRequest request = new CreateKeycardRequest("KC-0099", null, true);
+    when(keycardService.createKeycard(any())).thenReturn(sampleDetail());
+
+    mockMvc
+        .perform(
+            post("/api/keycards")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated());
+  }
+
+  @Test
+  @WithMockUser(roles = "RECEPTIONIST")
+  void createKeycard_receptionist_returns403() throws Exception {
+    CreateKeycardRequest request = new CreateKeycardRequest("KC-0099", null, true);
+
+    mockMvc
+        .perform(
+            post("/api/keycards")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   void createKeycard_duplicateNumber_returns409() throws Exception {
     CreateKeycardRequest request = new CreateKeycardRequest("KC-0001", null, true);
     when(keycardService.createKeycard(any()))
@@ -153,7 +206,7 @@ class KeycardControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void createKeycard_blankNumber_returns400() throws Exception {
     CreateKeycardRequest request = new CreateKeycardRequest("", null, true);
 
@@ -169,8 +222,8 @@ class KeycardControllerTest {
   // ── PUT /api/keycards/{cardId} ───────────────────────────────────────────────
 
   @Test
-  @WithMockUser
-  void updateKeycard_validRequest_returns200() throws Exception {
+  @WithMockUser(roles = "ADMIN")
+  void updateKeycard_admin_returns200() throws Exception {
     UpdateKeycardRequest request = new UpdateKeycardRequest("KC-0001-NEW", true, null);
     when(keycardService.updateKeycard(eq(CARD_ID), any())).thenReturn(sampleDetail());
 
@@ -185,7 +238,21 @@ class KeycardControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "RECEPTIONIST")
+  void updateKeycard_receptionist_returns403() throws Exception {
+    UpdateKeycardRequest request = new UpdateKeycardRequest(null, false, null);
+
+    mockMvc
+        .perform(
+            put("/api/keycards/{id}", CARD_ID)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   void updateKeycard_notFound_returns404() throws Exception {
     UpdateKeycardRequest request = new UpdateKeycardRequest(null, false, null);
     when(keycardService.updateKeycard(eq(CARD_ID), any()))
@@ -205,8 +272,8 @@ class KeycardControllerTest {
   // ── POST /api/keycards/{cardId}/assign ───────────────────────────────────────
 
   @Test
-  @WithMockUser
-  void assignKeycard_valid_returns200() throws Exception {
+  @WithMockUser(roles = "RECEPTIONIST")
+  void assignKeycard_receptionist_returns200() throws Exception {
     AssignKeycardRequest request =
         new AssignKeycardRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
     KeycardDetailResponse withHolder =
@@ -232,7 +299,22 @@ class KeycardControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "VISITOR")
+  void assignKeycard_visitor_returns403() throws Exception {
+    AssignKeycardRequest request =
+        new AssignKeycardRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+
+    mockMvc
+        .perform(
+            post("/api/keycards/{id}/assign", CARD_ID)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = "RECEPTIONIST")
   void assignKeycard_alreadyAssigned_returns409() throws Exception {
     AssignKeycardRequest request =
         new AssignKeycardRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
@@ -253,7 +335,7 @@ class KeycardControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "RECEPTIONIST")
   void assignKeycard_missingBody_returns400() throws Exception {
     mockMvc
         .perform(
@@ -267,8 +349,8 @@ class KeycardControllerTest {
   // ── POST /api/keycards/{cardId}/return ───────────────────────────────────────
 
   @Test
-  @WithMockUser
-  void returnKeycard_valid_returns200() throws Exception {
+  @WithMockUser(roles = "RECEPTIONIST")
+  void returnKeycard_receptionist_returns200() throws Exception {
     ReturnKeycardRequest request = new ReturnKeycardRequest(UUID.randomUUID());
     LocalDateTime returnTime = LocalDateTime.now();
     KeycardDetailResponse returned =
@@ -286,7 +368,21 @@ class KeycardControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "VISITOR")
+  void returnKeycard_visitor_returns403() throws Exception {
+    ReturnKeycardRequest request = new ReturnKeycardRequest(UUID.randomUUID());
+
+    mockMvc
+        .perform(
+            post("/api/keycards/{id}/return", CARD_ID)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = "RECEPTIONIST")
   void returnKeycard_notAssigned_returns409() throws Exception {
     ReturnKeycardRequest request = new ReturnKeycardRequest(UUID.randomUUID());
     when(keycardService.returnKeycard(eq(CARD_ID), any()))
@@ -306,7 +402,7 @@ class KeycardControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "RECEPTIONIST")
   void returnKeycard_missingBody_returns400() throws Exception {
     mockMvc
         .perform(
