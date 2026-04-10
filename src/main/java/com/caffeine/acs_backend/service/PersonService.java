@@ -28,7 +28,7 @@ public class PersonService {
         Person.builder()
             .givenName(request.givenName().trim())
             .surname(request.surname().trim())
-            .email(request.email().trim())
+            .email(request.email() != null ? request.email().trim() : null)
             .build();
     personRepository.save(person);
 
