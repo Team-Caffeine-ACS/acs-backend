@@ -53,9 +53,7 @@ public class KeycardService {
     LocalDateTime lastReturn = null;
     if (active == null) {
       lastReturn =
-          keycardInPossessionRepository
-              .findLatestByKeycard(keycard, PageRequest.of(0, 1))
-              .stream()
+          keycardInPossessionRepository.findLatestByKeycard(keycard, PageRequest.of(0, 1)).stream()
               .findFirst()
               .map(KeycardInPossession::getReturnTime)
               .orElse(null);
@@ -99,9 +97,7 @@ public class KeycardService {
     LocalDateTime lastReturn = null;
     if (active == null) {
       lastReturn =
-          keycardInPossessionRepository
-              .findLatestByKeycard(keycard, PageRequest.of(0, 1))
-              .stream()
+          keycardInPossessionRepository.findLatestByKeycard(keycard, PageRequest.of(0, 1)).stream()
               .findFirst()
               .map(KeycardInPossession::getReturnTime)
               .orElse(null);
