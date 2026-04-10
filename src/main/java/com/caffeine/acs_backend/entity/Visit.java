@@ -1,6 +1,5 @@
 package com.caffeine.acs_backend.entity;
 
-import com.caffeine.acs_backend.enums.VisitAccessLevel;
 import com.caffeine.acs_backend.enums.VisitStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -55,18 +54,8 @@ public class Visit extends BaseEntity {
   @Builder.Default
   private VisitStatus status = VisitStatus.PRE_REGISTERED;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "access_level", length = 32)
-  private VisitAccessLevel VisitAccessLevel;
-
   @Column(name = "notes", length = 1024)
   private String notes;
-
-  @Column(name = "visitor_email", length = 255)
-  private String visitorEmail;
-
-  @Column(name = "visitor_full_name", length = 255)
-  private String visitorFullName;
 
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)

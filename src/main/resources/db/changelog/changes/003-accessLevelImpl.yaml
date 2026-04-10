@@ -15,24 +15,19 @@ databaseChangeLog:
                 - column:
                     name: notes
                     type: varchar(1024)
-                - column:
-                    name: access_level
-                    type: varchar(32)
-                - column:
-                    name: visitor_email
-                    type: varchar(255)
-          - addColumn:
-              tableName: visit
-              columns:
-                - column:
-                    name: visitor_full_name
-                    type: varchar(255)
           - addColumn:
               tableName: visit
               columns:
                 - column:
                     name: created_at
                     type: timestamp
+
+          - addColumn:
+              tableName: person
+              columns:
+                - column:
+                    name: email
+                    type: varchar(255)
 
           - dropNotNullConstraint:
               tableName: visit

@@ -6,10 +6,16 @@ import com.caffeine.acs_backend.dto.preregistration.NotifyRequest;
 import com.caffeine.acs_backend.dto.preregistration.PreRegistrationResponse;
 import com.caffeine.acs_backend.dto.preregistration.UpdatePreRegistrationRequest;
 import com.caffeine.acs_backend.entity.AccessPoint;
+import com.caffeine.acs_backend.entity.Person;
+import com.caffeine.acs_backend.entity.PersonInRole;
+import com.caffeine.acs_backend.entity.Role;
 import com.caffeine.acs_backend.entity.User;
 import com.caffeine.acs_backend.entity.Visit;
 import com.caffeine.acs_backend.enums.VisitStatus;
 import com.caffeine.acs_backend.repository.AccessPointRepository;
+import com.caffeine.acs_backend.repository.PersonInRoleRepository;
+import com.caffeine.acs_backend.repository.PersonRepository;
+import com.caffeine.acs_backend.repository.RoleRepository;
 import com.caffeine.acs_backend.repository.UserRepository;
 import com.caffeine.acs_backend.repository.VisitRepository;
 import java.time.LocalDate;
@@ -34,6 +40,9 @@ public class PreRegistrationService {
   private final AccessPointRepository accessPointRepository;
   private final UserRepository userRepository;
   private final EmailService emailService;
+  private final PersonInRoleRepository personInRoleRepository;
+  private final RoleRepository roleRepository;
+  private final PersonRepository personRepository;
 
   @Transactional
   public CreatePreRegistrationResponse create(CreatePreRegistrationRequest request) {
@@ -45,23 +54,39 @@ public class PreRegistrationService {
 
     User currentUser = getCurrentUser();
 
+    Person person =
+        personRepository
+            .findById(request.personId())
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Person not found"));
+
+    Role visitorRole =
+        roleRepository
+            .findByName("Visitor")
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.INTERNAL_SERVER_ERROR, "Visitor role not found"));
+
+    PersonInRole personInRole =
+        PersonInRole.builder().person(person).role(visitorRole).isActive(true).build();
+    personInRoleRepository.save(personInRole);
+
     Visit visit =
         Visit.builder()
             .arrivalTime(request.expectedArrival())
             .accessPoint(building)
-            .visitorEmail(request.email())
-            .visitorFullName(request.fullName())
+            .visitor(personInRole)
             .notes(request.notes())
-            .VisitAccessLevel(request.VisitAccessLevel())
             .status(VisitStatus.PRE_REGISTERED)
             .build();
 
     visitRepository.save(visit);
 
-    if (request.email() != null && !request.email().isBlank()) {
+    if (person.getEmail() != null && !person.getEmail().isBlank()) {
       emailService.sendVisitorNotification(
-          request.email(),
-          request.fullName(),
+          person.getEmail(),
+          person.getGivenName() + " " + person.getSurname(),
           request.expectedArrival().toString(),
           building.getName());
     }
@@ -98,9 +123,6 @@ public class PreRegistrationService {
     if (request.notes() != null) {
       visit.setNotes(request.notes());
     }
-    if (request.VisitAccessLevel() != null) {
-      visit.setVisitAccessLevel(request.VisitAccessLevel());
-    }
 
     visitRepository.save(visit);
     return PreRegistrationResponse.from(visit, getCurrentUser());
@@ -114,24 +136,25 @@ public class PreRegistrationService {
 
     log.info("Pre-registration cancelled: {}", id);
 
-    if (visit.getVisitorEmail() != null) {
-      emailService.sendCancellationNotification(visit.getVisitorEmail(), "Visitor", customMessage);
+    String email = visit.getVisitor() != null ? visit.getVisitor().getPerson().getEmail() : null;
+
+    if (email != null) {
+      emailService.sendCancellationNotification(email, "Visitor", customMessage);
     }
   }
 
   public void resendNotification(UUID id, NotifyRequest request) {
     Visit visit = findPreRegistration(id);
 
-    if (visit.getVisitorEmail() == null) {
+    String email = visit.getVisitor() != null ? visit.getVisitor().getPerson().getEmail() : null;
+
+    if (email == null) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST, "No email on file for this visitor");
     }
 
     emailService.sendVisitorNotification(
-        visit.getVisitorEmail(),
-        "Visitor",
-        visit.getArrivalTime().toString(),
-        visit.getAccessPoint().getName());
+        email, "Visitor", visit.getArrivalTime().toString(), visit.getAccessPoint().getName());
   }
 
   private Visit findPreRegistration(UUID id) {

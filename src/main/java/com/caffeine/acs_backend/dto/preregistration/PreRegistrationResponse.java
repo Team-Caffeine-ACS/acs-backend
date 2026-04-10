@@ -2,7 +2,6 @@ package com.caffeine.acs_backend.dto.preregistration;
 
 import com.caffeine.acs_backend.entity.User;
 import com.caffeine.acs_backend.entity.Visit;
-import com.caffeine.acs_backend.enums.VisitAccessLevel;
 import com.caffeine.acs_backend.enums.VisitStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
@@ -16,7 +15,6 @@ public record PreRegistrationResponse(
     LocalDateTime expectedArrival,
     String hostName,
     String notes,
-    VisitAccessLevel VisitAccessLevel,
     String building,
     LocalDateTime createdAt,
     VisitStatus status) {
@@ -27,7 +25,9 @@ public record PreRegistrationResponse(
             ? visit.getVisitor().getPerson().getGivenName()
                 + " "
                 + visit.getVisitor().getPerson().getSurname()
-            : visit.getVisitorFullName();
+            : null;
+
+    String email = visit.getVisitor() != null ? visit.getVisitor().getPerson().getEmail() : null;
 
     String hostName =
         visit.getHost() != null
@@ -39,11 +39,10 @@ public record PreRegistrationResponse(
     return new PreRegistrationResponse(
         visit.getId(),
         fullName,
-        visit.getVisitorEmail(),
+        email,
         visit.getArrivalTime(),
         hostName,
         visit.getNotes(),
-        visit.getVisitAccessLevel(),
         visit.getAccessPoint().getName(),
         visit.getCreatedAt(),
         visit.getStatus());
