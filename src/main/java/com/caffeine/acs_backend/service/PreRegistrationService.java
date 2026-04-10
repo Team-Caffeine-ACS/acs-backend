@@ -69,8 +69,16 @@ public class PreRegistrationService {
                         HttpStatus.INTERNAL_SERVER_ERROR, "Visitor role not found"));
 
     PersonInRole personInRole =
-        PersonInRole.builder().person(person).role(visitorRole).isActive(true).build();
-    personInRoleRepository.save(personInRole);
+        personInRoleRepository
+            .findByPersonAndRoleAndIsActiveTrue(person, visitorRole)
+            .orElseGet(
+                () ->
+                    personInRoleRepository.save(
+                        PersonInRole.builder()
+                            .person(person)
+                            .role(visitorRole)
+                            .isActive(true)
+                            .build()));
 
     Visit visit =
         Visit.builder()
@@ -81,6 +89,10 @@ public class PreRegistrationService {
             .status(VisitStatus.PRE_REGISTERED)
             .build();
 
+    if (request.hostId() != null) {
+      personInRoleRepository.findById(request.hostId()).ifPresent(visit::setHost);
+    }
+
     visitRepository.save(visit);
 
     if (person.getEmail() != null && !person.getEmail().isBlank()) {
@@ -88,7 +100,8 @@ public class PreRegistrationService {
           person.getEmail(),
           person.getGivenName() + " " + person.getSurname(),
           request.expectedArrival().toString(),
-          building.getName());
+          building.getName(),
+          null);
     }
 
     log.info("Pre-registration created: {} by user {}", visit.getId(), currentUser.getEmail());
@@ -109,7 +122,12 @@ public class PreRegistrationService {
 
     return visitRepository
         .findPreRegistrations(
-            status != null ? status.name() : null, buildingId, from, to, search, pageable)
+            status != null ? status.name() : VisitStatus.PRE_REGISTERED.name(),
+            buildingId,
+            from,
+            to,
+            search,
+            pageable)
         .map(visit -> PreRegistrationResponse.from(visit, getCurrentUser()));
   }
 
@@ -122,6 +140,14 @@ public class PreRegistrationService {
     }
     if (request.notes() != null) {
       visit.setNotes(request.notes());
+    }
+    if (request.buildingId() != null) {
+      AccessPoint building =
+          accessPointRepository
+              .findById(request.buildingId())
+              .orElseThrow(
+                  () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Building not found"));
+      visit.setAccessPoint(building);
     }
 
     visitRepository.save(visit);
@@ -153,8 +179,14 @@ public class PreRegistrationService {
           HttpStatus.BAD_REQUEST, "No email on file for this visitor");
     }
 
+    Person person = visit.getVisitor().getPerson();
+
     emailService.sendVisitorNotification(
-        email, "Visitor", visit.getArrivalTime().toString(), visit.getAccessPoint().getName());
+        person.getEmail(),
+        person.getGivenName() + " " + person.getSurname(),
+        visit.getArrivalTime().toString(),
+        visit.getAccessPoint().getName(),
+        request != null ? request.message() : null);
   }
 
   private Visit findPreRegistration(UUID id) {

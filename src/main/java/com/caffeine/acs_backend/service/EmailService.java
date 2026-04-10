@@ -14,7 +14,7 @@ public class EmailService {
   private final JavaMailSender mailSender;
 
   public void sendVisitorNotification(
-      String to, String visitorName, String arrivalTime, String building) {
+      String to, String visitorName, String arrivalTime, String building, String customMessage) {
     try {
       SimpleMailMessage message = new SimpleMailMessage();
       message.setTo(to);
@@ -23,8 +23,12 @@ public class EmailService {
           String.format(
               "Dear %s,\n\nYou have been pre-registered for a visit.\n\n"
                   + "Expected arrival: %s\nBuilding: %s\n\n"
+                  + "%s"
                   + "Please present this email at the reception.\n\nBest regards,\nACS System",
-              visitorName, arrivalTime, building));
+              visitorName,
+              arrivalTime,
+              building,
+              customMessage != null ? customMessage + "\n\n" : ""));
       mailSender.send(message);
       log.info("Notification email sent to {}", to);
     } catch (Exception e) {

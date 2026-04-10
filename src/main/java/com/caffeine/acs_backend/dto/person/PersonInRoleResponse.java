@@ -11,7 +11,7 @@ public record PersonInRoleResponse(
     @Schema(description = "First name", example = "Jane") String givenName,
     @Schema(description = "Last name", example = "Doe") String surname,
     @Schema(description = "Role name", example = "Receptionist") String roleName,
-    @Schema(description = "email", example = "john@gmail.com") String email) {
+    @Schema(description = "Email address", example = "john@gmail.com") String email) {
 
   public static PersonInRoleResponse from(PersonInRole pir) {
     return new PersonInRoleResponse(
@@ -19,7 +19,7 @@ public record PersonInRoleResponse(
         pir.getPerson().getId(),
         pir.getPerson().getGivenName(),
         pir.getPerson().getSurname(),
-        pir.getPerson().getEmail(),
-        pir.getRole().getName());
+        pir.getRole().getName(),
+        pir.getPerson().getEmail());
   }
 }
