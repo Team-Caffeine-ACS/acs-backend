@@ -39,8 +39,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(KeycardController.class)
-@Import({SecurityConfig.class, JwtAuthFilter.class, JwtAccessDeniedHandler.class,
-    JwtAuthenticationEntryPoint.class})
+@Import({
+  SecurityConfig.class,
+  JwtAuthFilter.class,
+  JwtAccessDeniedHandler.class,
+  JwtAuthenticationEntryPoint.class
+})
 class KeycardControllerTest {
 
   @Autowired private MockMvc mockMvc;

@@ -29,8 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearerAuth")
 public class KeycardController {
 
-  private static final String ADMIN_OR_SECURITY_CHIEF =
-      "hasAnyRole('ADMIN', 'SECURITY_CHIEF')";
+  private static final String ADMIN_OR_SECURITY_CHIEF = "hasAnyRole('ADMIN', 'SECURITY_CHIEF')";
   private static final String ADMIN_SECURITY_CHIEF_OR_RECEPTIONIST =
       "hasAnyRole('ADMIN', 'SECURITY_CHIEF', 'RECEPTIONIST')";
 
