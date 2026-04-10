@@ -1,4 +1,4 @@
-name: Lint and Format Check
+name: Lint, Format Check and Tests
 
 on:
   pull_request:
@@ -29,3 +29,6 @@ jobs:
         with:
           dockerfile: "**/Dockerfile*"
           recursive: true
+
+      - name: Run tests
+        run: ./mvnw --no-transfer-progress test
