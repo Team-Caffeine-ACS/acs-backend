@@ -1,8 +1,10 @@
 package com.caffeine.acs_backend.entity;
 
+import com.caffeine.acs_backend.enums.VisitStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "visit")
@@ -46,4 +48,16 @@ public class Visit extends BaseEntity {
 
   @Column(name = "comment", length = 1024)
   private String comment;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false, length = 32)
+  @Builder.Default
+  private VisitStatus status = VisitStatus.PRE_REGISTERED;
+
+  @Column(name = "notes", length = 1024)
+  private String notes;
+
+  @CreationTimestamp
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
 }
