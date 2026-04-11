@@ -69,6 +69,23 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
+  // --- 403: Method-level access denied (@PreAuthorize) ---
+  @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAccessDenied(
+      org.springframework.security.access.AccessDeniedException ex, HttpServletRequest request) {
+    ErrorResponse body =
+        ErrorResponse.builder()
+            .timestamp(Instant.now())
+            .message("Access denied")
+            .status(HttpStatus.FORBIDDEN.value())
+            .errorCode(ErrorCode.ACCESS_DENIED)
+            .path(request.getRequestURI())
+            .details(null)
+            .build();
+
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+  }
+
   // --- BusinessException ---
   @ExceptionHandler(BusinessException.class)
   public ResponseEntity<ErrorResponse> handleBusiness(
