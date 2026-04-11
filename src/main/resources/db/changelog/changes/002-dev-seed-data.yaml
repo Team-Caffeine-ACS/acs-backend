@@ -354,7 +354,7 @@ databaseChangeLog:
               - column: { name: id, value: "a9000000-0000-0000-0000-000000000001" }
               - column: { name: email, value: "admin@dev.local" }
               # bcrypt hash of "password"
-              - column: { name: password, value: "$2b$10$7qsX1SPKh5QK9soqJm6CGupv25ALJYIqtOSGKewPcu7ti1EEqkjUa" }
+              - column: { name: password, value: "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKom4ZEpc/fVjCNqY9cqzPGGaFzm" }
               - column: { name: role, value: "ADMIN" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000001" }
         - insert:
@@ -362,7 +362,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: "a9000000-0000-0000-0000-000000000002" }
               - column: { name: email, value: "security@dev.local" }
-              - column: { name: password, value: "$2b$10$7qsX1SPKh5QK9soqJm6CGupv25ALJYIqtOSGKewPcu7ti1EEqkjUa" }
+              - column: { name: password, value: "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKom4ZEpc/fVjCNqY9cqzPGGaFzm" }
               - column: { name: role, value: "SECURITY_CHIEF" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000002" }
         - insert:
@@ -370,7 +370,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: "a9000000-0000-0000-0000-000000000003" }
               - column: { name: email, value: "receptionist@dev.local" }
-              - column: { name: password, value: "$2b$10$7qsX1SPKh5QK9soqJm6CGupv25ALJYIqtOSGKewPcu7ti1EEqkjUa" }
+              - column: { name: password, value: "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKom4ZEpc/fVjCNqY9cqzPGGaFzm" }
               - column: { name: role, value: "RECEPTIONIST" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000003" }
         - insert:
@@ -378,7 +378,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: "a9000000-0000-0000-0000-000000000004" }
               - column: { name: email, value: "visitor@dev.local" }
-              - column: { name: password, value: "$2b$10$7qsX1SPKh5QK9soqJm6CGupv25ALJYIqtOSGKewPcu7ti1EEqkjUa" }
+              - column: { name: password, value: "$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKom4ZEpc/fVjCNqY9cqzPGGaFzm" }
               - column: { name: role, value: "VISITOR" }
               - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000004" }
 
