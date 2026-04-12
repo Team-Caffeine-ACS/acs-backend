@@ -22,6 +22,13 @@ public interface KeycardInPossessionRepository extends JpaRepository<KeycardInPo
 
   @Query(
       "SELECT kp FROM KeycardInPossession kp"
+          + " JOIN FETCH kp.keycard"
+          + " WHERE kp.keycardHolder = :holder AND kp.returnTime IS NULL")
+  Optional<KeycardInPossession> findActiveByHolder(
+      @Param("holder") com.caffeine.acs_backend.entity.PersonInRole holder);
+
+  @Query(
+      "SELECT kp FROM KeycardInPossession kp"
           + " JOIN FETCH kp.keycardHolder holder"
           + " JOIN FETCH holder.person"
           + " WHERE kp.keycard = :keycard"

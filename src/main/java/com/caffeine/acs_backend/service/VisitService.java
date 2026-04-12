@@ -2,10 +2,23 @@ package com.caffeine.acs_backend.service;
 
 import com.caffeine.acs_backend.dto.visit.CreateVisitRequest;
 import com.caffeine.acs_backend.dto.visit.CreateVisitResponse;
+import com.caffeine.acs_backend.dto.visit.EditVisitRequest;
+import com.caffeine.acs_backend.dto.visit.ExitVisitRequest;
+import com.caffeine.acs_backend.dto.visit.VisitDetailResponse;
+import com.caffeine.acs_backend.dto.visit.VisitListItemResponse;
+import com.caffeine.acs_backend.dto.visit.VisitTimelineEntry;
 import com.caffeine.acs_backend.entity.*;
+import com.caffeine.acs_backend.enums.errorcode.ErrorCode;
+import com.caffeine.acs_backend.exception.BusinessException;
 import com.caffeine.acs_backend.repository.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VisitService {
 
-  private static final String VISITOR_ROLE_NAME = "VISITOR";
+  private static final String VISITOR_ROLE_NAME = "Visitor";
 
   private final AccessPointRepository accessPointRepository;
   private final PersonInRoleRepository personInRoleRepository;
@@ -22,6 +35,135 @@ public class VisitService {
   private final RoleRepository roleRepository;
   private final PersonRepository personRepository;
   private final VisitRepository visitRepository;
+
+  // ── GET /visits ──────────────────────────────────────────────────────────────
+
+  @Transactional(readOnly = true)
+  public Page<VisitListItemResponse> getVisits(
+      String search,
+      String status,
+      LocalDateTime dateFrom,
+      LocalDateTime dateTo,
+      Pageable pageable) {
+    String searchParam = (search == null || search.isBlank()) ? null : search.trim();
+    String statusParam = (status == null || status.isBlank()) ? null : status.trim().toLowerCase();
+    return visitRepository
+        .findAllFiltered(searchParam, statusParam, dateFrom, dateTo, pageable)
+        .map(VisitListItemResponse::from);
+  }
+
+  // ── GET /visits/{visitId} ────────────────────────────────────────────────────
+
+  @Transactional(readOnly = true)
+  public VisitDetailResponse getVisit(UUID visitId) {
+    Visit visit = findVisitOrThrow(visitId);
+
+    Person person = visit.getVisitor().getPerson();
+
+    String hostName = null;
+    if (visit.getHost() != null) {
+      Person host = visit.getHost().getPerson();
+      hostName = host.getGivenName() + " " + host.getSurname();
+    }
+
+    UUID cardId =
+        keycardInPossessionRepository
+            .findActiveByHolder(visit.getVisitor())
+            .map(kip -> kip.getKeycard().getId())
+            .orElse(null);
+
+    return new VisitDetailResponse(
+        visit.getId(),
+        person.getGivenName(),
+        person.getSurname(),
+        person.getSocialSecurityNumber(),
+        person.getOrganization() != null ? person.getOrganization().getName() : null,
+        person.getDepartment() != null ? person.getDepartment().getName() : null,
+        hostName,
+        visit.getComment(),
+        cardId);
+  }
+
+  // ── PUT /visits/{visitId}/exit ────────────────────────────────────────────────
+
+  @Transactional
+  public VisitDetailResponse exitVisit(UUID visitId, ExitVisitRequest request) {
+    Visit visit = findVisitOrThrow(visitId);
+
+    if (visit.getExitTime() != null) {
+      throw new BusinessException(
+          "Visit already has an exit time recorded",
+          ErrorCode.BUSINESS_RULE_VIOLATION,
+          HttpStatus.CONFLICT);
+    }
+
+    visit.setExitTime(request.exitTime());
+    visitRepository.save(visit);
+
+    return buildDetailResponse(visit);
+  }
+
+  // ── PUT /visits/{visitId}/edit ────────────────────────────────────────────────
+
+  @Transactional
+  public VisitDetailResponse editVisit(UUID visitId, EditVisitRequest request) {
+    Visit visit = findVisitOrThrow(visitId);
+
+    // Resolve assignor and access point for audit trail
+    findPersonInRoleOrThrow(request.assignorId());
+    findAccessPointOrThrow(request.accessPointId());
+
+    // Update host — null clears it, non-null sets a new one
+    if (request.hostId() != null) {
+      Person hostPerson =
+          personRepository
+              .findById(request.hostId())
+              .orElseThrow(
+                  () ->
+                      new BusinessException(
+                          "Host person not found: " + request.hostId(),
+                          ErrorCode.RESOURCE_NOT_FOUND,
+                          HttpStatus.NOT_FOUND));
+      PersonInRole host =
+          personInRoleRepository
+              .findFirstByPersonAndIsActiveTrue(hostPerson)
+              .orElseThrow(
+                  () ->
+                      new BusinessException(
+                          "Host has no active role assignment: " + request.hostId(),
+                          ErrorCode.RESOURCE_NOT_FOUND,
+                          HttpStatus.NOT_FOUND));
+      visit.setHost(host);
+    } else {
+      visit.setHost(null);
+    }
+
+    visit.setArrivalTime(request.entryTime());
+    visit.setComment(request.comment());
+    visitRepository.save(visit);
+
+    return buildDetailResponse(visit);
+  }
+
+  // ── GET /visits/{visitId}/timeline ────────────────────────────────────────────
+
+  @Transactional(readOnly = true)
+  public List<VisitTimelineEntry> getTimeline(UUID visitId) {
+    Visit visit = findVisitOrThrow(visitId);
+
+    List<VisitTimelineEntry> entries = new ArrayList<>();
+
+    entries.add(
+        new VisitTimelineEntry(visit.getArrivalTime(), "ARRIVAL_REGISTERED", visit.getComment()));
+
+    if (visit.getExitTime() != null) {
+      entries.add(new VisitTimelineEntry(visit.getExitTime(), "DEPARTURE_REGISTERED", null));
+    }
+
+    return entries;
+  }
+
+  // ── Legacy createVisit (kept for backwards compatibility) ────────────────────
 
   @Transactional
   public CreateVisitResponse createVisit(CreateVisitRequest request, User assignorUser) {
@@ -57,7 +199,7 @@ public class VisitService {
       }
     }
 
-    PersonInRole assignor = resolveAssignor(assignorUser);
+    PersonInRole assignor = resolveAssignorFromUser(assignorUser);
 
     PersonInRole host = null;
     if (request.hostPersonInRoleId() != null) {
@@ -70,14 +212,7 @@ public class VisitService {
                           "Host not found: " + request.hostPersonInRoleId()));
     }
 
-    Role visitorRole =
-        roleRepository
-            .findByName(VISITOR_ROLE_NAME)
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "VISITOR role not configured in database. Please seed the roles table."));
-
+    Role visitorRole = findVisitorRole();
     PersonInRole visitorPersonInRole =
         personInRoleRepository
             .findByPersonAndRoleAndIsActiveTrue(person, visitorRole)
@@ -112,16 +247,107 @@ public class VisitService {
       keycardInPossessionRepository.save(possession);
     }
 
+    String hostName = null;
+    if (host != null) {
+      Person hostPerson = host.getPerson();
+      hostName = hostPerson.getGivenName() + " " + hostPerson.getSurname();
+    }
+
+    UUID cardId =
+        keycardInPossessionRepository
+            .findActiveByHolder(visitorPersonInRole)
+            .map(kip -> kip.getKeycard().getId())
+            .orElse(null);
+
     return new CreateVisitResponse(
         visit.getId(),
         person.getId(),
         visitorPersonInRole.getId(),
+        person.getGivenName(),
+        person.getSurname(),
+        person.getSocialSecurityNumber(),
+        person.getOrganization() != null ? person.getOrganization().getName() : null,
+        person.getDepartment() != null ? person.getDepartment().getName() : null,
+        hostName,
+        visit.getComment(),
+        now,
+        cardId,
         possession != null ? possession.getId() : null,
-        keycard != null ? keycard.getKeycardNumber() : null,
-        now);
+        keycard != null ? keycard.getKeycardNumber() : null);
   }
 
-  private PersonInRole resolveAssignor(User assignorUser) {
+  // ── Private helpers ──────────────────────────────────────────────────────────
+
+  private Visit findVisitOrThrow(UUID visitId) {
+    return visitRepository
+        .findById(visitId)
+        .orElseThrow(
+            () ->
+                new BusinessException(
+                    "Visit not found: " + visitId,
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    HttpStatus.NOT_FOUND));
+  }
+
+  private PersonInRole findPersonInRoleOrThrow(UUID personInRoleId) {
+    return personInRoleRepository
+        .findById(personInRoleId)
+        .orElseThrow(
+            () ->
+                new BusinessException(
+                    "PersonInRole not found: " + personInRoleId,
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    HttpStatus.NOT_FOUND));
+  }
+
+  private AccessPoint findAccessPointOrThrow(UUID accessPointId) {
+    return accessPointRepository
+        .findById(accessPointId)
+        .orElseThrow(
+            () ->
+                new BusinessException(
+                    "Access point not found: " + accessPointId,
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    HttpStatus.NOT_FOUND));
+  }
+
+  private Role findVisitorRole() {
+    return roleRepository
+        .findByName(VISITOR_ROLE_NAME)
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "VISITOR role not configured in database. Please seed the roles table."));
+  }
+
+  private VisitDetailResponse buildDetailResponse(Visit visit) {
+    Person person = visit.getVisitor().getPerson();
+
+    String hostName = null;
+    if (visit.getHost() != null) {
+      Person host = visit.getHost().getPerson();
+      hostName = host.getGivenName() + " " + host.getSurname();
+    }
+
+    UUID cardId =
+        keycardInPossessionRepository
+            .findActiveByHolder(visit.getVisitor())
+            .map(kip -> kip.getKeycard().getId())
+            .orElse(null);
+
+    return new VisitDetailResponse(
+        visit.getId(),
+        person.getGivenName(),
+        person.getSurname(),
+        person.getSocialSecurityNumber(),
+        person.getOrganization() != null ? person.getOrganization().getName() : null,
+        person.getDepartment() != null ? person.getDepartment().getName() : null,
+        hostName,
+        visit.getComment(),
+        cardId);
+  }
+
+  private PersonInRole resolveAssignorFromUser(User assignorUser) {
     if (assignorUser.getPerson() == null) {
       throw new IllegalStateException(
           "Your user account has no linked Person. Ask an administrator to link your profile.");
