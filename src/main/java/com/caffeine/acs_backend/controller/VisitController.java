@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/visits")
 @RequiredArgsConstructor
-@Tag(name = "Visits", description = "Visitor activity management")
+@Tag(name = "Visits", description = "Visit management")
 @SecurityRequirement(name = "bearerAuth")
 public class VisitController {
 
