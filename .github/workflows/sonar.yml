@@ -9,10 +9,21 @@ permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: sonar-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Don't attempt Sonar on fork PRs (secrets not available)
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,12 +37,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
+          key: ${{ runner.os }}-sonar-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-sonar-
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          # Maven plugin loeb SONAR_TOKEN-it automaatselt,
-          # aga teisi parameetreid tuleb käsureal linkida:
         run: >
           mvn -B verify sonar:sonar 
           -Dsonar.host.url=https://sonarcloud.io 
