@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changes/003-accessLevelImpl.yaml
   - include:
       file: db/changelog/changes/004-dev-fix-password-hashes.yaml
+  - include:
+      file: db/changelog/changes/005-alter-accesspoint-lat-long.yaml

@@ -1,5 +1,7 @@
 package com.caffeine.acs_backend.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,4 +19,10 @@ public class AccessPoint extends BaseEntity {
 
   @Column(name = "address", length = 128)
   private String address;
+
+  @Column(name = "latitude", precision = 9, scale = 6)
+  private BigDecimal latitude;
+
+  @Column(name = "longitude", precision = 9, scale = 6)
+  private BigDecimal longitude;
 }
