@@ -2,6 +2,7 @@ package com.caffeine.acs_backend.repository;
 
 import com.caffeine.acs_backend.entity.Visit;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -129,4 +130,33 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       @Param("to") LocalDateTime to,
       @Param("search") String search,
       Pageable pageable);
+
+  // 1. Loendab hetkel majas viibijaid (aktiivsed külastajad)
+  @Query("SELECT COUNT(v) FROM Visit v " +
+         "WHERE v.exitTime IS NULL " +
+         "AND v.arrivalTime <= CURRENT_TIMESTAMP " +
+         "AND (:buildingId IS NULL OR v.accessPoint.id = :buildingId)")
+  long countCurrentActiveVisitors(@Param("buildingId") UUID buildingId);
+
+  // 2. Loendab tänaseks planeeritud külastusi (broneeringud)
+  @Query("SELECT COUNT(v) FROM Visit v " +
+         "WHERE v.arrivalTime >= :from " +
+         "AND v.arrivalTime < :to " +
+         "AND (:buildingId IS NULL OR v.accessPoint.id = :buildingId)")
+  long countBookingsByDate(
+      @Param("from") LocalDateTime from, 
+      @Param("to") LocalDateTime to, 
+      @Param("buildingId") UUID buildingId);
+
+  // 3. Toob nimekirja viimastest külastajatest (Recent Visits)
+  // Kasutame siin sarnast loogikat nagu findAllFiltered, aga lihtsamalt
+  @Query("SELECT v FROM Visit v " +
+         "WHERE v.arrivalTime >= :since " +
+         "AND (:buildingId IS NULL OR v.accessPoint.id = :buildingId) " +
+         "ORDER BY v.arrivalTime DESC")
+  List<Visit> findRecentVisits(
+      @Param("since") LocalDateTime since, 
+      @Param("buildingId") UUID buildingId, 
+      Pageable pageable);
+
 }
