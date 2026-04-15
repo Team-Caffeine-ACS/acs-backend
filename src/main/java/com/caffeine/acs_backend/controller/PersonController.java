@@ -44,7 +44,8 @@ public class PersonController {
 
   @Operation(
       summary = "Search persons by name and role",
-      description = "Returns persons whose first or last name contains the query string, filtered by role. Defaults to Visitor if role is not provided.")
+      description =
+          "Returns persons whose first or last name contains the query string, filtered by role. Defaults to Visitor if role is not provided.")
   @ApiResponse(responseCode = "200", description = "Search results returned (may be empty)")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @GetMapping("/search")
