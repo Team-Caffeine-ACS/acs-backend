@@ -138,9 +138,15 @@ public class PreRegistrationService {
     if (request.expectedArrival() != null) {
       visit.setArrivalTime(request.expectedArrival());
     }
-    if (request.notes() != null) {
-      visit.setNotes(request.notes());
+
+    if (request.hostId() != null) {
+      personInRoleRepository.findById(request.hostId()).ifPresent(visit::setHost);
     }
+
+    if (request.status() != null) {
+      visit.setStatus(request.status());
+    }
+
     if (request.buildingId() != null) {
       AccessPoint building =
           accessPointRepository

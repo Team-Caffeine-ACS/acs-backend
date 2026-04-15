@@ -1,6 +1,7 @@
 package com.caffeine.acs_backend.repository;
 
 import com.caffeine.acs_backend.entity.Visit;
+import com.caffeine.acs_backend.enums.VisitStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface VisitRepository extends JpaRepository<Visit, UUID> {
+
+  long countByArrivalTimeBetween(LocalDateTime from, LocalDateTime to);
+
+  long countByStatus(VisitStatus status);
 
   @Query(
       nativeQuery = true,
