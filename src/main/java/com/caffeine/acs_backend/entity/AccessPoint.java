@@ -1,8 +1,7 @@
 package com.caffeine.acs_backend.entity;
 
-import java.math.BigDecimal;
-
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.*;
 
 @Entity

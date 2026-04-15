@@ -8,5 +8,5 @@ public record DashboardSummaryResponse(
     @Schema(example = "25") long bookingsToday,
     @Schema(example = "3") long pendingRequests,
     @Schema(example = "150") long availableSpaces,
-    @Schema(description = "Trend indicators compared to yesterday") Map<String, String> trendIndicators
-) {}
+    @Schema(description = "Trend indicators compared to yesterday")
+        Map<String, String> trendIndicators) {}

@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Keycard extends BaseEntity {
 
   @Column(name = "keycard_number", nullable = false, length = 128, unique = true)

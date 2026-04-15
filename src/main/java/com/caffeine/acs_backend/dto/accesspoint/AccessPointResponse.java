@@ -2,7 +2,6 @@ package com.caffeine.acs_backend.dto.accesspoint;
 
 import com.caffeine.acs_backend.entity.AccessPoint;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -12,18 +11,16 @@ public record AccessPointResponse(
         UUID id,
     @Schema(description = "Name of the access point", example = "Main entrance") String name,
     @Schema(description = "Physical address", example = "Building A, Gate 1") String address,
-    @Schema(description = "Latitude for Google Maps", example = "59.437000") 
-    BigDecimal latitude,
-
-    @Schema(description = "Longitude for Google Maps", example = "24.753600") 
-    BigDecimal longitude) {
+    @Schema(description = "Latitude for Google Maps", example = "59.437000") BigDecimal latitude,
+    @Schema(description = "Longitude for Google Maps", example = "24.753600")
+        BigDecimal longitude) {
 
   public static AccessPointResponse from(AccessPoint accessPoint) {
     return new AccessPointResponse(
-        accessPoint.getId(), 
-        accessPoint.getName(), 
+        accessPoint.getId(),
+        accessPoint.getName(),
         accessPoint.getAddress(),
-        accessPoint.getLatitude(), 
+        accessPoint.getLatitude(),
         accessPoint.getLongitude());
   }
 }
