@@ -43,19 +43,26 @@ public class PersonController {
   }
 
   @Operation(
-      summary = "Search persons by name",
-      description =
-          "Returns person records whose first or last name contains the query string."
-              + " Optionally filter by role name.")
+      summary = "Search employees by name",
+      description = "Returns persons with the Employee role whose first or last name contains the query string.")
   @ApiResponse(responseCode = "200", description = "Search results returned (may be empty)")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
-  @GetMapping("/search")
-  public ResponseEntity<List<PersonInRoleResponse>> search(
-      @Parameter(description = "Name fragment to search for", example = "Jane") @RequestParam
-          String q,
-      @Parameter(description = "Role name to filter by (optional)", example = "Employee")
-          @RequestParam(required = false)
-          String role) {
-    return ResponseEntity.ok(personService.search(q, role));
+  @GetMapping("/employees/search")
+  public ResponseEntity<List<PersonInRoleResponse>> searchEmployees(
+      @Parameter(description = "Name fragment to search for", example = "Alice") @RequestParam
+          String q) {
+    return ResponseEntity.ok(personService.search(q, "Employee"));
+  }
+
+  @Operation(
+      summary = "Search visitors by name",
+      description = "Returns persons with the Visitor role whose first or last name contains the query string.")
+  @ApiResponse(responseCode = "200", description = "Search results returned (may be empty)")
+  @ApiResponse(responseCode = "401", description = "Unauthorized")
+  @GetMapping("/visitors/search")
+  public ResponseEntity<List<PersonInRoleResponse>> searchVisitors(
+      @Parameter(description = "Name fragment to search for", example = "Dave") @RequestParam
+          String q) {
+    return ResponseEntity.ok(personService.search(q, "Visitor"));
   }
 }
