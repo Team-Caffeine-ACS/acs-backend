@@ -1,0 +1,43 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 005-01-seed-employee-role
+      author: dev
+      context: dev
+      changes:
+        - insert:
+            tableName: role
+            columns:
+              - column: { name: id, value: "a4000000-0000-0000-0000-000000000005" }
+              - column: { name: name, value: "Employee" }
+              - column: { name: description, value: "Regular employee of the organization" }
+
+  - changeSet:
+      id: 005-02-seed-employee-role-assignments
+      author: dev
+      context: dev
+      changes:
+        # Alice → Employee
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000009" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000001" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000005" }
+              - column: { name: is_active, valueBoolean: true }
+        # Bob → Employee
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000010" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000002" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000005" }
+              - column: { name: is_active, valueBoolean: true }
+        # Carol → Employee
+        - insert:
+            tableName: person_in_role
+            columns:
+              - column: { name: id, value: "ab000000-0000-0000-0000-000000000011" }
+              - column: { name: person_id, value: "a8000000-0000-0000-0000-000000000003" }
+              - column: { name: role_id, value: "a4000000-0000-0000-0000-000000000005" }
+              - column: { name: is_active, valueBoolean: true }
