@@ -18,15 +18,6 @@ public interface PersonInRoleRepository extends JpaRepository<PersonInRole, UUID
           + " JOIN FETCH pir.role"
           + " WHERE pir.isActive = true"
           + " AND (LOWER(pir.person.givenName) LIKE LOWER(CONCAT('%', :query, '%'))"
-          + " OR LOWER(pir.person.surname) LIKE LOWER(CONCAT('%', :query, '%')))")
-  List<PersonInRole> searchByPersonName(@Param("query") String query);
-
-  @Query(
-      "SELECT pir FROM PersonInRole pir"
-          + " JOIN FETCH pir.person"
-          + " JOIN FETCH pir.role"
-          + " WHERE pir.isActive = true"
-          + " AND (LOWER(pir.person.givenName) LIKE LOWER(CONCAT('%', :query, '%'))"
           + " OR LOWER(pir.person.surname) LIKE LOWER(CONCAT('%', :query, '%')))"
           + " AND LOWER(pir.role.name) = LOWER(:role)")
   List<PersonInRole> searchByPersonNameAndRole(

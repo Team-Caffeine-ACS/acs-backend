@@ -6,7 +6,6 @@ import com.caffeine.acs_backend.dto.person.PersonResponse;
 import com.caffeine.acs_backend.entity.Document;
 import com.caffeine.acs_backend.entity.DocumentType;
 import com.caffeine.acs_backend.entity.Person;
-import com.caffeine.acs_backend.entity.PersonInRole;
 import com.caffeine.acs_backend.repository.DocumentTypeRepository;
 import com.caffeine.acs_backend.repository.PersonInRoleRepository;
 import com.caffeine.acs_backend.repository.PersonRepository;
@@ -66,11 +65,7 @@ public class PersonService {
     if (query == null || query.isBlank()) {
       return List.of();
     }
-    String roleFilter = (role == null || role.isBlank()) ? null : role.trim();
-    List<PersonInRole> results = roleFilter == null
-        ? personInRoleRepository.searchByPersonName(query.trim())
-        : personInRoleRepository.searchByPersonNameAndRole(query.trim(), roleFilter);
-    return results.stream()
+    return personInRoleRepository.searchByPersonNameAndRole(query.trim(), role.trim()).stream()
         .map(PersonInRoleResponse::from)
         .toList();
   }
