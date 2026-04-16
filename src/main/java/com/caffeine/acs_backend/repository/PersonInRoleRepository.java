@@ -19,8 +19,9 @@ public interface PersonInRoleRepository extends JpaRepository<PersonInRole, UUID
           + " WHERE pir.isActive = true"
           + " AND (LOWER(pir.person.givenName) LIKE LOWER(CONCAT('%', :query, '%'))"
           + " OR LOWER(pir.person.surname) LIKE LOWER(CONCAT('%', :query, '%')))"
-          + " AND (:role IS NULL OR LOWER(pir.role.name) = LOWER(:role))")
-  List<PersonInRole> searchByPersonName(@Param("query") String query, @Param("role") String role);
+          + " AND LOWER(pir.role.name) = LOWER(:role)")
+  List<PersonInRole> searchByPersonNameAndRole(
+      @Param("query") String query, @Param("role") String role);
 
   Optional<PersonInRole> findFirstByPersonAndIsActiveTrue(Person person);
 

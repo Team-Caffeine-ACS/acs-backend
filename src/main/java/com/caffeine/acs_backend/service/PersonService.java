@@ -65,8 +65,7 @@ public class PersonService {
     if (query == null || query.isBlank()) {
       return List.of();
     }
-    String roleFilter = (role == null || role.isBlank()) ? null : role.trim();
-    return personInRoleRepository.searchByPersonName(query.trim(), roleFilter).stream()
+    return personInRoleRepository.searchByPersonNameAndRole(query.trim(), role.trim()).stream()
         .map(PersonInRoleResponse::from)
         .toList();
   }

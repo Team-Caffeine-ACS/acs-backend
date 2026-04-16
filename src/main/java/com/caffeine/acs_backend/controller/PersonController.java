@@ -43,18 +43,17 @@ public class PersonController {
   }
 
   @Operation(
-      summary = "Search persons by name",
+      summary = "Search persons by name and role",
       description =
-          "Returns person records whose first or last name contains the query string."
-              + " Optionally filter by role name.")
+          "Returns persons whose first or last name contains the query string, filtered by role. Defaults to Visitor if role is not provided.")
   @ApiResponse(responseCode = "200", description = "Search results returned (may be empty)")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @GetMapping("/search")
   public ResponseEntity<List<PersonInRoleResponse>> search(
       @Parameter(description = "Name fragment to search for", example = "Jane") @RequestParam
           String q,
-      @Parameter(description = "Role name to filter by (optional)", example = "Employee")
-          @RequestParam(required = false)
+      @Parameter(description = "Role name to filter by", example = "Employee")
+          @RequestParam(defaultValue = "Visitor")
           String role) {
     return ResponseEntity.ok(personService.search(q, role));
   }
