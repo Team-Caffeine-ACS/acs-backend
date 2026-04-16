@@ -12,6 +12,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Person extends BaseEntity {
 
   @Column(name = "given_name", nullable = false, length = 128)

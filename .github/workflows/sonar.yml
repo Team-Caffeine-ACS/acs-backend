@@ -33,6 +33,8 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+      - name: Run tests and generate JaCoCo report
+        run: mvn -B clean test jacoco:report
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
@@ -44,7 +46,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >
-          mvn -B verify sonar:sonar 
+          mvn -B sonar:sonar 
           -Dsonar.host.url=https://sonarcloud.io 
           -Dsonar.organization=${{ vars.SONAR_ORG_KEY }} 
           -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}

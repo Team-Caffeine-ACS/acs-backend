@@ -137,9 +137,10 @@ class VisitServiceTest {
   @Test
   void exitVisit_notFound_throwsBusinessException() {
     UUID id = UUID.randomUUID();
+    ExitVisitRequest request = new ExitVisitRequest(LocalDateTime.now());
     when(visitRepository.findById(id)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> visitService.exitVisit(id, new ExitVisitRequest(LocalDateTime.now())))
+    assertThatThrownBy(() -> visitService.exitVisit(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
@@ -147,14 +148,17 @@ class VisitServiceTest {
 
   @Test
   void exitVisit_alreadyExited_throwsConflict() {
+    // 1. Ettevalmistus
     UUID id = UUID.randomUUID();
     PersonInRole visitor = personInRole("John", "Smith");
     Visit visit = visitWithVisitor(visitor);
     visit.setExitTime(LocalDateTime.now().minusMinutes(30));
 
+    ExitVisitRequest request = new ExitVisitRequest(LocalDateTime.now());
+
     when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
 
-    assertThatThrownBy(() -> visitService.exitVisit(id, new ExitVisitRequest(LocalDateTime.now())))
+    assertThatThrownBy(() -> visitService.exitVisit(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));

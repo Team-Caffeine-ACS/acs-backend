@@ -9,7 +9,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public abstract class BaseEntity {
 
   @Id

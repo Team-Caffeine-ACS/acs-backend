@@ -1,6 +1,7 @@
 package com.caffeine.acs_backend.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.*;
 
 @Entity
@@ -10,6 +11,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class AccessPoint extends BaseEntity {
 
   @Column(name = "name", nullable = false, length = 128)
@@ -17,4 +19,10 @@ public class AccessPoint extends BaseEntity {
 
   @Column(name = "address", length = 128)
   private String address;
+
+  @Column(name = "latitude", precision = 9, scale = 6)
+  private BigDecimal latitude;
+
+  @Column(name = "longitude", precision = 9, scale = 6)
+  private BigDecimal longitude;
 }

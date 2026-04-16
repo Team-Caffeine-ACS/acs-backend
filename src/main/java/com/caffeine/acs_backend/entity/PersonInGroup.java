@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class PersonInGroup extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)

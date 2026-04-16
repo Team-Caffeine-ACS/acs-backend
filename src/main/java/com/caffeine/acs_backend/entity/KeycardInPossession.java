@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class KeycardInPossession extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
