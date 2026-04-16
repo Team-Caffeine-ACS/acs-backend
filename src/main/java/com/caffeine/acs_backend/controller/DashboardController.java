@@ -22,15 +22,15 @@ public class DashboardController {
   @GetMapping("/summary")
   @Operation(summary = "Get today's summary metrics")
   public ResponseEntity<DashboardSummaryResponse> getSummary(
-      @RequestParam(required = false) UUID buildingId) {
-    return ResponseEntity.ok(dashboardService.getSummary(buildingId));
+      @RequestParam(required = false) UUID accessPointId) {
+    return ResponseEntity.ok(dashboardService.getSummary(accessPointId));
   }
 
   @GetMapping("/recent-visits")
   @Operation(summary = "Get list of most recent visits for today")
   public ResponseEntity<List<DashboardRecentVisitResponse>> getRecentVisits(
-      @RequestParam(required = false) UUID buildingId,
+      @RequestParam(required = false) UUID accessPointId,
       @RequestParam(defaultValue = "10") int limit) {
-    return ResponseEntity.ok(dashboardService.getRecentVisits(buildingId, limit));
+    return ResponseEntity.ok(dashboardService.getRecentVisits(accessPointId, limit));
   }
 }

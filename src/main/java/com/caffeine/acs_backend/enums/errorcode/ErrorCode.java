@@ -19,5 +19,8 @@ public enum ErrorCode {
   INTERNAL_ERROR,
 
   // --- User Related ---
-  EMAIL_ALREADY_EXISTS
+  EMAIL_ALREADY_EXISTS,
+
+  // --- Generic ---
+  GENERIC_ERROR
 }
