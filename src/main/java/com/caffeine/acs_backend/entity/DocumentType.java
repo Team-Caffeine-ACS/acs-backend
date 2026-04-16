@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class DocumentType extends BaseEntity {
 
   @Column(name = "name", nullable = false, length = 128)

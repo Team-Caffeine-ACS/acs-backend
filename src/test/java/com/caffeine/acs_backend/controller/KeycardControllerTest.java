@@ -28,7 +28,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(KeycardController.class)
@@ -50,11 +50,11 @@ class KeycardControllerTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
 
-  @MockBean private KeycardService keycardService;
+  @MockitoBean private KeycardService keycardService;
 
   // JwtAuthFilter dependencies — real filter runs, mock its collaborators
-  @MockBean private JwtService jwtService;
-  @MockBean private UserDetailsService userDetailsService;
+  @MockitoBean private JwtService jwtService;
+  @MockitoBean private UserDetailsService userDetailsService;
 
   private static final UUID CARD_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 

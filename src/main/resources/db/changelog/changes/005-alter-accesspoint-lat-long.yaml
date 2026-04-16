@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20240522-add-coords-to-access-point
+      author: sinunimi
+      comment: Lisame AccessPoint tabelisse latitude ja longitude väljad Google Mapsi jaoks
+      changes:
+        - addColumn:
+            tableName: access_point
+            columns:
+              - column:
+                  name: latitude
+                  type: DECIMAL(9,6)
+                  remarks: "Hoonete laiuskraad Google Mapsi jaoks"
+              - column:
+                  name: longitude
+                  type: DECIMAL(9,6)
+                  remarks: "Hoonete pikkuskraad Google Mapsi jaoks"
