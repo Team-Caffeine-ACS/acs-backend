@@ -50,7 +50,7 @@ class UserControllerTest {
   private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
   private UserResponse sampleResponse(String email, UserRole role) {
-    return new UserResponse(USER_ID, email, role, null);
+    return new UserResponse(USER_ID, email, role, null, null);
   }
 
   // ── GET /api/users/me ─────────────────────────────────────────────────────────

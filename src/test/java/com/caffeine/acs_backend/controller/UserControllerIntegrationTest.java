@@ -87,7 +87,7 @@ class UserControllerIntegrationTest {
   @Test
   void getMe_withValidToken_returns200WithEmailAndRole() throws Exception {
     String email = uniqueEmail();
-    String token = registerUser(email, "password123")[0];
+    String token = registerUser(email, "Password1!")[0];
 
     mockMvc
         .perform(get("/api/users/me").header("Authorization", "Bearer " + token))
@@ -107,7 +107,7 @@ class UserControllerIntegrationTest {
   void updateMe_changeEmail_returns200WithNewEmail() throws Exception {
     String oldEmail = uniqueEmail();
     String newEmail = uniqueEmail();
-    String token = registerUser(oldEmail, "password123")[0];
+    String token = registerUser(oldEmail, "Password1!")[0];
 
     mockMvc
         .perform(
@@ -122,8 +122,8 @@ class UserControllerIntegrationTest {
   @Test
   void updateMe_changePassword_canLoginWithNewPassword() throws Exception {
     String email = uniqueEmail();
-    registerUser(email, "oldpassword");
-    String token = loginAndGetToken(email, "oldpassword");
+    registerUser(email, "OldPassword1!");
+    String token = loginAndGetToken(email, "OldPassword1!");
 
     mockMvc
         .perform(
@@ -131,7 +131,7 @@ class UserControllerIntegrationTest {
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
-                    objectMapper.writeValueAsString(new UpdateUserRequest(null, "newpassword123"))))
+                    objectMapper.writeValueAsString(new UpdateUserRequest(null, "NewPassword1!"))))
         .andExpect(status().isOk());
 
     // old password no longer works
@@ -139,7 +139,7 @@ class UserControllerIntegrationTest {
         .perform(
             post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new LoginRequest(email, "oldpassword"))))
+                .content(objectMapper.writeValueAsString(new LoginRequest(email, "OldPassword1!"))))
         .andExpect(status().isUnauthorized());
 
     // new password works
@@ -147,8 +147,7 @@ class UserControllerIntegrationTest {
         .perform(
             post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(new LoginRequest(email, "newpassword123"))))
+                .content(objectMapper.writeValueAsString(new LoginRequest(email, "NewPassword1!"))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.accessToken").isNotEmpty());
   }
@@ -156,10 +155,10 @@ class UserControllerIntegrationTest {
   @Test
   void updateMe_duplicateEmail_returns409() throws Exception {
     String takenEmail = uniqueEmail();
-    registerUser(takenEmail, "password123");
+    registerUser(takenEmail, "Password1!");
 
     String otherEmail = uniqueEmail();
-    String token = registerUser(otherEmail, "password123")[0];
+    String token = registerUser(otherEmail, "Password1!")[0];
 
     mockMvc
         .perform(
@@ -172,7 +171,7 @@ class UserControllerIntegrationTest {
 
   @Test
   void updateMe_invalidEmailFormat_returns400() throws Exception {
-    String token = registerUser(uniqueEmail(), "password123")[0];
+    String token = registerUser(uniqueEmail(), "Password1!")[0];
 
     mockMvc
         .perform(
@@ -189,7 +188,7 @@ class UserControllerIntegrationTest {
   @Test
   void adminUpdateUser_adminChangesEmail_returns200() throws Exception {
     String email = uniqueEmail();
-    registerUser(email, "password123");
+    registerUser(email, "Password1!");
     UUID userId = userRepository.findByEmail(email).orElseThrow().getId();
     String newEmail = uniqueEmail();
 
@@ -207,7 +206,7 @@ class UserControllerIntegrationTest {
   @Test
   void adminUpdateUser_adminChangesPassword_userCanLoginWithNewPassword() throws Exception {
     String email = uniqueEmail();
-    registerUser(email, "oldpassword");
+    registerUser(email, "OldPassword1!");
     UUID userId = userRepository.findByEmail(email).orElseThrow().getId();
 
     mockMvc
@@ -216,14 +215,15 @@ class UserControllerIntegrationTest {
                 .header("Authorization", "Bearer " + adminToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
-                    objectMapper.writeValueAsString(new UpdateUserRequest(null, "adminsetpass"))))
+                    objectMapper.writeValueAsString(new UpdateUserRequest(null, "AdminSetPass1!"))))
         .andExpect(status().isOk());
 
     mockMvc
         .perform(
             post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new LoginRequest(email, "adminsetpass"))))
+                .content(
+                    objectMapper.writeValueAsString(new LoginRequest(email, "AdminSetPass1!"))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.accessToken").isNotEmpty());
   }
@@ -231,10 +231,10 @@ class UserControllerIntegrationTest {
   @Test
   void adminUpdateUser_nonAdmin_returns403() throws Exception {
     String targetEmail = uniqueEmail();
-    registerUser(targetEmail, "password123");
+    registerUser(targetEmail, "Password1!");
     UUID userId = userRepository.findByEmail(targetEmail).orElseThrow().getId();
 
-    String visitorToken = registerUser(uniqueEmail(), "password123")[0];
+    String visitorToken = registerUser(uniqueEmail(), "Password1!")[0];
 
     mockMvc
         .perform(
@@ -270,7 +270,7 @@ class UserControllerIntegrationTest {
   @Test
   void adminUpdateUser_responseBodyContainsId() throws Exception {
     String email = uniqueEmail();
-    registerUser(email, "password123");
+    registerUser(email, "Password1!");
     UUID userId = userRepository.findByEmail(email).orElseThrow().getId();
 
     String responseBody =

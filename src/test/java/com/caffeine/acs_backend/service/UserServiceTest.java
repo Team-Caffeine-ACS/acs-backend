@@ -44,6 +44,7 @@ class UserServiceTest {
   @Test
   void getMe_returnsUserResponse() {
     User u = user("alice@example.com");
+    when(userRepository.findById(u.getId())).thenReturn(Optional.of(u));
 
     UserResponse response = userService.getMe(u);
 

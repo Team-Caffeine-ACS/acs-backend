@@ -22,8 +22,16 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
+  @Transactional(readOnly = true)
   public UserResponse getMe(User currentUser) {
-    return UserResponse.from(currentUser);
+    User user =
+        userRepository
+            .findById(currentUser.getId())
+            .orElseThrow(
+                () ->
+                    new BusinessException(
+                        "User not found", ErrorCode.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND));
+    return UserResponse.from(user);
   }
 
   @Transactional
