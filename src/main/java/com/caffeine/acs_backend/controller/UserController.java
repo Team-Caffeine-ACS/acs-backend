@@ -10,7 +10,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,5 +45,20 @@ public class UserController {
   public ResponseEntity<UserResponse> updateMe(
       @AuthenticationPrincipal User currentUser, @Valid @RequestBody UpdateUserRequest request) {
     return ResponseEntity.ok(userService.updateMe(currentUser, request));
+  }
+
+  @Operation(
+      summary = "Admin: update any user's email or password",
+      description = "Allows an admin to update the email and/or password of any user by their ID.")
+  @ApiResponse(responseCode = "200", description = "User updated successfully")
+  @ApiResponse(responseCode = "400", description = "Invalid update data")
+  @ApiResponse(responseCode = "401", description = "Unauthorized")
+  @ApiResponse(responseCode = "403", description = "Forbidden - admin role required")
+  @ApiResponse(responseCode = "404", description = "User not found")
+  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/admin/{id}")
+  public ResponseEntity<UserResponse> adminUpdateUser(
+      @PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request) {
+    return ResponseEntity.ok(userService.adminUpdateUser(id, request));
   }
 }
