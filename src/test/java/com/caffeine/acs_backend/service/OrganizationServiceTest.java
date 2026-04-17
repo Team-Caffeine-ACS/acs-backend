@@ -88,7 +88,8 @@ class OrganizationServiceTest {
     UUID id = UUID.randomUUID();
     when(organizationRepository.findById(id)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> organizationService.update(id, new LookupRequest("X")))
+    var request = new LookupRequest("X");
+    assertThatThrownBy(() -> organizationService.update(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));

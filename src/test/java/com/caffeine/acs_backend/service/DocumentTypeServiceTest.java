@@ -100,7 +100,8 @@ class DocumentTypeServiceTest {
     UUID id = UUID.randomUUID();
     when(documentTypeRepository.findById(id)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> documentTypeService.update(id, new LookupRequest("X")))
+    var request = new LookupRequest("X");
+    assertThatThrownBy(() -> documentTypeService.update(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));

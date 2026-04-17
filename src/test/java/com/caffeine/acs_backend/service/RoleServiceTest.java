@@ -93,7 +93,8 @@ class RoleServiceTest {
     UUID id = UUID.randomUUID();
     when(roleRepository.findById(id)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> roleService.update(id, new LookupRequest("X")))
+    var request = new LookupRequest("X");
+    assertThatThrownBy(() -> roleService.update(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));

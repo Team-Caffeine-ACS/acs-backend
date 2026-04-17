@@ -86,7 +86,8 @@ class DepartmentServiceTest {
     UUID id = UUID.randomUUID();
     when(departmentRepository.findById(id)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> departmentService.update(id, new LookupRequest("X")))
+    var request = new LookupRequest("X");
+    assertThatThrownBy(() -> departmentService.update(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));

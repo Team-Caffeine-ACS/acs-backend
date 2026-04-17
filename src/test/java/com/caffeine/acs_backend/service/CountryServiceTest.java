@@ -85,7 +85,8 @@ class CountryServiceTest {
     UUID id = UUID.randomUUID();
     when(countryRepository.findById(id)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> countryService.update(id, new LookupRequest("X")))
+    var request = new LookupRequest("X");
+    assertThatThrownBy(() -> countryService.update(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
