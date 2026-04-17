@@ -139,8 +139,7 @@ class UserControllerIntegrationTest {
         .perform(
             post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(new LoginRequest(email, "oldpassword"))))
+                .content(objectMapper.writeValueAsString(new LoginRequest(email, "oldpassword"))))
         .andExpect(status().isUnauthorized());
 
     // new password works
@@ -224,8 +223,7 @@ class UserControllerIntegrationTest {
         .perform(
             post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(new LoginRequest(email, "adminsetpass"))))
+                .content(objectMapper.writeValueAsString(new LoginRequest(email, "adminsetpass"))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.accessToken").isNotEmpty());
   }
@@ -243,7 +241,8 @@ class UserControllerIntegrationTest {
             put("/api/users/admin/{id}", userId)
                 .header("Authorization", "Bearer " + visitorToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpdateUserRequest("x@example.com", null))))
+                .content(
+                    objectMapper.writeValueAsString(new UpdateUserRequest("x@example.com", null))))
         .andExpect(status().isForbidden());
   }
 
@@ -288,7 +287,6 @@ class UserControllerIntegrationTest {
             .getResponse()
             .getContentAsString();
 
-    assertThat(objectMapper.readTree(responseBody).get("id").asText())
-        .isEqualTo(userId.toString());
+    assertThat(objectMapper.readTree(responseBody).get("id").asText()).isEqualTo(userId.toString());
   }
 }

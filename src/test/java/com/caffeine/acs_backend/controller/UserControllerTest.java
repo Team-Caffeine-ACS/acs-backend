@@ -58,7 +58,8 @@ class UserControllerTest {
   @Test
   @WithMockUser
   void getMe_authenticated_returns200() throws Exception {
-    when(userService.getMe(any())).thenReturn(sampleResponse("alice@example.com", UserRole.VISITOR));
+    when(userService.getMe(any()))
+        .thenReturn(sampleResponse("alice@example.com", UserRole.VISITOR));
 
     mockMvc
         .perform(get("/api/users/me"))
@@ -85,7 +86,9 @@ class UserControllerTest {
             patch("/api/users/me")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpdateUserRequest("new@example.com", null))))
+                .content(
+                    objectMapper.writeValueAsString(
+                        new UpdateUserRequest("new@example.com", null))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.email").value("new@example.com"));
   }
@@ -98,7 +101,8 @@ class UserControllerTest {
             patch("/api/users/me")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpdateUserRequest("not-an-email", null))))
+                .content(
+                    objectMapper.writeValueAsString(new UpdateUserRequest("not-an-email", null))))
         .andExpect(status().isBadRequest());
   }
 
@@ -115,7 +119,9 @@ class UserControllerTest {
             patch("/api/users/me")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpdateUserRequest("taken@example.com", null))))
+                .content(
+                    objectMapper.writeValueAsString(
+                        new UpdateUserRequest("taken@example.com", null))))
         .andExpect(status().isConflict());
   }
 
@@ -143,7 +149,9 @@ class UserControllerTest {
             put("/api/users/admin/{id}", USER_ID)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpdateUserRequest("updated@example.com", null))))
+                .content(
+                    objectMapper.writeValueAsString(
+                        new UpdateUserRequest("updated@example.com", null))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.email").value("updated@example.com"));
   }
@@ -176,7 +184,8 @@ class UserControllerTest {
   void adminUpdateUser_userNotFound_returns404() throws Exception {
     when(userService.adminUpdateUser(eq(USER_ID), any()))
         .thenThrow(
-            new BusinessException("User not found", ErrorCode.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND));
+            new BusinessException(
+                "User not found", ErrorCode.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND));
 
     mockMvc
         .perform(
@@ -195,7 +204,8 @@ class UserControllerTest {
             put("/api/users/admin/{id}", USER_ID)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new UpdateUserRequest("not-an-email", null))))
+                .content(
+                    objectMapper.writeValueAsString(new UpdateUserRequest("not-an-email", null))))
         .andExpect(status().isBadRequest());
   }
 }

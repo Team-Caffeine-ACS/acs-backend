@@ -81,7 +81,8 @@ class UserServiceTest {
     User u = user("me@example.com");
     when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
 
-    assertThatThrownBy(() -> userService.updateMe(u, new UpdateUserRequest("taken@example.com", null)))
+    assertThatThrownBy(
+            () -> userService.updateMe(u, new UpdateUserRequest("taken@example.com", null)))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));
@@ -129,7 +130,8 @@ class UserServiceTest {
     UUID id = UUID.randomUUID();
     when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> userService.adminUpdateUser(id, new UpdateUserRequest("a@b.com", null)))
+    assertThatThrownBy(
+            () -> userService.adminUpdateUser(id, new UpdateUserRequest("a@b.com", null)))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
