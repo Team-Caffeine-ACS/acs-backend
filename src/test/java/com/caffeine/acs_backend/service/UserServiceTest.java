@@ -250,9 +250,9 @@ class UserServiceTest {
     when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
     when(userRepository.saveAndFlush(u))
         .thenThrow(new DataIntegrityViolationException("duplicate"));
+    var request = new UpdateUserRequest("new@example.com", null);
 
-    assertThatThrownBy(
-            () -> userService.updateMe(u, new UpdateUserRequest("new@example.com", null)))
+    assertThatThrownBy(() -> userService.updateMe(u, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));
@@ -266,9 +266,9 @@ class UserServiceTest {
     when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
     when(userRepository.saveAndFlush(u))
         .thenThrow(new DataIntegrityViolationException("duplicate"));
+    var request = new UpdateUserRequest("new@example.com", null);
 
-    assertThatThrownBy(
-            () -> userService.adminUpdateUser(id, new UpdateUserRequest("new@example.com", null)))
+    assertThatThrownBy(() -> userService.adminUpdateUser(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));
