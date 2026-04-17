@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import com.caffeine.acs_backend.dto.user.UpdateUserRequest;
 import com.caffeine.acs_backend.dto.user.UserResponse;
+import com.caffeine.acs_backend.entity.Person;
 import com.caffeine.acs_backend.entity.User;
 import com.caffeine.acs_backend.enums.UserRole;
 import com.caffeine.acs_backend.exception.BusinessException;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -39,6 +41,13 @@ class UserServiceTest {
     return u;
   }
 
+  private Person person(String givenName, String surname) {
+    Person p = new Person();
+    p.setGivenName(givenName);
+    p.setSurname(surname);
+    return p;
+  }
+
   // ── getMe ─────────────────────────────────────────────────────────────────────
 
   @Test
@@ -50,6 +59,31 @@ class UserServiceTest {
 
     assertThat(response.email()).isEqualTo("alice@example.com");
     assertThat(response.role()).isEqualTo(UserRole.VISITOR);
+    assertThat(response.person()).isNull();
+  }
+
+  @Test
+  void getMe_withLinkedPerson_returnsPersonDetails() {
+    User u = user("alice@example.com");
+    u.setPerson(person("Alice", "Smith"));
+    when(userRepository.findById(u.getId())).thenReturn(Optional.of(u));
+
+    UserResponse response = userService.getMe(u);
+
+    assertThat(response.person()).isNotNull();
+    assertThat(response.person().givenName()).isEqualTo("Alice");
+    assertThat(response.person().surname()).isEqualTo("Smith");
+  }
+
+  @Test
+  void getMe_userNotFound_throwsNotFound() {
+    User u = user("ghost@example.com");
+    when(userRepository.findById(u.getId())).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> userService.getMe(u))
+        .isInstanceOf(BusinessException.class)
+        .satisfies(
+            ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
   }
 
   // ── updateMe ──────────────────────────────────────────────────────────────────
@@ -193,5 +227,50 @@ class UserServiceTest {
 
     assertThat(response.email()).isEqualTo("alice@example.com");
     verify(userRepository, never()).saveAndFlush(any());
+  }
+
+  @Test
+  void adminUpdateUser_sameEmail_noSave() {
+    UUID id = UUID.randomUUID();
+    User u = user("alice@example.com");
+    when(userRepository.findById(id)).thenReturn(Optional.of(u));
+
+    UserResponse response =
+        userService.adminUpdateUser(id, new UpdateUserRequest("alice@example.com", null));
+
+    assertThat(response.email()).isEqualTo("alice@example.com");
+    verify(userRepository, never()).saveAndFlush(any());
+  }
+
+  // ── DataIntegrityViolationException fallback ──────────────────────────────────
+
+  @Test
+  void updateMe_dataIntegrityViolation_throwsConflict() {
+    User u = user("alice@example.com");
+    when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
+    when(userRepository.saveAndFlush(u))
+        .thenThrow(new DataIntegrityViolationException("duplicate"));
+
+    assertThatThrownBy(
+            () -> userService.updateMe(u, new UpdateUserRequest("new@example.com", null)))
+        .isInstanceOf(BusinessException.class)
+        .satisfies(
+            ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));
+  }
+
+  @Test
+  void adminUpdateUser_dataIntegrityViolation_throwsConflict() {
+    UUID id = UUID.randomUUID();
+    User u = user("alice@example.com");
+    when(userRepository.findById(id)).thenReturn(Optional.of(u));
+    when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
+    when(userRepository.saveAndFlush(u))
+        .thenThrow(new DataIntegrityViolationException("duplicate"));
+
+    assertThatThrownBy(
+            () -> userService.adminUpdateUser(id, new UpdateUserRequest("new@example.com", null)))
+        .isInstanceOf(BusinessException.class)
+        .satisfies(
+            ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));
   }
 }
