@@ -80,9 +80,9 @@ class UserServiceTest {
   void updateMe_duplicateEmail_throwsConflict() {
     User u = user("me@example.com");
     when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
+    var request = new UpdateUserRequest("taken@example.com", null);
 
-    assertThatThrownBy(
-            () -> userService.updateMe(u, new UpdateUserRequest("taken@example.com", null)))
+    assertThatThrownBy(() -> userService.updateMe(u, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));
@@ -129,9 +129,9 @@ class UserServiceTest {
   void adminUpdateUser_userNotFound_throwsNotFound() {
     UUID id = UUID.randomUUID();
     when(userRepository.findById(id)).thenReturn(Optional.empty());
+    var request = new UpdateUserRequest("a@b.com", null);
 
-    assertThatThrownBy(
-            () -> userService.adminUpdateUser(id, new UpdateUserRequest("a@b.com", null)))
+    assertThatThrownBy(() -> userService.adminUpdateUser(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
@@ -172,9 +172,9 @@ class UserServiceTest {
     User u = user("me@example.com");
     when(userRepository.findById(id)).thenReturn(Optional.of(u));
     when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
+    var request = new UpdateUserRequest("taken@example.com", null);
 
-    assertThatThrownBy(
-            () -> userService.adminUpdateUser(id, new UpdateUserRequest("taken@example.com", null)))
+    assertThatThrownBy(() -> userService.adminUpdateUser(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.CONFLICT));
