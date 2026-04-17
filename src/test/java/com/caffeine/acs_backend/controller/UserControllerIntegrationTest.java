@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.caffeine.acs_backend.dto.auth.LoginRequest;
 import com.caffeine.acs_backend.dto.auth.RegisterRequest;
+import com.caffeine.acs_backend.dto.user.AdminCreateUserRequest;
 import com.caffeine.acs_backend.dto.user.UpdateUserRequest;
 import com.caffeine.acs_backend.entity.User;
 import com.caffeine.acs_backend.enums.UserRole;
@@ -181,6 +182,188 @@ class UserControllerIntegrationTest {
                 .content(
                     objectMapper.writeValueAsString(new UpdateUserRequest("not-an-email", null))))
         .andExpect(status().isBadRequest());
+  }
+
+  // ── GET /api/users/admin ──────────────────────────────────────────────────────
+
+  @Test
+  void adminGetAllUsers_admin_returns200WithList() throws Exception {
+    registerUser(uniqueEmail(), "Password1!");
+    registerUser(uniqueEmail(), "Password1!");
+
+    String body =
+        mockMvc
+            .perform(get("/api/users/admin").header("Authorization", "Bearer " + adminToken))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    assertThat(objectMapper.readTree(body).isArray()).isTrue();
+    assertThat(objectMapper.readTree(body).size()).isGreaterThanOrEqualTo(2);
+  }
+
+  @Test
+  void adminGetAllUsers_nonAdmin_returns403() throws Exception {
+    String visitorToken = registerUser(uniqueEmail(), "Password1!")[0];
+
+    mockMvc
+        .perform(get("/api/users/admin").header("Authorization", "Bearer " + visitorToken))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void adminGetAllUsers_noToken_returns401() throws Exception {
+    mockMvc.perform(get("/api/users/admin")).andExpect(status().isUnauthorized());
+  }
+
+  // ── POST /api/users/admin ─────────────────────────────────────────────────────
+
+  @Test
+  void adminCreateUser_admin_returns201WithCorrectFields() throws Exception {
+    String email = uniqueEmail();
+
+    mockMvc
+        .perform(
+            post("/api/users/admin")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new AdminCreateUserRequest(email, "Password1!", UserRole.RECEPTIONIST))))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.email").value(email))
+        .andExpect(jsonPath("$.role").value("RECEPTIONIST"))
+        .andExpect(jsonPath("$.id").isNotEmpty());
+  }
+
+  @Test
+  void adminCreateUser_nullRole_defaultsToVisitor() throws Exception {
+    String email = uniqueEmail();
+
+    mockMvc
+        .perform(
+            post("/api/users/admin")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new AdminCreateUserRequest(email, "Password1!", null))))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.role").value("VISITOR"));
+  }
+
+  @Test
+  void adminCreateUser_createdUserCanLogin() throws Exception {
+    String email = uniqueEmail();
+
+    mockMvc
+        .perform(
+            post("/api/users/admin")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new AdminCreateUserRequest(email, "Password1!", null))))
+        .andExpect(status().isCreated());
+
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new LoginRequest(email, "Password1!"))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").isNotEmpty());
+  }
+
+  @Test
+  void adminCreateUser_duplicateEmail_returns409() throws Exception {
+    String email = uniqueEmail();
+    registerUser(email, "Password1!");
+
+    mockMvc
+        .perform(
+            post("/api/users/admin")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new AdminCreateUserRequest(email, "Password1!", null))))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void adminCreateUser_weakPassword_returns400() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/users/admin")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new AdminCreateUserRequest(uniqueEmail(), "weak", null))))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void adminCreateUser_nonAdmin_returns403() throws Exception {
+    String visitorToken = registerUser(uniqueEmail(), "Password1!")[0];
+
+    mockMvc
+        .perform(
+            post("/api/users/admin")
+                .header("Authorization", "Bearer " + visitorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new AdminCreateUserRequest(uniqueEmail(), "Password1!", null))))
+        .andExpect(status().isForbidden());
+  }
+
+  // ── DELETE /api/users/admin/{id} ──────────────────────────────────────────────
+
+  @Test
+  void adminDeleteUser_admin_returns204AndUserIsGone() throws Exception {
+    String email = uniqueEmail();
+    registerUser(email, "Password1!");
+    UUID userId = userRepository.findByEmail(email).orElseThrow().getId();
+
+    mockMvc
+        .perform(
+            delete("/api/users/admin/{id}", userId).header("Authorization", "Bearer " + adminToken))
+        .andExpect(status().isNoContent());
+
+    assertThat(userRepository.findById(userId)).isEmpty();
+  }
+
+  @Test
+  void adminDeleteUser_unknownId_returns404() throws Exception {
+    mockMvc
+        .perform(
+            delete("/api/users/admin/{id}", UUID.randomUUID())
+                .header("Authorization", "Bearer " + adminToken))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void adminDeleteUser_nonAdmin_returns403() throws Exception {
+    String email = uniqueEmail();
+    registerUser(email, "Password1!");
+    UUID userId = userRepository.findByEmail(email).orElseThrow().getId();
+    String visitorToken = registerUser(uniqueEmail(), "Password1!")[0];
+
+    mockMvc
+        .perform(
+            delete("/api/users/admin/{id}", userId)
+                .header("Authorization", "Bearer " + visitorToken))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void adminDeleteUser_noToken_returns401() throws Exception {
+    mockMvc
+        .perform(delete("/api/users/admin/{id}", UUID.randomUUID()))
+        .andExpect(status().isUnauthorized());
   }
 
   // ── PUT /api/users/admin/{id} ─────────────────────────────────────────────────
