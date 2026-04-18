@@ -387,6 +387,21 @@ class VisitControllerTest {
   }
 
   @Test
+  @WithMockUser(roles = "VISITOR")
+  void editVisit_visitor_returns403() throws Exception {
+    EditVisitRequest request =
+        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
+
+    mockMvc
+        .perform(
+            put("/api/visits/{id}/edit", VISIT_ID)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
   @WithMockUser(roles = "ADMIN")
   void editVisit_notFound_returns404() throws Exception {
     EditVisitRequest request =
@@ -403,6 +418,27 @@ class VisitControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void editVisit_entryTimeConflict_returns409() throws Exception {
+    EditVisitRequest request =
+        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
+    when(visitService.editVisit(eq(VISIT_ID), any()))
+        .thenThrow(
+            new BusinessException(
+                "Entry time cannot be later than the recorded exit time",
+                ErrorCode.BUSINESS_RULE_VIOLATION,
+                HttpStatus.CONFLICT));
+
+    mockMvc
+        .perform(
+            put("/api/visits/{id}/edit", VISIT_ID)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isConflict());
   }
 
   @Test
