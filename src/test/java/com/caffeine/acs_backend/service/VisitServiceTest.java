@@ -340,13 +340,10 @@ class VisitServiceTest {
         .thenReturn(Optional.of(personInRole("Assignor", "User")));
     when(accessPointRepository.findById(apId)).thenReturn(Optional.of(new AccessPoint()));
     when(personRepository.findById(hostPersonId)).thenReturn(Optional.empty());
+    EditVisitRequest request =
+        new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated");
 
-    assertThatThrownBy(
-            () ->
-                visitService.editVisit(
-                    id,
-                    new EditVisitRequest(
-                        hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated")))
+    assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
@@ -369,13 +366,10 @@ class VisitServiceTest {
     when(personRepository.findById(hostPersonId)).thenReturn(Optional.of(hostPerson));
     when(personInRoleRepository.findFirstByPersonAndIsActiveTrue(hostPerson))
         .thenReturn(Optional.empty());
+    EditVisitRequest request =
+        new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated");
 
-    assertThatThrownBy(
-            () ->
-                visitService.editVisit(
-                    id,
-                    new EditVisitRequest(
-                        hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated")))
+    assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
@@ -415,15 +409,12 @@ class VisitServiceTest {
     Visit visit = visitWithVisitor(visitor);
     LocalDateTime exitTime = LocalDateTime.now().minusMinutes(15);
     visit.setExitTime(exitTime);
+    EditVisitRequest request =
+        new EditVisitRequest(null, assignorId, apId, exitTime.plusMinutes(1), "Updated");
 
     when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
 
-    assertThatThrownBy(
-            () ->
-                visitService.editVisit(
-                    id,
-                    new EditVisitRequest(
-                        null, assignorId, apId, exitTime.plusMinutes(1), "Updated")))
+    assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
         .satisfies(
             ex -> {
