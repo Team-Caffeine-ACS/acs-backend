@@ -389,15 +389,12 @@ class VisitControllerTest {
   @Test
   @WithMockUser(roles = "VISITOR")
   void editVisit_visitor_returns403() throws Exception {
-    EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
-
     mockMvc
         .perform(
             put("/api/visits/{id}/edit", VISIT_ID)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content("{}"))
         .andExpect(status().isForbidden());
   }
 
