@@ -318,8 +318,7 @@ class VisitServiceTest {
     VisitDetailResponse response =
         visitService.editVisit(
             id,
-            new EditVisitRequest(
-                hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated"));
+            new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated"));
 
     assertThat(visit.getHost()).isEqualTo(newHost);
     assertThat(visit.getComment()).isEqualTo("Updated");
