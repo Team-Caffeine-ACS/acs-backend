@@ -99,12 +99,16 @@ public class VisitController {
   @Operation(
       summary = "Edit visit details",
       description =
-          "Updates the entry time, host, and comment on an existing visit."
+          "Updates the host, assignor, access point, entry time, and comment on an existing visit."
+              + " Sending hostId as null clears the host."
               + " Accessible by Admin and Security Chief only.")
   @ApiResponse(responseCode = "200", description = "Visit updated")
   @ApiResponse(
       responseCode = "404",
       description = "Visit, assignor, access point, or host not found")
+  @ApiResponse(
+      responseCode = "409",
+      description = "Business rule violation, for example entry time after recorded exit time")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @ApiResponse(responseCode = "403", description = "Forbidden")
   @PutMapping("/{visitId}/edit")

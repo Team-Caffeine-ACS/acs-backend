@@ -108,35 +108,14 @@ public class VisitService {
   @Transactional
   public VisitDetailResponse editVisit(UUID visitId, EditVisitRequest request) {
     Visit visit = findVisitOrThrow(visitId);
+    validateEditedEntryTime(visit, request.entryTime());
 
-    // Resolve assignor and access point for audit trail
-    findPersonInRoleOrThrow(request.assignorId());
-    findAccessPointOrThrow(request.accessPointId());
+    PersonInRole assignor = findActivePersonInRoleOrThrow(request.assignorId(), "Assignor");
+    AccessPoint accessPoint = findAccessPointOrThrow(request.accessPointId());
 
-    // Update host — null clears it, non-null sets a new one
-    if (request.hostId() != null) {
-      Person hostPerson =
-          personRepository
-              .findById(request.hostId())
-              .orElseThrow(
-                  () ->
-                      new BusinessException(
-                          "Host person not found: " + request.hostId(),
-                          ErrorCode.RESOURCE_NOT_FOUND,
-                          HttpStatus.NOT_FOUND));
-      PersonInRole host =
-          personInRoleRepository
-              .findFirstByPersonAndIsActiveTrue(hostPerson)
-              .orElseThrow(
-                  () ->
-                      new BusinessException(
-                          "Host has no active role assignment: " + request.hostId(),
-                          ErrorCode.RESOURCE_NOT_FOUND,
-                          HttpStatus.NOT_FOUND));
-      visit.setHost(host);
-    } else {
-      visit.setHost(null);
-    }
+    visit.setAssignor(assignor);
+    visit.setAccessPoint(accessPoint);
+    visit.setHost(resolveHostOrNull(request.hostId()));
 
     visit.setArrivalTime(request.entryTime());
     visit.setComment(request.comment());
@@ -300,6 +279,17 @@ public class VisitService {
                     HttpStatus.NOT_FOUND));
   }
 
+  private PersonInRole findActivePersonInRoleOrThrow(UUID personInRoleId, String roleLabel) {
+    PersonInRole personInRole = findPersonInRoleOrThrow(personInRoleId);
+    if (!personInRole.isActive()) {
+      throw new BusinessException(
+          roleLabel + " must reference an active role assignment: " + personInRoleId,
+          ErrorCode.RESOURCE_NOT_FOUND,
+          HttpStatus.NOT_FOUND);
+    }
+    return personInRole;
+  }
+
   private AccessPoint findAccessPointOrThrow(UUID accessPointId) {
     return accessPointRepository
         .findById(accessPointId)
@@ -309,6 +299,40 @@ public class VisitService {
                     "Access point not found: " + accessPointId,
                     ErrorCode.RESOURCE_NOT_FOUND,
                     HttpStatus.NOT_FOUND));
+  }
+
+  private PersonInRole resolveHostOrNull(UUID hostId) {
+    if (hostId == null) {
+      return null;
+    }
+
+    Person hostPerson =
+        personRepository
+            .findById(hostId)
+            .orElseThrow(
+                () ->
+                    new BusinessException(
+                        "Host person not found: " + hostId,
+                        ErrorCode.RESOURCE_NOT_FOUND,
+                        HttpStatus.NOT_FOUND));
+
+    return personInRoleRepository
+        .findFirstByPersonAndIsActiveTrue(hostPerson)
+        .orElseThrow(
+            () ->
+                new BusinessException(
+                    "Host has no active role assignment: " + hostId,
+                    ErrorCode.RESOURCE_NOT_FOUND,
+                    HttpStatus.NOT_FOUND));
+  }
+
+  private void validateEditedEntryTime(Visit visit, LocalDateTime newEntryTime) {
+    if (visit.getExitTime() != null && newEntryTime.isAfter(visit.getExitTime())) {
+      throw new BusinessException(
+          "Entry time cannot be later than the recorded exit time",
+          ErrorCode.BUSINESS_RULE_VIOLATION,
+          HttpStatus.CONFLICT);
+    }
   }
 
   private Role findVisitorRole() {
