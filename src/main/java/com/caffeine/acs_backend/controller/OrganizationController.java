@@ -1,8 +1,8 @@
 package com.caffeine.acs_backend.controller;
 
-import com.caffeine.acs_backend.dto.country.CountryResponse;
 import com.caffeine.acs_backend.dto.lookup.LookupRequest;
-import com.caffeine.acs_backend.service.CountryService;
+import com.caffeine.acs_backend.dto.organization.OrganizationResponse;
+import com.caffeine.acs_backend.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,53 +17,51 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/countries")
+@RequestMapping("/api/organizations")
 @RequiredArgsConstructor
-@Tag(name = "Countries", description = "Reference data — country list for document forms")
+@Tag(name = "Organizations")
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
-public class CountryController {
+public class OrganizationController {
 
-  private final CountryService countryService;
+  private final OrganizationService organizationService;
 
-  @Operation(
-      summary = "List all countries",
-      description = "Returns all countries sorted alphabetically.")
-  @ApiResponse(responseCode = "200", description = "Country list returned")
+  @Operation(summary = "List all organizations")
+  @ApiResponse(responseCode = "200", description = "Organization list returned")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @ApiResponse(responseCode = "403", description = "Forbidden")
   @GetMapping
-  public ResponseEntity<List<CountryResponse>> getAllCountries() {
-    return ResponseEntity.ok(countryService.getAllCountries());
+  public ResponseEntity<List<OrganizationResponse>> getAll() {
+    return ResponseEntity.ok(organizationService.getAll());
   }
 
-  @Operation(summary = "Create a country")
-  @ApiResponse(responseCode = "201", description = "Country created")
+  @Operation(summary = "Create an organization")
+  @ApiResponse(responseCode = "201", description = "Organization created")
   @ApiResponse(responseCode = "400", description = "Validation error")
   @ApiResponse(responseCode = "403", description = "Forbidden")
   @PostMapping
-  public ResponseEntity<CountryResponse> create(@Valid @RequestBody LookupRequest request) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(countryService.create(request));
+  public ResponseEntity<OrganizationResponse> create(@Valid @RequestBody LookupRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(organizationService.create(request));
   }
 
-  @Operation(summary = "Update a country")
-  @ApiResponse(responseCode = "200", description = "Country updated")
+  @Operation(summary = "Update an organization")
+  @ApiResponse(responseCode = "200", description = "Organization updated")
   @ApiResponse(responseCode = "400", description = "Validation error")
   @ApiResponse(responseCode = "403", description = "Forbidden")
-  @ApiResponse(responseCode = "404", description = "Country not found")
+  @ApiResponse(responseCode = "404", description = "Organization not found")
   @PutMapping("/{id}")
-  public ResponseEntity<CountryResponse> update(
+  public ResponseEntity<OrganizationResponse> update(
       @PathVariable UUID id, @Valid @RequestBody LookupRequest request) {
-    return ResponseEntity.ok(countryService.update(id, request));
+    return ResponseEntity.ok(organizationService.update(id, request));
   }
 
-  @Operation(summary = "Delete a country")
-  @ApiResponse(responseCode = "204", description = "Country deleted")
+  @Operation(summary = "Delete an organization")
+  @ApiResponse(responseCode = "204", description = "Organization deleted")
   @ApiResponse(responseCode = "403", description = "Forbidden")
-  @ApiResponse(responseCode = "404", description = "Country not found")
+  @ApiResponse(responseCode = "404", description = "Organization not found")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
-    countryService.delete(id);
+    organizationService.delete(id);
     return ResponseEntity.noContent().build();
   }
 }

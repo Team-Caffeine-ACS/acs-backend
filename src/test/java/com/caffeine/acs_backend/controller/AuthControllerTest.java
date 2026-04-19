@@ -33,7 +33,7 @@ class AuthControllerTest {
 
   @Test
   void register_validRequest_returns200WithToken() throws Exception {
-    var request = new RegisterRequest(uniqueEmail(), "password123");
+    var request = new RegisterRequest(uniqueEmail(), "Password1!");
 
     mockMvc
         .perform(
@@ -48,7 +48,7 @@ class AuthControllerTest {
   @Test
   void register_duplicateEmail_returnsError() throws Exception {
     String email = uniqueEmail();
-    var request = new RegisterRequest(email, "password123");
+    var request = new RegisterRequest(email, "Password1!");
     String body = objectMapper.writeValueAsString(request);
 
     mockMvc
@@ -62,7 +62,7 @@ class AuthControllerTest {
 
   @Test
   void register_invalidEmail_returns400() throws Exception {
-    var request = new RegisterRequest("not-an-email", "password123");
+    var request = new RegisterRequest("not-an-email", "Password1!");
 
     mockMvc
         .perform(
@@ -84,14 +84,26 @@ class AuthControllerTest {
         .andExpect(status().isBadRequest());
   }
 
+  @Test
+  void register_weakPassword_returns400() throws Exception {
+    var request = new RegisterRequest(uniqueEmail(), "password");
+
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest());
+  }
+
   // ── Login ───────────────────────────────────────────────────────────────────
 
   @Test
   void login_validCredentials_returns200WithToken() throws Exception {
     String email = uniqueEmail();
-    registerUser(email, "password123");
+    registerUser(email, "Password1!");
 
-    var loginRequest = new LoginRequest(email, "password123");
+    var loginRequest = new LoginRequest(email, "Password1!");
 
     mockMvc
         .perform(
@@ -106,7 +118,7 @@ class AuthControllerTest {
   @Test
   void login_wrongPassword_returns401() throws Exception {
     String email = uniqueEmail();
-    registerUser(email, "correct-password");
+    registerUser(email, "CorrectPass1!");
 
     var loginRequest = new LoginRequest(email, "wrong-password");
 
@@ -123,7 +135,7 @@ class AuthControllerTest {
   @Test
   void refresh_validRefreshToken_returns200WithNewAccessToken() throws Exception {
     String email = uniqueEmail();
-    String[] tokens = registerUser(email, "password123");
+    String[] tokens = registerUser(email, "Password1!");
 
     var request = new RefreshRequest(tokens[1]);
 
@@ -165,7 +177,7 @@ class AuthControllerTest {
   @Test
   void protectedEndpoint_withValidToken_returns200() throws Exception {
     String email = uniqueEmail();
-    String[] tokens = registerUser(email, "password123");
+    String[] tokens = registerUser(email, "Password1!");
     String accessToken = tokens[0];
 
     mockMvc
@@ -176,7 +188,7 @@ class AuthControllerTest {
   @Test
   void register_assignsVisitorRole() throws Exception {
     String email = uniqueEmail();
-    String[] tokens = registerUser(email, "password123");
+    String[] tokens = registerUser(email, "Password1!");
     String accessToken = tokens[0];
 
     String responseBody =
