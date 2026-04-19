@@ -46,7 +46,8 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >
-          mvn -B sonar:sonar 
+          mvn -B sonar:sonar  
           -Dsonar.host.url=https://sonarcloud.io 
           -Dsonar.organization=${{ vars.SONAR_ORG_KEY }} 
           -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+          -Dsonar.qualitygate.wait=false
