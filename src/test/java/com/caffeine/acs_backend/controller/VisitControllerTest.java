@@ -30,6 +30,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -371,15 +373,16 @@ class VisitControllerTest {
         .andExpect(status().isOk());
   }
 
-  @Test
-  @WithMockUser(roles = "RECEPTIONIST")
-  void editVisit_receptionist_returns403() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {"RECEPTIONIST", "VISITOR"})
+  void editVisit_forbiddenRoles_return403(String role) throws Exception {
     EditVisitRequest request =
         new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
 
     mockMvc
         .perform(
             put("/api/visits/{id}/edit", VISIT_ID)
+                .with(user(role.toLowerCase()).roles(role))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -403,6 +406,27 @@ class VisitControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void editVisit_entryTimeConflict_returns409() throws Exception {
+    EditVisitRequest request =
+        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
+    when(visitService.editVisit(eq(VISIT_ID), any()))
+        .thenThrow(
+            new BusinessException(
+                "Entry time cannot be later than the recorded exit time",
+                ErrorCode.BUSINESS_RULE_VIOLATION,
+                HttpStatus.CONFLICT));
+
+    mockMvc
+        .perform(
+            put("/api/visits/{id}/edit", VISIT_ID)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isConflict());
   }
 
   @Test

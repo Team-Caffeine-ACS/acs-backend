@@ -10,6 +10,7 @@ import com.caffeine.acs_backend.dto.visit.ExitVisitRequest;
 import com.caffeine.acs_backend.dto.visit.VisitDetailResponse;
 import com.caffeine.acs_backend.dto.visit.VisitTimelineEntry;
 import com.caffeine.acs_backend.entity.*;
+import com.caffeine.acs_backend.enums.errorcode.ErrorCode;
 import com.caffeine.acs_backend.exception.BusinessException;
 import com.caffeine.acs_backend.repository.*;
 import java.time.LocalDateTime;
@@ -220,6 +221,31 @@ class VisitServiceTest {
   }
 
   @Test
+  void editVisit_inactiveAssignor_throwsNotFound() {
+    UUID id = UUID.randomUUID();
+    UUID assignorId = UUID.randomUUID();
+    PersonInRole visitor = personInRole("John", "Smith");
+    PersonInRole inactiveAssignor = personInRole("Inactive", "Assignor");
+    inactiveAssignor.setActive(false);
+    Visit visit = visitWithVisitor(visitor);
+
+    when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
+    when(personInRoleRepository.findById(assignorId)).thenReturn(Optional.of(inactiveAssignor));
+
+    EditVisitRequest request =
+        new EditVisitRequest(null, assignorId, UUID.randomUUID(), LocalDateTime.now(), null);
+
+    assertThatThrownBy(() -> visitService.editVisit(id, request))
+        .isInstanceOf(BusinessException.class)
+        .satisfies(
+            ex -> {
+              BusinessException businessException = (BusinessException) ex;
+              assertThat(businessException.getStatus()).isEqualTo(HttpStatus.NOT_FOUND);
+              assertThat(businessException.getErrorCode()).isEqualTo(ErrorCode.RESOURCE_NOT_FOUND);
+            });
+  }
+
+  @Test
   void editVisit_accessPointNotFound_throwsNotFound() {
     UUID id = UUID.randomUUID();
     UUID assignorId = UUID.randomUUID();
@@ -262,6 +288,8 @@ class VisitServiceTest {
         id, new EditVisitRequest(null, assignorId, apId, LocalDateTime.now(), null));
 
     assertThat(visit.getHost()).isNull();
+    assertThat(visit.getAssignor()).isNotNull();
+    assertThat(visit.getAccessPoint()).isNotNull();
     verify(visitRepository).save(visit);
   }
 
@@ -287,11 +315,64 @@ class VisitServiceTest {
     when(visitRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     when(keycardInPossessionRepository.findActiveByHolder(visitor)).thenReturn(Optional.empty());
 
-    visitService.editVisit(
-        id, new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated"));
+    VisitDetailResponse response =
+        visitService.editVisit(
+            id,
+            new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated"));
 
     assertThat(visit.getHost()).isEqualTo(newHost);
     assertThat(visit.getComment()).isEqualTo("Updated");
+    assertThat(response.hostName()).isEqualTo("New Host");
+    assertThat(response.visitReason()).isEqualTo("Updated");
+  }
+
+  @Test
+  void editVisit_hostPersonNotFound_throwsNotFound() {
+    UUID id = UUID.randomUUID();
+    UUID assignorId = UUID.randomUUID();
+    UUID apId = UUID.randomUUID();
+    UUID hostPersonId = UUID.randomUUID();
+    PersonInRole visitor = personInRole("John", "Smith");
+    Visit visit = visitWithVisitor(visitor);
+
+    when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
+    when(personInRoleRepository.findById(assignorId))
+        .thenReturn(Optional.of(personInRole("Assignor", "User")));
+    when(accessPointRepository.findById(apId)).thenReturn(Optional.of(new AccessPoint()));
+    when(personRepository.findById(hostPersonId)).thenReturn(Optional.empty());
+    EditVisitRequest request =
+        new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated");
+
+    assertThatThrownBy(() -> visitService.editVisit(id, request))
+        .isInstanceOf(BusinessException.class)
+        .satisfies(
+            ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
+  }
+
+  @Test
+  void editVisit_hostWithoutActiveRole_throwsNotFound() {
+    UUID id = UUID.randomUUID();
+    UUID assignorId = UUID.randomUUID();
+    UUID apId = UUID.randomUUID();
+    UUID hostPersonId = UUID.randomUUID();
+    PersonInRole visitor = personInRole("John", "Smith");
+    Person hostPerson = person("New", "Host");
+    Visit visit = visitWithVisitor(visitor);
+
+    when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
+    when(personInRoleRepository.findById(assignorId))
+        .thenReturn(Optional.of(personInRole("Assignor", "User")));
+    when(accessPointRepository.findById(apId)).thenReturn(Optional.of(new AccessPoint()));
+    when(personRepository.findById(hostPersonId)).thenReturn(Optional.of(hostPerson));
+    when(personInRoleRepository.findFirstByPersonAndIsActiveTrue(hostPerson))
+        .thenReturn(Optional.empty());
+    EditVisitRequest request =
+        new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated");
+
+    assertThatThrownBy(() -> visitService.editVisit(id, request))
+        .isInstanceOf(BusinessException.class)
+        .satisfies(
+            ex -> assertThat(((BusinessException) ex).getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
   }
 
   @Test
@@ -303,17 +384,49 @@ class VisitServiceTest {
     Visit visit = visitWithVisitor(visitor);
     visit.setId(id);
     LocalDateTime newArrival = LocalDateTime.now().minusDays(1);
+    PersonInRole assignor = personInRole("Assignor", "User");
+    AccessPoint accessPoint = new AccessPoint();
 
     when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
-    when(personInRoleRepository.findById(assignorId))
-        .thenReturn(Optional.of(personInRole("Assignor", "User")));
-    when(accessPointRepository.findById(apId)).thenReturn(Optional.of(new AccessPoint()));
+    when(personInRoleRepository.findById(assignorId)).thenReturn(Optional.of(assignor));
+    when(accessPointRepository.findById(apId)).thenReturn(Optional.of(accessPoint));
     when(visitRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     when(keycardInPossessionRepository.findActiveByHolder(visitor)).thenReturn(Optional.empty());
 
     visitService.editVisit(id, new EditVisitRequest(null, assignorId, apId, newArrival, null));
 
     assertThat(visit.getArrivalTime()).isEqualTo(newArrival);
+    assertThat(visit.getAssignor()).isEqualTo(assignor);
+    assertThat(visit.getAccessPoint()).isEqualTo(accessPoint);
+  }
+
+  @Test
+  void editVisit_entryTimeAfterExitTime_throwsConflict() {
+    UUID id = UUID.randomUUID();
+    UUID assignorId = UUID.randomUUID();
+    UUID apId = UUID.randomUUID();
+    PersonInRole visitor = personInRole("John", "Smith");
+    Visit visit = visitWithVisitor(visitor);
+    LocalDateTime exitTime = LocalDateTime.now().minusMinutes(15);
+    visit.setExitTime(exitTime);
+    EditVisitRequest request =
+        new EditVisitRequest(null, assignorId, apId, exitTime.plusMinutes(1), "Updated");
+
+    when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
+
+    assertThatThrownBy(() -> visitService.editVisit(id, request))
+        .isInstanceOf(BusinessException.class)
+        .satisfies(
+            ex -> {
+              BusinessException businessException = (BusinessException) ex;
+              assertThat(businessException.getStatus()).isEqualTo(HttpStatus.CONFLICT);
+              assertThat(businessException.getErrorCode())
+                  .isEqualTo(ErrorCode.BUSINESS_RULE_VIOLATION);
+            });
+
+    verify(personInRoleRepository, never()).findById(any());
+    verify(accessPointRepository, never()).findById(any());
+    verify(visitRepository, never()).save(any());
   }
 
   // ── getTimeline ───────────────────────────────────────────────────────────────
