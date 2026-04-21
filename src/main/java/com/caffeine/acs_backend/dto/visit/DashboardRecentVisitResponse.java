@@ -18,4 +18,8 @@ public record DashboardRecentVisitResponse(
     @Schema(
             description = "Unique identifier of the visitor",
             example = "550e8400-e29b-41d4-a716-446655440000")
-        UUID visitorId) {}
+        UUID visitorId,
+    @Schema(description = "Name of the access point", example = "Main Entrance")
+        String accessPointName,
+    @Schema(description = "Address of the access point", example = "123 Main Street")
+        String accessPointAddress) {}

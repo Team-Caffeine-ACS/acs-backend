@@ -38,7 +38,8 @@ public class DashboardService {
     long active;
     long todayVisits;
     long pending;
-    long lastWeekTotal;
+    long lastWeekTotal; 
+
 
     if (accessPointId != null) {
       // Kui ID on antud, filtreerime selle punkti järgi
@@ -78,13 +79,20 @@ public class DashboardService {
               String orgName =
                   person.getOrganization() != null ? person.getOrganization().getName() : "Private";
 
+              String apName =
+                  visit.getAccessPoint() != null ? visit.getAccessPoint().getName() : null;
+              String apAddress =
+                  visit.getAccessPoint() != null ? visit.getAccessPoint().getAddress() : null;
+
               return new DashboardRecentVisitResponse(
                   fullName,
                   orgName,
                   visit.getArrivalTime(),
                   visit.getExitTime(),
                   mapStatus(visit),
-                  visit.getVisitor().getId());
+                  visit.getVisitor().getId(),
+                  apName,
+                  apAddress);
             })
         .toList();
   }
