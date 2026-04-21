@@ -38,8 +38,7 @@ public class DashboardService {
     long active;
     long todayVisits;
     long pending;
-    long lastWeekTotal; 
-
+    long lastWeekTotal;
 
     if (accessPointId != null) {
       // Kui ID on antud, filtreerime selle punkti järgi
