@@ -21,6 +21,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+      - name: Lowercase image name
+        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
@@ -47,7 +50,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            docker pull ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             cd ${{ secrets.DEPLOY_PATH }}
             BACKEND_IMAGE_TAG=${{ env.IMAGE_TAG }} docker compose up -d --no-deps --remove-orphans backend
             docker image prune -f
