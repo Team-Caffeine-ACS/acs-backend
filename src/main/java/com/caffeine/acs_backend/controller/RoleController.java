@@ -1,8 +1,8 @@
 package com.caffeine.acs_backend.controller;
 
-import com.caffeine.acs_backend.dto.country.CountryResponse;
 import com.caffeine.acs_backend.dto.lookup.LookupRequest;
-import com.caffeine.acs_backend.service.CountryService;
+import com.caffeine.acs_backend.dto.role.RoleResponse;
+import com.caffeine.acs_backend.service.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,53 +17,51 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/countries")
+@RequestMapping("/api/roles")
 @RequiredArgsConstructor
-@Tag(name = "Countries", description = "Reference data — country list for document forms")
+@Tag(name = "Roles")
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
-public class CountryController {
+public class RoleController {
 
-  private final CountryService countryService;
+  private final RoleService roleService;
 
-  @Operation(
-      summary = "List all countries",
-      description = "Returns all countries sorted alphabetically.")
-  @ApiResponse(responseCode = "200", description = "Country list returned")
+  @Operation(summary = "List all roles")
+  @ApiResponse(responseCode = "200", description = "Role list returned")
   @ApiResponse(responseCode = "401", description = "Unauthorized")
   @ApiResponse(responseCode = "403", description = "Forbidden")
   @GetMapping
-  public ResponseEntity<List<CountryResponse>> getAllCountries() {
-    return ResponseEntity.ok(countryService.getAllCountries());
+  public ResponseEntity<List<RoleResponse>> getAll() {
+    return ResponseEntity.ok(roleService.getAll());
   }
 
-  @Operation(summary = "Create a country")
-  @ApiResponse(responseCode = "201", description = "Country created")
+  @Operation(summary = "Create a role")
+  @ApiResponse(responseCode = "201", description = "Role created")
   @ApiResponse(responseCode = "400", description = "Validation error")
   @ApiResponse(responseCode = "403", description = "Forbidden")
   @PostMapping
-  public ResponseEntity<CountryResponse> create(@Valid @RequestBody LookupRequest request) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(countryService.create(request));
+  public ResponseEntity<RoleResponse> create(@Valid @RequestBody LookupRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(roleService.create(request));
   }
 
-  @Operation(summary = "Update a country")
-  @ApiResponse(responseCode = "200", description = "Country updated")
+  @Operation(summary = "Update a role")
+  @ApiResponse(responseCode = "200", description = "Role updated")
   @ApiResponse(responseCode = "400", description = "Validation error")
   @ApiResponse(responseCode = "403", description = "Forbidden")
-  @ApiResponse(responseCode = "404", description = "Country not found")
+  @ApiResponse(responseCode = "404", description = "Role not found")
   @PutMapping("/{id}")
-  public ResponseEntity<CountryResponse> update(
+  public ResponseEntity<RoleResponse> update(
       @PathVariable UUID id, @Valid @RequestBody LookupRequest request) {
-    return ResponseEntity.ok(countryService.update(id, request));
+    return ResponseEntity.ok(roleService.update(id, request));
   }
 
-  @Operation(summary = "Delete a country")
-  @ApiResponse(responseCode = "204", description = "Country deleted")
+  @Operation(summary = "Delete a role")
+  @ApiResponse(responseCode = "204", description = "Role deleted")
   @ApiResponse(responseCode = "403", description = "Forbidden")
-  @ApiResponse(responseCode = "404", description = "Country not found")
+  @ApiResponse(responseCode = "404", description = "Role not found")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable UUID id) {
-    countryService.delete(id);
+    roleService.delete(id);
     return ResponseEntity.noContent().build();
   }
 }
