@@ -105,38 +105,38 @@ public class VisitService {
 
   // ── PUT /visits/{visitId}/edit ────────────────────────────────────────────────
 
-    @Transactional
-    public VisitDetailResponse editVisit(UUID visitId, EditVisitRequest request) {
+  @Transactional
+  public VisitDetailResponse editVisit(UUID visitId, EditVisitRequest request) {
     Visit visit = findVisitOrThrow(visitId);
 
     if (request.entryTime() != null) {
-        validateEditedEntryTime(visit, request.entryTime());
-        visit.setArrivalTime(request.entryTime());
+      validateEditedEntryTime(visit, request.entryTime());
+      visit.setArrivalTime(request.entryTime());
     }
 
     if (request.exitTime() != null) {
-    visit.setExitTime(request.exitTime());
+      visit.setExitTime(request.exitTime());
     }
 
     PersonInRole assignor = findActivePersonInRoleOrThrow(request.assignorId(), "Assignor");
     visit.setAssignor(assignor);
 
     if (request.accessPointId() != null) {
-        AccessPoint accessPoint = findAccessPointOrThrow(request.accessPointId());
-        visit.setAccessPoint(accessPoint);
+      AccessPoint accessPoint = findAccessPointOrThrow(request.accessPointId());
+      visit.setAccessPoint(accessPoint);
     }
 
     if (request.hostId() != null) {
-        visit.setHost(resolveHostOrNull(request.hostId()));
+      visit.setHost(resolveHostOrNull(request.hostId()));
     }
 
     if (request.comment() != null) {
-        visit.setComment(request.comment());
+      visit.setComment(request.comment());
     }
 
     visitRepository.save(visit);
     return buildDetailResponse(visit);
-    }
+  }
 
   // ── GET /visits/{visitId}/timeline ────────────────────────────────────────────
 
