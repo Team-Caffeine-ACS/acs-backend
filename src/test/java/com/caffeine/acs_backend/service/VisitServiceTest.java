@@ -427,8 +427,8 @@ class VisitServiceTest {
     UUID apId = UUID.randomUUID();
     PersonInRole visitor = personInRole("John", "Smith");
     Visit visit = visitWithVisitor(visitor);
-    LocalDateTime newArrival = LocalDateTime.now().minusDays(1);
     LocalDateTime exitTime = LocalDateTime.now().minusMinutes(15);
+    LocalDateTime newArrival = LocalDateTime.now();
     visit.setExitTime(exitTime);
     EditVisitRequest request =
         new EditVisitRequest(
