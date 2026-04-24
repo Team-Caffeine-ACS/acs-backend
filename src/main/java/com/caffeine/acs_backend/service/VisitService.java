@@ -126,9 +126,7 @@ public class VisitService {
       visit.setAccessPoint(accessPoint);
     }
 
-    if (request.hostId() != null) {
-      visit.setHost(resolveHostOrNull(request.hostId()));
-    }
+    visit.setHost(resolveHostOrNull(request.hostId()));
 
     if (request.comment() != null) {
       visit.setComment(request.comment());
