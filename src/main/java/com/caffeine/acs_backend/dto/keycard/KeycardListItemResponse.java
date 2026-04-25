@@ -20,11 +20,16 @@ public record KeycardListItemResponse(
         LocalDateTime lastReturnTime) {
 
   public static KeycardListItemResponse from(KeycardListView view) {
+    LocalDateTime rawReturnTime = view.getLastReturnTime();
+    LocalDateTime pastReturnTime =
+        rawReturnTime != null && rawReturnTime.isBefore(LocalDateTime.now())
+            ? rawReturnTime
+            : null;
     return new KeycardListItemResponse(
         view.getId(),
         view.getKeycardNumber(),
         view.getStatus(),
         view.getAssignedUser(),
-        view.getLastReturnTime());
+        pastReturnTime);
   }
 }
