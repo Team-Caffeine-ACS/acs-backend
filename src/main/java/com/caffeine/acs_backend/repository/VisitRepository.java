@@ -3,7 +3,6 @@ package com.caffeine.acs_backend.repository;
 import com.caffeine.acs_backend.entity.Visit;
 import com.caffeine.acs_backend.enums.VisitStatus;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,23 +16,27 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       nativeQuery = true,
       value =
           "SELECT"
-              + "  v.id                                                     AS \"id\","
-              + "  p.given_name || ' ' || p.surname                         AS \"fullName\","
+              + "  v.id                                                      AS \"id\","
+              + "  p.given_name || ' ' || p.surname                          AS \"fullName\","
               + "  (SELECT d.document_number FROM document d"
-              + "   WHERE d.person_id = p.id LIMIT 1)                       AS \"documentNumber\","
+              + "   WHERE d.person_id = p.id LIMIT 1)                        AS \"documentNumber\","
+              // VAHETA 'p.organization' ÕIGE VEERU VASTU, KUI SEE ASUB TEISES TABELIS (NT
+              // v.organization)
+              + "  p.organization                                            AS \"organization\","
               + "  CASE WHEN hp.id IS NOT NULL"
-              + "    THEN hp.given_name || ' ' || hp.surname"
-              + "    ELSE NULL END                                           AS \"hostName\","
+              + "   THEN hp.given_name || ' ' || hp.surname"
+              + "   ELSE NULL END                                            AS \"hostName\","
               + "  v.arrival_time                                            AS \"entryTime\","
               + "  v.exit_time                                               AS \"exitTime\","
               + "  CASE"
-              + "    WHEN v.arrival_time > CURRENT_TIMESTAMP                THEN 'planned'"
+              + "    WHEN v.arrival_time > CURRENT_TIMESTAMP                 THEN 'planned'"
               + "    WHEN v.exit_time IS NOT NULL"
               + "         AND v.exit_time <= CURRENT_TIMESTAMP               THEN 'departed'"
-              + "    WHEN v.arrival_time < CURRENT_DATE                     THEN 'expired'"
-              + "    ELSE                                                        'in_building'"
+              + "    WHEN v.arrival_time < CURRENT_DATE                      THEN 'expired'"
+              + "    ELSE                                                    'in_building'"
               + "  END                                                       AS \"status\","
-              + "  p.id                                                      AS \"visitorId\""
+              + "  p.id                                                      AS \"visitorId\","
+              + "  v.access_point_id                                         AS \"accessPointId\""
               + " FROM visit v"
               + " JOIN person_in_role pir  ON pir.id = v.visitor_person_in_role_id"
               + " JOIN person p            ON p.id = pir.person_id"
@@ -62,6 +65,8 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
               + "        OR v.arrival_time >= CAST(:dateFrom AS timestamp))"
               + "   AND (CAST(:dateTo AS timestamp) IS NULL"
               + "        OR v.arrival_time <= CAST(:dateTo AS timestamp))"
+              + "   AND (CAST(:accessPointId AS uuid) IS NULL"
+              + "        OR v.access_point_id = CAST(:accessPointId AS uuid))"
               + " ORDER BY v.arrival_time DESC",
       countQuery =
           "SELECT COUNT(*)"
@@ -92,12 +97,15 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
               + "   AND (CAST(:dateFrom AS timestamp) IS NULL"
               + "        OR v.arrival_time >= CAST(:dateFrom AS timestamp))"
               + "   AND (CAST(:dateTo AS timestamp) IS NULL"
-              + "        OR v.arrival_time <= CAST(:dateTo AS timestamp))")
+              + "        OR v.arrival_time <= CAST(:dateTo AS timestamp))"
+              + "   AND (CAST(:accessPointId AS uuid) IS NULL"
+              + "        OR v.access_point_id = CAST(:accessPointId AS uuid))")
   Page<VisitListView> findAllFiltered(
       @Param("search") String search,
       @Param("status") String status,
       @Param("dateFrom") LocalDateTime dateFrom,
       @Param("dateTo") LocalDateTime dateTo,
+      @Param("accessPointId") UUID accessPointId,
       Pageable pageable);
 
   @Query(
@@ -148,17 +156,6 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       @Param("start") LocalDateTime start,
       @Param("end") LocalDateTime end,
       @Param("accessPointId") UUID accessPointId);
-
-  // Toob nimekirja viimastest külastajatest (Recent Visits)
-  @Query(
-      "SELECT v FROM Visit v "
-          + "WHERE v.arrivalTime >= :since "
-          + "AND (:accessPointId IS NULL OR v.accessPoint.id = :accessPointId) "
-          + "ORDER BY v.arrivalTime DESC")
-  List<Visit> findRecentVisits(
-      @Param("since") LocalDateTime since,
-      @Param("accessPointId") UUID accessPointId,
-      Pageable pageable);
 
   long countByStatus(VisitStatus status);
 

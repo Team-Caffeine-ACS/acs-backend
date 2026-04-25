@@ -19,8 +19,9 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,6 @@ public class VisitController {
   private static final String ADMIN_OR_SECURITY_CHIEF = "hasAnyRole('ADMIN', 'SECURITY_CHIEF')";
   private static final String ADMIN_SECURITY_CHIEF_OR_RECEPTIONIST =
       "hasAnyRole('ADMIN', 'SECURITY_CHIEF', 'RECEPTIONIST')";
-
   private final VisitService visitService;
 
   @Operation(
@@ -60,8 +60,23 @@ public class VisitController {
           LocalDateTime dateFrom,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           LocalDateTime dateTo,
-      @PageableDefault(size = 20) Pageable pageable) {
-    return ResponseEntity.ok(visitService.getVisits(search, status, dateFrom, dateTo, pageable));
+      @RequestParam(required = false) UUID accessPoint,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size,
+      @RequestParam(defaultValue = "entryTime,desc") String sort) {
+
+    // Kaitse liiga suurte väärtuste vastu (Swagger bug fix)
+    if (size > 1000) {
+      size = 1000;
+    }
+    if (page < 0) {
+      page = 0;
+    }
+
+    Pageable pageable = PageRequest.of(page, size, Sort.by(parseSort(sort)));
+
+    return ResponseEntity.ok(
+        visitService.getVisits(search, status, dateFrom, dateTo, accessPoint, pageable));
   }
 
   @Operation(
@@ -148,5 +163,17 @@ public class VisitController {
       @Valid @RequestBody CreateVisitRequest request, @AuthenticationPrincipal User currentUser) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(visitService.createVisit(request, currentUser));
+  }
+
+  private List<Sort.Order> parseSort(String sort) {
+    String[] parts = sort.split(",");
+    String property = parts[0].trim();
+
+    Sort.Direction direction =
+        (parts.length > 1 && parts[1].equalsIgnoreCase("asc"))
+            ? Sort.Direction.ASC
+            : Sort.Direction.DESC;
+
+    return List.of(new Sort.Order(direction, property));
   }
 }

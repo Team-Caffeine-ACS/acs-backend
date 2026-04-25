@@ -17,6 +17,7 @@ import com.caffeine.acs_backend.dto.visit.VisitListItemResponse;
 import com.caffeine.acs_backend.dto.visit.VisitTimelineEntry;
 import com.caffeine.acs_backend.entity.User;
 import com.caffeine.acs_backend.enums.UserRole;
+import com.caffeine.acs_backend.enums.VisitStatus;
 import com.caffeine.acs_backend.enums.errorcode.ErrorCode;
 import com.caffeine.acs_backend.exception.BusinessException;
 import com.caffeine.acs_backend.security.JwtAccessDeniedHandler;
@@ -109,25 +110,27 @@ class VisitControllerTest {
             VISIT_ID,
             "John Smith",
             null,
+            "Acme Corp",
             null,
             LocalDateTime.now(),
             null,
-            "in_building",
-            PERSON_ID);
-    when(visitService.getVisits(any(), any(), any(), any(), any(Pageable.class)))
+            VisitStatus.ACTIVE,
+            PERSON_ID,
+            UUID.randomUUID());
+    when(visitService.getVisits(any(), any(), any(), any(), any(), any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of(item)));
 
     mockMvc
         .perform(get("/api/visits"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content[0].fullName").value("John Smith"))
-        .andExpect(jsonPath("$.content[0].status").value("in_building"));
+        .andExpect(jsonPath("$.content[0].status").value(VisitStatus.ACTIVE.getLabel()));
   }
 
   @Test
   @WithMockUser(roles = "ADMIN")
   void getVisits_admin_returns200() throws Exception {
-    when(visitService.getVisits(any(), any(), any(), any(), any(Pageable.class)))
+    when(visitService.getVisits(any(), any(), any(), any(), any(), any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of()));
 
     mockMvc.perform(get("/api/visits")).andExpect(status().isOk());
@@ -147,11 +150,12 @@ class VisitControllerTest {
   @Test
   @WithMockUser(roles = "RECEPTIONIST")
   void getVisits_withStatusFilter_passesParam() throws Exception {
-    when(visitService.getVisits(any(), eq("in_building"), any(), any(), any(Pageable.class)))
+    when(visitService.getVisits(
+            any(), eq(VisitStatus.ACTIVE.name()), any(), any(), any(), any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of()));
 
     mockMvc
-        .perform(get("/api/visits").param("status", "in_building"))
+        .perform(get("/api/visits").param("status", VisitStatus.ACTIVE.name()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content").isEmpty());
   }

@@ -14,6 +14,9 @@ public interface VisitListView {
   /** Document number from the visitor's first document, null if none on record. */
   String getDocumentNumber();
 
+  /** Organization of the visitor. */
+  String getOrganization();
+
   /** Full name of the host, null when no host assigned. */
   String getHostName();
 
@@ -26,4 +29,7 @@ public interface VisitListView {
 
   /** person.id of the visitor. */
   UUID getVisitorId();
+
+  /** ID of the access point. */
+  UUID getAccessPointId();
 }

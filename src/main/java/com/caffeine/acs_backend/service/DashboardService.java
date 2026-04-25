@@ -1,8 +1,6 @@
 package com.caffeine.acs_backend.service;
 
 import com.caffeine.acs_backend.dto.dashboard.DashboardSummaryResponse;
-import com.caffeine.acs_backend.dto.visit.DashboardRecentVisitResponse;
-import com.caffeine.acs_backend.entity.Visit;
 import com.caffeine.acs_backend.enums.VisitStatus;
 import com.caffeine.acs_backend.enums.errorcode.ErrorCode;
 import com.caffeine.acs_backend.exception.BusinessException;
@@ -10,12 +8,9 @@ import com.caffeine.acs_backend.repository.AccessPointRepository;
 import com.caffeine.acs_backend.repository.VisitRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -63,43 +58,6 @@ public class DashboardService {
 
     return new DashboardSummaryResponse(
         active, todayVisits, pending, 0, Map.of("visitors", visitorTrend));
-  }
-
-  public List<DashboardRecentVisitResponse> getRecentVisits(UUID accessPointId, int limit) {
-    Pageable pageable = PageRequest.of(0, limit);
-    LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-
-    return visitRepository.findRecentVisits(startOfDay, accessPointId, pageable).stream()
-        .map(
-            visit -> {
-              var person = visit.getVisitor().getPerson();
-              String fullName = person.getGivenName() + " " + person.getSurname();
-
-              String orgName =
-                  person.getOrganization() != null ? person.getOrganization().getName() : "Private";
-
-              String apName =
-                  visit.getAccessPoint() != null ? visit.getAccessPoint().getName() : null;
-              String apAddress =
-                  visit.getAccessPoint() != null ? visit.getAccessPoint().getAddress() : null;
-
-              return new DashboardRecentVisitResponse(
-                  fullName,
-                  orgName,
-                  visit.getArrivalTime(),
-                  visit.getExitTime(),
-                  mapStatus(visit),
-                  visit.getVisitor().getId(),
-                  apName,
-                  apAddress);
-            })
-        .toList();
-  }
-
-  private VisitStatus mapStatus(Visit visit) {
-    if (visit.getExitTime() != null) return VisitStatus.COMPLETED;
-    if (visit.getArrivalTime().isBefore(LocalDateTime.now())) return VisitStatus.ACTIVE;
-    return VisitStatus.PRE_REGISTERED;
   }
 
   private String calculateTrend(long current, double baseline) {

@@ -44,11 +44,12 @@ public class VisitService {
       String status,
       LocalDateTime dateFrom,
       LocalDateTime dateTo,
+      UUID accessPointId,
       Pageable pageable) {
     String searchParam = (search == null || search.isBlank()) ? null : search.trim();
     String statusParam = (status == null || status.isBlank()) ? null : status.trim().toLowerCase();
     return visitRepository
-        .findAllFiltered(searchParam, statusParam, dateFrom, dateTo, pageable)
+        .findAllFiltered(searchParam, statusParam, dateFrom, dateTo, accessPointId, pageable)
         .map(VisitListItemResponse::from);
   }
 
