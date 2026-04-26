@@ -32,4 +32,7 @@ public interface VisitListView {
 
   /** ID of the access point. */
   UUID getAccessPointId();
+
+  String getAccessPointName();
+  String getAccessPointAddress();
 }
