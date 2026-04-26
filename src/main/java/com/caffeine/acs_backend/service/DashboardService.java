@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -30,28 +32,54 @@ public class DashboardService {
     LocalDateTime todayStart = LocalDate.now().atStartOfDay();
     LocalDateTime lastWeekStart = todayStart.minusDays(7);
 
-    long active;
-    long todayVisits;
-    long pending;
-    long lastWeekTotal;
+    long active = 0;
+    long todayVisits = 0;
+    long pending = 0;
+    long lastWeekTotal = 0;
 
     if (accessPointId != null) {
-      // Kui ID on antud, filtreerime selle punkti järgi
-      active =
-          visitRepository.countByStatusAndAccessPointId(VisitStatus.IN_BUILDING, accessPointId);
-      todayVisits = visitRepository.countTodayVisitsByAccessPointId(todayStart, accessPointId);
-      pending = visitRepository.countByStatusAndAccessPointId(VisitStatus.PLANNED, accessPointId);
+      PageRequest countOnly = PageRequest.of(0, 1);
+      // 1. IN_BUILDING (Aktiivsed)
+      active = visitRepository.findAllFiltered(
+        null, 
+        VisitStatus.IN_BUILDING.name(), 
+        null, 
+        null, 
+        accessPointId, 
+        countOnly
+      ).getTotalElements();
 
-      lastWeekTotal =
-          visitRepository.countVisitsInPeriodByAccessPointId(
-              lastWeekStart, todayStart, accessPointId);
-    } else {
-      // Kui ID-d pole, näitame globaalset statistikat (nagu varem tegime)
-      active = visitRepository.countByStatus(VisitStatus.IN_BUILDING);
-      todayVisits = visitRepository.countTodayBookings(todayStart);
-      pending = visitRepository.countByStatus(VisitStatus.PLANNED);
-      lastWeekTotal = visitRepository.countVisitsInPeriod(lastWeekStart, todayStart);
-    }
+      // 2. PLANNED (Ootel)
+      pending = visitRepository.findAllFiltered(
+          null, 
+          VisitStatus.PLANNED.name(), 
+          null, 
+          null, 
+          accessPointId, 
+          countOnly
+      ).getTotalElements();
+
+    // 3. Tänased visiidid kokku
+        todayVisits = visitRepository.findAllFiltered(
+            null, 
+            null, 
+            todayStart, 
+            null, 
+            accessPointId, 
+            countOnly
+        ).getTotalElements();
+
+      // 4. Viimase nädala visiidid (perioodi põhjal)
+      lastWeekTotal = visitRepository.findAllFiltered(
+          null, 
+          null, 
+          lastWeekStart, 
+          todayStart, 
+          accessPointId, 
+          countOnly
+      ).getTotalElements();
+    } 
+
 
     double lastWeekAverage = lastWeekTotal / 7.0;
     String visitorTrend = calculateTrend(todayVisits, lastWeekAverage);

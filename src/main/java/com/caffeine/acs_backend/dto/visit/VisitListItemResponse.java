@@ -5,7 +5,6 @@ import com.caffeine.acs_backend.repository.VisitListView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,26 +26,30 @@ public record VisitListItemResponse(
         VisitStatus status,
     @Schema(description = "person.id of the visitor") UUID visitorId,
     @Schema(description = "ID of the access point") UUID accessPointId,
-  @Schema(description = "Name of the access point") String accessPointName,
+    @Schema(description = "Name of the access point") String accessPointName,
     @Schema(description = "Address of the access point") String accessPointAddress) {
 
   private static final Logger log = LoggerFactory.getLogger(VisitListItemResponse.class);
+
   public static VisitListItemResponse from(VisitListView view) {
-    
+
     String dbVisitStatus = view.getVisitStatus();
     VisitStatus visitStatusEnum = null;
 
     if (dbVisitStatus != null) {
-        try {
-            // Teisendame: väike täht -> suur, tühikud välja
-            visitStatusEnum = VisitStatus.valueOf(dbVisitStatus.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            // See on sinu "print" – näed konsoolis, mis andmebaasis tegelikult on
-            log.error("VIGA: Andmebaasis on tundmatu staatus: '{}' külastusel ID-ga: {}", dbVisitStatus, view.getId());
-            // et testida, kas ülejäänud kood töötab.
-        }
+      try {
+        // Teisendame: väike täht -> suur, tühikud välja
+        visitStatusEnum = VisitStatus.valueOf(dbVisitStatus.trim().toUpperCase());
+      } catch (IllegalArgumentException e) {
+        // See on sinu "print" – näed konsoolis, mis andmebaasis tegelikult on
+        log.error(
+            "VIGA: Andmebaasis on tundmatu staatus: '{}' külastusel ID-ga: {}",
+            dbVisitStatus,
+            view.getId());
+        // et testida, kas ülejäänud kood töötab.
+      }
     }
-    
+
     return new VisitListItemResponse(
         view.getId(),
         view.getFullName(),

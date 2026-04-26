@@ -34,5 +34,6 @@ public interface VisitListView {
   UUID getAccessPointId();
 
   String getAccessPointName();
+
   String getAccessPointAddress();
 }

@@ -118,8 +118,7 @@ class VisitControllerTest {
             PERSON_ID,
             UUID.randomUUID(),
             "Test Access Point",
-            "123 Test Street"
-        );
+            "123 Test Street");
     when(visitService.getVisits(any(), any(), any(), any(), any(), any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of(item)));
 

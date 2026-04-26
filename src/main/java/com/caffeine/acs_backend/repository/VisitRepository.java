@@ -29,13 +29,10 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
               + "  CASE"
               + "    /* 1. Tulevik: Kui saabumisaeg on alles ees */ "
               + "    WHEN v.arrival_time > CURRENT_TIMESTAMP THEN 'PLANNED'"
-
               + "    /* 2. Lahkunud: Kui lahkumisaeg on täidetud ja see on möödas */ "
               + "    WHEN v.exit_time IS NOT NULL AND v.exit_time <= CURRENT_TIMESTAMP THEN 'DEPARTED'"
-
               + "    /* 3. Aegunud: Kui lahkumist pole märgitud, aga saabumiskuupäev oli ENNE tänast */ "
               + "    WHEN v.exit_time IS NULL AND v.arrival_time < CURRENT_DATE THEN 'EXPIRED'"
-
               + "    /* 4. Kõik muu: Saabumisaeg on käes/möödas/täna ja lahkumist pole (st on praegu hoones) */ "
               + "    ELSE 'IN_BUILDING'"
               + "  END                                                       AS \"visitStatus\","
