@@ -143,6 +143,4 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       @Param("to") LocalDateTime to,
       @Param("search") String search,
       Pageable pageable);
-
-
 }
