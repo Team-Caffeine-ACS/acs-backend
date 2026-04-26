@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,46 +39,31 @@ public class DashboardService {
     if (accessPointId != null) {
       PageRequest countOnly = PageRequest.of(0, 1);
       // 1. IN_BUILDING (Aktiivsed)
-      active = visitRepository.findAllFiltered(
-        null, 
-        VisitStatus.IN_BUILDING.name(), 
-        null, 
-        null, 
-        accessPointId, 
-        countOnly
-      ).getTotalElements();
+      active =
+          visitRepository
+              .findAllFiltered(
+                  null, VisitStatus.IN_BUILDING.name(), null, null, accessPointId, countOnly)
+              .getTotalElements();
 
       // 2. PLANNED (Ootel)
-      pending = visitRepository.findAllFiltered(
-          null, 
-          VisitStatus.PLANNED.name(), 
-          null, 
-          null, 
-          accessPointId, 
-          countOnly
-      ).getTotalElements();
+      pending =
+          visitRepository
+              .findAllFiltered(
+                  null, VisitStatus.PLANNED.name(), null, null, accessPointId, countOnly)
+              .getTotalElements();
 
-    // 3. Tänased visiidid kokku
-        todayVisits = visitRepository.findAllFiltered(
-            null, 
-            null, 
-            todayStart, 
-            null, 
-            accessPointId, 
-            countOnly
-        ).getTotalElements();
+      // 3. Tänased visiidid kokku
+      todayVisits =
+          visitRepository
+              .findAllFiltered(null, null, todayStart, null, accessPointId, countOnly)
+              .getTotalElements();
 
       // 4. Viimase nädala visiidid (perioodi põhjal)
-      lastWeekTotal = visitRepository.findAllFiltered(
-          null, 
-          null, 
-          lastWeekStart, 
-          todayStart, 
-          accessPointId, 
-          countOnly
-      ).getTotalElements();
-    } 
-
+      lastWeekTotal =
+          visitRepository
+              .findAllFiltered(null, null, lastWeekStart, todayStart, accessPointId, countOnly)
+              .getTotalElements();
+    }
 
     double lastWeekAverage = lastWeekTotal / 7.0;
     String visitorTrend = calculateTrend(todayVisits, lastWeekAverage);
