@@ -16,12 +16,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,22 +60,12 @@ public class VisitController {
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           LocalDateTime dateTo,
       @RequestParam(required = false) UUID accessPoint,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "20") int size,
-      @RequestParam(defaultValue = "entryTime,desc") String sort) {
+      @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
 
-    // Kaitse liiga suurte väärtuste vastu (Swagger bug fix)
-    if (size > 1000) {
-      size = 1000;
-    }
-    if (page < 0) {
-      page = 0;
-    }
-
-    Pageable pageable = PageRequest.of(page, size, Sort.by(parseSort(sort)));
+    Pageable sanitized = sanitizePageable(pageable);
 
     return ResponseEntity.ok(
-        visitService.getVisits(search, status, dateFrom, dateTo, accessPoint, pageable));
+        visitService.getVisits(search, status, dateFrom, dateTo, accessPoint, sanitized));
   }
 
   @Operation(
@@ -165,15 +154,22 @@ public class VisitController {
         .body(visitService.createVisit(request, currentUser));
   }
 
-  private List<Sort.Order> parseSort(String sort) {
-    String[] parts = sort.split(",");
-    String property = parts[0].trim();
+  private static final Set<String> ALLOWED_SORTS = Set.of("fullName", "entryTime", "status");
 
-    Sort.Direction direction =
-        (parts.length > 1 && parts[1].equalsIgnoreCase("asc"))
-            ? Sort.Direction.ASC
-            : Sort.Direction.DESC;
+  private Pageable sanitizePageable(Pageable pageable) {
+    // Filtreeri välja kõik sort väljad, mis pole lubatud
+    var filteredSort =
+        pageable.getSort().stream()
+            .filter(order -> ALLOWED_SORTS.contains(order.getProperty()))
+            .toList();
 
-    return List.of(new Sort.Order(direction, property));
+    // Kui midagi ei jäänud alles → kasuta vaikimisi sortimist
+    var sort =
+        filteredSort.isEmpty()
+            ? org.springframework.data.domain.Sort.by("entryTime").descending()
+            : org.springframework.data.domain.Sort.by(filteredSort);
+
+    return org.springframework.data.domain.PageRequest.of(
+        pageable.getPageNumber(), pageable.getPageSize(), sort);
   }
 }

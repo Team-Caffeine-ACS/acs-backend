@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -48,8 +49,13 @@ public class VisitService {
       Pageable pageable) {
     String searchParam = (search == null || search.isBlank()) ? null : search.trim();
     String statusParam = (status == null || status.isBlank()) ? null : status.trim().toLowerCase();
+
+    // Loo uus Pageable, mis võtab kaasa ainult lehe numbri ja suuruse,
+    // aga viskab sorteerimise välja. See hoiab ära "v.entrytime" vea.
+    Pageable manualPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
     return visitRepository
-        .findAllFiltered(searchParam, statusParam, dateFrom, dateTo, accessPointId, pageable)
+        .findAllFiltered(searchParam, statusParam, dateFrom, dateTo, accessPointId, manualPageable)
         .map(VisitListItemResponse::from);
   }
 

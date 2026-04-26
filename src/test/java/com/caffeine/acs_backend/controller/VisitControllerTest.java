@@ -114,7 +114,7 @@ class VisitControllerTest {
             null,
             LocalDateTime.now(),
             null,
-            VisitStatus.ACTIVE,
+            VisitStatus.IN_BUILDING,
             PERSON_ID,
             UUID.randomUUID());
     when(visitService.getVisits(any(), any(), any(), any(), any(), any(Pageable.class)))
@@ -124,7 +124,7 @@ class VisitControllerTest {
         .perform(get("/api/visits"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content[0].fullName").value("John Smith"))
-        .andExpect(jsonPath("$.content[0].status").value(VisitStatus.ACTIVE.getLabel()));
+        .andExpect(jsonPath("$.content[0].status").value(VisitStatus.IN_BUILDING.getLabel()));
   }
 
   @Test
@@ -151,11 +151,11 @@ class VisitControllerTest {
   @WithMockUser(roles = "RECEPTIONIST")
   void getVisits_withStatusFilter_passesParam() throws Exception {
     when(visitService.getVisits(
-            any(), eq(VisitStatus.ACTIVE.name()), any(), any(), any(), any(Pageable.class)))
+            any(), eq(VisitStatus.IN_BUILDING.name()), any(), any(), any(), any(Pageable.class)))
         .thenReturn(new PageImpl<>(List.of()));
 
     mockMvc
-        .perform(get("/api/visits").param("status", VisitStatus.ACTIVE.name()))
+        .perform(get("/api/visits").param("status", VisitStatus.IN_BUILDING.name()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content").isEmpty());
   }

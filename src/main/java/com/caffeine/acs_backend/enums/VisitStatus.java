@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum VisitStatus {
   /** Visitor submitted intent to visit; not yet arrived */
-  PRE_REGISTERED("Ootel"),
+  PLANNED("Ootel"),
 
   /** Visitor has arrived; keycard issued */
-  ACTIVE("Sees"),
+  IN_BUILDING("Hoones"),
 
   /** Visitor has left; keycard released, exit time recorded */
-  COMPLETED("Väljas"),
+  DEPARTED("Lahkunud"),
 
   /** Visit was cancelled before arrival */
-  CANCELLED("Tühistatud");
+  EXPIRED("Aegunud");
 
   private final String label;
 

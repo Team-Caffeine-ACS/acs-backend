@@ -86,7 +86,7 @@ public class PreRegistrationService {
             .accessPoint(building)
             .visitor(personInRole)
             .notes(request.notes())
-            .status(VisitStatus.PRE_REGISTERED)
+            .status(VisitStatus.PLANNED)
             .build();
 
     if (request.hostId() != null) {
@@ -122,7 +122,7 @@ public class PreRegistrationService {
 
     return visitRepository
         .findPreRegistrations(
-            status != null ? status.name() : VisitStatus.PRE_REGISTERED.name(),
+            status != null ? status.name() : VisitStatus.PLANNED.name(),
             buildingId,
             from,
             to,
@@ -157,10 +157,10 @@ public class PreRegistrationService {
   @Transactional
   public void cancel(UUID id, String customMessage) {
     Visit visit = findPreRegistration(id);
-    visit.setStatus(VisitStatus.CANCELLED);
+    visit.setStatus(VisitStatus.EXPIRED);
     visitRepository.save(visit);
 
-    log.info("Pre-registration cancelled: {}", id);
+    log.info("Pre-registration expired: {}", id);
 
     String email = visit.getVisitor() != null ? visit.getVisitor().getPerson().getEmail() : null;
 
@@ -197,8 +197,8 @@ public class PreRegistrationService {
                 () ->
                     new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Pre-registration not found"));
-    if (visit.getStatus() == VisitStatus.CANCELLED) {
-      throw new ResponseStatusException(HttpStatus.GONE, "Pre-registration is cancelled");
+    if (visit.getStatus() == VisitStatus.EXPIRED) {
+      throw new ResponseStatusException(HttpStatus.GONE, "Pre-registration is expired");
     }
     return visit;
   }

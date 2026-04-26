@@ -37,19 +37,19 @@ public class DashboardService {
 
     if (accessPointId != null) {
       // Kui ID on antud, filtreerime selle punkti järgi
-      active = visitRepository.countByStatusAndAccessPointId(VisitStatus.ACTIVE, accessPointId);
+      active =
+          visitRepository.countByStatusAndAccessPointId(VisitStatus.IN_BUILDING, accessPointId);
       todayVisits = visitRepository.countTodayVisitsByAccessPointId(todayStart, accessPointId);
-      pending =
-          visitRepository.countByStatusAndAccessPointId(VisitStatus.PRE_REGISTERED, accessPointId);
+      pending = visitRepository.countByStatusAndAccessPointId(VisitStatus.PLANNED, accessPointId);
 
       lastWeekTotal =
           visitRepository.countVisitsInPeriodByAccessPointId(
               lastWeekStart, todayStart, accessPointId);
     } else {
       // Kui ID-d pole, näitame globaalset statistikat (nagu varem tegime)
-      active = visitRepository.countByStatus(VisitStatus.ACTIVE);
+      active = visitRepository.countByStatus(VisitStatus.IN_BUILDING);
       todayVisits = visitRepository.countTodayBookings(todayStart);
-      pending = visitRepository.countByStatus(VisitStatus.PRE_REGISTERED);
+      pending = visitRepository.countByStatus(VisitStatus.PLANNED);
       lastWeekTotal = visitRepository.countVisitsInPeriod(lastWeekStart, todayStart);
     }
 

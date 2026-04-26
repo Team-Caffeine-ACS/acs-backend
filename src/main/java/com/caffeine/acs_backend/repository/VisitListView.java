@@ -15,7 +15,7 @@ public interface VisitListView {
   String getDocumentNumber();
 
   /** Organization of the visitor. */
-  String getOrganization();
+  String getOrganizationName();
 
   /** Full name of the host, null when no host assigned. */
   String getHostName();
@@ -25,7 +25,7 @@ public interface VisitListView {
   LocalDateTime getExitTime();
 
   /** Computed status: in_building, departed, or expired. */
-  String getStatus();
+  String getVisitStatus();
 
   /** person.id of the visitor. */
   UUID getVisitorId();

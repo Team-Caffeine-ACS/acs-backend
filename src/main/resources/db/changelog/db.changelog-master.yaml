@@ -2,8 +2,6 @@ databaseChangeLog:
   - include:
       file: db/changelog/changes/001-initial-schema.yaml
   - include:
-      file: db/changelog/changes/002-dev-seed-data.yaml
-  - include:
       file: db/changelog/changes/003-accessLevelImpl.yaml
   - include:
       file: db/changelog/changes/004-dev-fix-password-hashes.yaml
@@ -11,3 +9,6 @@ databaseChangeLog:
       file: db/changelog/changes/005-dev-seed-employee-role.yaml
   - include:
       file: db/changelog/changes/006-alter-accesspoint-lat-long.yaml
+  # Dev data seeding should be last, so that it can rely on all schema changes being in place
+  - include:
+      file: db/changelog/changes/002-dev-seed-data.yaml
