@@ -22,7 +22,6 @@ public class DashboardService {
   private final AccessPointRepository accessPointRepository;
 
   public DashboardSummaryResponse getSummary(UUID accessPointId) {
-
     if (accessPointId != null && !accessPointRepository.existsById(accessPointId)) {
       throw new BusinessException(
           "Access point not found", ErrorCode.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -36,34 +35,31 @@ public class DashboardService {
     long pending = 0;
     long lastWeekTotal = 0;
 
-    if (accessPointId != null) {
-      PageRequest countOnly = PageRequest.of(0, 1);
-      // 1. IN_BUILDING (Aktiivsed)
-      active =
-          visitRepository
-              .findAllFiltered(
-                  null, VisitStatus.IN_BUILDING.name(), null, null, accessPointId, countOnly)
-              .getTotalElements();
+    PageRequest countOnly = PageRequest.of(0, 1);
+    // 1. IN_BUILDING (Aktiivsed)
+    active =
+        visitRepository
+            .findAllFiltered(
+                null, VisitStatus.IN_BUILDING.name(), null, null, accessPointId, countOnly)
+            .getTotalElements();
 
-      // 2. PLANNED (Ootel)
-      pending =
-          visitRepository
-              .findAllFiltered(
-                  null, VisitStatus.PLANNED.name(), null, null, accessPointId, countOnly)
-              .getTotalElements();
+    // 2. PLANNED (Ootel)
+    pending =
+        visitRepository
+            .findAllFiltered(null, VisitStatus.PLANNED.name(), null, null, accessPointId, countOnly)
+            .getTotalElements();
 
-      // 3. Tänased visiidid kokku
-      todayVisits =
-          visitRepository
-              .findAllFiltered(null, null, todayStart, null, accessPointId, countOnly)
-              .getTotalElements();
+    // 3. Tänased visiidid kokku
+    todayVisits =
+        visitRepository
+            .findAllFiltered(null, null, todayStart, null, accessPointId, countOnly)
+            .getTotalElements();
 
-      // 4. Viimase nädala visiidid (perioodi põhjal)
-      lastWeekTotal =
-          visitRepository
-              .findAllFiltered(null, null, lastWeekStart, todayStart, accessPointId, countOnly)
-              .getTotalElements();
-    }
+    // 4. Viimase nädala visiidid (perioodi põhjal)
+    lastWeekTotal =
+        visitRepository
+            .findAllFiltered(null, null, lastWeekStart, todayStart, accessPointId, countOnly)
+            .getTotalElements();
 
     double lastWeekAverage = lastWeekTotal / 7.0;
     String visitorTrend = calculateTrend(todayVisits, lastWeekAverage);
