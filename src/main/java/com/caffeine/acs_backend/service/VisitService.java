@@ -108,19 +108,31 @@ public class VisitService {
   @Transactional
   public VisitDetailResponse editVisit(UUID visitId, EditVisitRequest request) {
     Visit visit = findVisitOrThrow(visitId);
-    validateEditedEntryTime(visit, request.entryTime());
+
+    if (request.entryTime() != null) {
+      validateEditedEntryTime(visit, request.entryTime());
+      visit.setArrivalTime(request.entryTime());
+    }
+
+    if (request.exitTime() != null) {
+      visit.setExitTime(request.exitTime());
+    }
 
     PersonInRole assignor = findActivePersonInRoleOrThrow(request.assignorId(), "Assignor");
-    AccessPoint accessPoint = findAccessPointOrThrow(request.accessPointId());
-
     visit.setAssignor(assignor);
-    visit.setAccessPoint(accessPoint);
+
+    if (request.accessPointId() != null) {
+      AccessPoint accessPoint = findAccessPointOrThrow(request.accessPointId());
+      visit.setAccessPoint(accessPoint);
+    }
+
     visit.setHost(resolveHostOrNull(request.hostId()));
 
-    visit.setArrivalTime(request.entryTime());
-    visit.setComment(request.comment());
-    visitRepository.save(visit);
+    if (request.comment() != null) {
+      visit.setComment(request.comment());
+    }
 
+    visitRepository.save(visit);
     return buildDetailResponse(visit);
   }
 

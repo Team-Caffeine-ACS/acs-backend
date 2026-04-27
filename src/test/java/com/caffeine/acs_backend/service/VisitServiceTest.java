@@ -193,7 +193,13 @@ class VisitServiceTest {
     when(visitRepository.findById(id)).thenReturn(Optional.empty());
 
     EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
+        new EditVisitRequest(
+            null,
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            null);
 
     assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
@@ -212,7 +218,8 @@ class VisitServiceTest {
     when(personInRoleRepository.findById(assignorId)).thenReturn(Optional.empty());
 
     EditVisitRequest request =
-        new EditVisitRequest(null, assignorId, UUID.randomUUID(), LocalDateTime.now(), null);
+        new EditVisitRequest(
+            null, assignorId, UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), null);
 
     assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
@@ -233,7 +240,8 @@ class VisitServiceTest {
     when(personInRoleRepository.findById(assignorId)).thenReturn(Optional.of(inactiveAssignor));
 
     EditVisitRequest request =
-        new EditVisitRequest(null, assignorId, UUID.randomUUID(), LocalDateTime.now(), null);
+        new EditVisitRequest(
+            null, assignorId, UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), null);
 
     assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
@@ -259,7 +267,8 @@ class VisitServiceTest {
     when(accessPointRepository.findById(apId)).thenReturn(Optional.empty());
 
     EditVisitRequest request =
-        new EditVisitRequest(null, assignorId, apId, LocalDateTime.now(), null);
+        new EditVisitRequest(
+            null, assignorId, apId, LocalDateTime.now(), LocalDateTime.now(), null);
 
     assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
@@ -285,7 +294,9 @@ class VisitServiceTest {
     when(keycardInPossessionRepository.findActiveByHolder(visitor)).thenReturn(Optional.empty());
 
     visitService.editVisit(
-        id, new EditVisitRequest(null, assignorId, apId, LocalDateTime.now(), null));
+        id,
+        new EditVisitRequest(
+            null, assignorId, apId, LocalDateTime.now(), LocalDateTime.now(), null));
 
     assertThat(visit.getHost()).isNull();
     assertThat(visit.getAssignor()).isNotNull();
@@ -318,7 +329,13 @@ class VisitServiceTest {
     VisitDetailResponse response =
         visitService.editVisit(
             id,
-            new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated"));
+            new EditVisitRequest(
+                hostPersonId,
+                assignorId,
+                apId,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                "Updated"));
 
     assertThat(visit.getHost()).isEqualTo(newHost);
     assertThat(visit.getComment()).isEqualTo("Updated");
@@ -341,7 +358,8 @@ class VisitServiceTest {
     when(accessPointRepository.findById(apId)).thenReturn(Optional.of(new AccessPoint()));
     when(personRepository.findById(hostPersonId)).thenReturn(Optional.empty());
     EditVisitRequest request =
-        new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated");
+        new EditVisitRequest(
+            hostPersonId, assignorId, apId, LocalDateTime.now(), LocalDateTime.now(), "Updated");
 
     assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
@@ -367,7 +385,8 @@ class VisitServiceTest {
     when(personInRoleRepository.findFirstByPersonAndIsActiveTrue(hostPerson))
         .thenReturn(Optional.empty());
     EditVisitRequest request =
-        new EditVisitRequest(hostPersonId, assignorId, apId, LocalDateTime.now(), "Updated");
+        new EditVisitRequest(
+            hostPersonId, assignorId, apId, LocalDateTime.now(), LocalDateTime.now(), "Updated");
 
     assertThatThrownBy(() -> visitService.editVisit(id, request))
         .isInstanceOf(BusinessException.class)
@@ -393,7 +412,8 @@ class VisitServiceTest {
     when(visitRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     when(keycardInPossessionRepository.findActiveByHolder(visitor)).thenReturn(Optional.empty());
 
-    visitService.editVisit(id, new EditVisitRequest(null, assignorId, apId, newArrival, null));
+    visitService.editVisit(
+        id, new EditVisitRequest(null, assignorId, apId, newArrival, newArrival, null));
 
     assertThat(visit.getArrivalTime()).isEqualTo(newArrival);
     assertThat(visit.getAssignor()).isEqualTo(assignor);
@@ -408,9 +428,11 @@ class VisitServiceTest {
     PersonInRole visitor = personInRole("John", "Smith");
     Visit visit = visitWithVisitor(visitor);
     LocalDateTime exitTime = LocalDateTime.now().minusMinutes(15);
+    LocalDateTime newArrival = LocalDateTime.now();
     visit.setExitTime(exitTime);
     EditVisitRequest request =
-        new EditVisitRequest(null, assignorId, apId, exitTime.plusMinutes(1), "Updated");
+        new EditVisitRequest(
+            null, assignorId, apId, newArrival, exitTime.plusMinutes(1), "Updated");
 
     when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
 

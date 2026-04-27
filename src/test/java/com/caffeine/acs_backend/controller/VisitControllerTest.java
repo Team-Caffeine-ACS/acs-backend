@@ -344,7 +344,12 @@ class VisitControllerTest {
   void editVisit_admin_returns200() throws Exception {
     EditVisitRequest request =
         new EditVisitRequest(
-            null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), "Updated");
+            null,
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            "Updated");
     when(visitService.editVisit(eq(VISIT_ID), any())).thenReturn(sampleDetail());
 
     mockMvc
@@ -361,7 +366,13 @@ class VisitControllerTest {
   @WithMockUser(roles = "SECURITY_CHIEF")
   void editVisit_securityChief_returns200() throws Exception {
     EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
+        new EditVisitRequest(
+            null,
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            null);
     when(visitService.editVisit(eq(VISIT_ID), any())).thenReturn(sampleDetail());
 
     mockMvc
@@ -377,7 +388,13 @@ class VisitControllerTest {
   @ValueSource(strings = {"RECEPTIONIST", "VISITOR"})
   void editVisit_forbiddenRoles_return403(String role) throws Exception {
     EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
+        new EditVisitRequest(
+            null,
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            null);
 
     mockMvc
         .perform(
@@ -393,7 +410,13 @@ class VisitControllerTest {
   @WithMockUser(roles = "ADMIN")
   void editVisit_notFound_returns404() throws Exception {
     EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
+        new EditVisitRequest(
+            null,
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            null);
     when(visitService.editVisit(eq(VISIT_ID), any()))
         .thenThrow(
             new BusinessException(
@@ -412,7 +435,13 @@ class VisitControllerTest {
   @WithMockUser(roles = "ADMIN")
   void editVisit_entryTimeConflict_returns409() throws Exception {
     EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
+        new EditVisitRequest(
+            null,
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            null);
     when(visitService.editVisit(eq(VISIT_ID), any()))
         .thenThrow(
             new BusinessException(
