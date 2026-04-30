@@ -171,4 +171,10 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :start AND v.arrivalTime < :end "
           + "AND v.status != 'CANCELLED'")
   long countVisitsInPeriod(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+  /**
+   * Find all individual visits belonging to a group visit.
+   * Used by VisitGroupService to list members and compute group-level statistics.
+   */
+  List<Visit> findByGroupInVisitId(UUID groupInVisitId);
 }
