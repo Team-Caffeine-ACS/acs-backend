@@ -18,4 +18,5 @@ public record GroupVisitResponse(
     @Schema(description = "Total number of members") int memberCount,
     @Schema(description = "Number of members currently checked in") int checkedInCount,
     @Schema(description = "Number of members who have departed") int departedCount,
-    @Schema(description = "Individual group members with their statuses") List<GroupMemberResponse> members) {}
+    @Schema(description = "Individual group members with their statuses")
+        List<GroupMemberResponse> members) {}

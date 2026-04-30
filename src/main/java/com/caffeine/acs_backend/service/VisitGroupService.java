@@ -88,8 +88,7 @@ public class VisitGroupService {
                           .orElseThrow(
                               () ->
                                   new ResponseStatusException(
-                                      HttpStatus.BAD_REQUEST,
-                                      "Person not found: " + personId));
+                                      HttpStatus.BAD_REQUEST, "Person not found: " + personId));
 
                   PersonInRole personInRole =
                       personInRoleRepository
@@ -138,9 +137,7 @@ public class VisitGroupService {
         groupInVisitRepository
             .findById(groupInVisitId)
             .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Group visit not found"));
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group visit not found"));
 
     List<Visit> visits = visitRepository.findByGroupInVisitId(groupInVisitId);
 
@@ -159,8 +156,7 @@ public class VisitGroupService {
   // ── GET — paginated list of group visits ─────────────────────────────────────
 
   @Transactional(readOnly = true)
-  public Page<GroupVisitListItemResponse> getAll(
-      LocalDate date, String search, Pageable pageable) {
+  public Page<GroupVisitListItemResponse> getAll(LocalDate date, String search, Pageable pageable) {
 
     String searchParam = (search == null || search.isBlank()) ? null : search.trim();
     LocalDateTime from = date != null ? date.atStartOfDay() : null;
@@ -179,9 +175,7 @@ public class VisitGroupService {
         groupInVisitRepository
             .findById(groupInVisitId)
             .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Group visit not found"));
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group visit not found"));
 
     List<Visit> visits = visitRepository.findByGroupInVisitId(groupInVisitId);
 
@@ -216,8 +210,7 @@ public class VisitGroupService {
         .orElseThrow(
             () ->
                 new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Host has no active role assignment: " + hostId));
+                    HttpStatus.BAD_REQUEST, "Host has no active role assignment: " + hostId));
   }
 
   private void sendNotificationIfEmailPresent(
@@ -233,13 +226,9 @@ public class VisitGroupService {
   }
 
   private GroupVisitResponse buildGroupVisitResponse(
-      GroupInVisit groupInVisit,
-      List<Visit> visits,
-      AccessPoint building,
-      PersonInRole host) {
+      GroupInVisit groupInVisit, List<Visit> visits, AccessPoint building, PersonInRole host) {
 
-    List<GroupMemberResponse> members =
-        visits.stream().map(this::buildMemberResponse).toList();
+    List<GroupMemberResponse> members = visits.stream().map(this::buildMemberResponse).toList();
 
     String hostName = null;
     if (host != null) {
@@ -247,8 +236,7 @@ public class VisitGroupService {
       hostName = hostPerson.getGivenName() + " " + hostPerson.getSurname();
     }
 
-    int checkedIn =
-        (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.ACTIVE).count();
+    int checkedIn = (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.ACTIVE).count();
     int departed =
         (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.COMPLETED).count();
 
@@ -283,8 +271,7 @@ public class VisitGroupService {
   private GroupVisitListItemResponse buildListItemResponse(GroupInVisit groupInVisit) {
     List<Visit> visits = visitRepository.findByGroupInVisitId(groupInVisit.getId());
 
-    int checkedIn =
-        (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.ACTIVE).count();
+    int checkedIn = (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.ACTIVE).count();
     int departed =
         (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.COMPLETED).count();
 

@@ -13,5 +13,6 @@ public record GroupMemberResponse(
     @Schema(description = "Email of the visitor") String email,
     @Schema(description = "Personal ID code / document number") String personalIdCode,
     @Schema(description = "Current visit status") VisitStatus status,
-    @Schema(description = "Actual arrival time, null if not yet checked in") LocalDateTime arrivalTime,
+    @Schema(description = "Actual arrival time, null if not yet checked in")
+        LocalDateTime arrivalTime,
     @Schema(description = "Actual exit time, null if not yet departed") LocalDateTime exitTime) {}
