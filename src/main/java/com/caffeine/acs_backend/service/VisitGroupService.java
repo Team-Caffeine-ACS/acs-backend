@@ -171,11 +171,10 @@ public class VisitGroupService {
 
   @Transactional
   public void cancel(UUID groupInVisitId) {
-    GroupInVisit groupInVisit =
-        groupInVisitRepository
-            .findById(groupInVisitId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group visit not found"));
+    groupInVisitRepository
+        .findById(groupInVisitId)
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group visit not found"));
 
     List<Visit> visits = visitRepository.findByGroupInVisitId(groupInVisitId);
 
