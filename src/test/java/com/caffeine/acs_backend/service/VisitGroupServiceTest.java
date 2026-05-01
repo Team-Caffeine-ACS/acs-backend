@@ -317,11 +317,12 @@ class VisitGroupServiceTest {
   void getById_noVisitsFound_throws404() {
     Group grp = group("Queen");
     GroupInVisit giv = groupInVisit(grp);
+    UUID givId = giv.getId();
 
-    when(groupInVisitRepository.findById(giv.getId())).thenReturn(Optional.of(giv));
-    when(visitRepository.findByGroupInVisitId(giv.getId())).thenReturn(List.of());
+    when(groupInVisitRepository.findById(givId)).thenReturn(Optional.of(giv));
+    when(visitRepository.findByGroupInVisitId(givId)).thenReturn(List.of());
 
-    assertThatThrownBy(() -> visitGroupService.getById(giv.getId()))
+    assertThatThrownBy(() -> visitGroupService.getById(givId))
         .isInstanceOf(ResponseStatusException.class)
         .satisfies(
             ex -> {

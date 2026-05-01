@@ -156,7 +156,10 @@ class VisitGroupControllerTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(sampleCreateRequestJson()))
-        .andExpect(status().isCreated());
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.groupInVisitId").value(GROUP_IN_VISIT_ID.toString()));
+
+    verify(visitGroupService).create(any());
   }
 
   @Test
