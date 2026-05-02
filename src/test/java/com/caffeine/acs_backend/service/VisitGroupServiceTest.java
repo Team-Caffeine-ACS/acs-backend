@@ -437,6 +437,6 @@ class VisitGroupServiceTest {
 
     verify(visitRepository, never()).save(any());
     assertThat(active.getStatus()).isEqualTo(VisitStatus.IN_BUILDING);
-    assertThat(completed.getStatus()).isEqualTo(VisitStatus.EXPIRED);
+    assertThat(completed.getStatus()).isEqualTo(VisitStatus.DEPARTED);
   }
 }
