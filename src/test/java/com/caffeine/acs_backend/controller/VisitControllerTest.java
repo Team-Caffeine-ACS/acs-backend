@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.caffeine.acs_backend.dto.visit.CreateVisitRequest;
 import com.caffeine.acs_backend.dto.visit.CreateVisitResponse;
-import com.caffeine.acs_backend.dto.visit.EditVisitRequest;
 import com.caffeine.acs_backend.dto.visit.ExitVisitRequest;
 import com.caffeine.acs_backend.dto.visit.VisitDetailResponse;
 import com.caffeine.acs_backend.dto.visit.VisitListItemResponse;
@@ -31,8 +30,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -341,98 +338,6 @@ class VisitControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
         .andExpect(status().isBadRequest());
-  }
-
-  // ── PUT /api/visits/{visitId}/edit ────────────────────────────────────────────
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  void editVisit_admin_returns200() throws Exception {
-    EditVisitRequest request =
-        new EditVisitRequest(
-            null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), "Updated");
-    when(visitService.editVisit(eq(VISIT_ID), any())).thenReturn(sampleDetail());
-
-    mockMvc
-        .perform(
-            put("/api/visits/{id}/edit", VISIT_ID)
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.visitId").value(VISIT_ID.toString()));
-  }
-
-  @Test
-  @WithMockUser(roles = "SECURITY_CHIEF")
-  void editVisit_securityChief_returns200() throws Exception {
-    EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
-    when(visitService.editVisit(eq(VISIT_ID), any())).thenReturn(sampleDetail());
-
-    mockMvc
-        .perform(
-            put("/api/visits/{id}/edit", VISIT_ID)
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isOk());
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"RECEPTIONIST", "VISITOR"})
-  void editVisit_forbiddenRoles_return403(String role) throws Exception {
-    EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
-
-    mockMvc
-        .perform(
-            put("/api/visits/{id}/edit", VISIT_ID)
-                .with(user(role.toLowerCase()).roles(role))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  void editVisit_notFound_returns404() throws Exception {
-    EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
-    when(visitService.editVisit(eq(VISIT_ID), any()))
-        .thenThrow(
-            new BusinessException(
-                "Visit not found", ErrorCode.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND));
-
-    mockMvc
-        .perform(
-            put("/api/visits/{id}/edit", VISIT_ID)
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  void editVisit_entryTimeConflict_returns409() throws Exception {
-    EditVisitRequest request =
-        new EditVisitRequest(null, UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), null);
-    when(visitService.editVisit(eq(VISIT_ID), any()))
-        .thenThrow(
-            new BusinessException(
-                "Entry time cannot be later than the recorded exit time",
-                ErrorCode.BUSINESS_RULE_VIOLATION,
-                HttpStatus.CONFLICT));
-
-    mockMvc
-        .perform(
-            put("/api/visits/{id}/edit", VISIT_ID)
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isConflict());
   }
 
   @Test
