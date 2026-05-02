@@ -111,7 +111,7 @@ public class VisitGroupService {
                               .groupInVisit(groupInVisit)
                               .host(host)
                               .notes(request.comment())
-                              .status(VisitStatus.PRE_REGISTERED)
+                              .status(VisitStatus.PLANNED)
                               .build());
 
                   sendNotificationIfEmailPresent(person, request.expectedArrival(), building);
@@ -180,8 +180,8 @@ public class VisitGroupService {
 
     visits.forEach(
         visit -> {
-          if (visit.getStatus() == VisitStatus.PRE_REGISTERED) {
-            visit.setStatus(VisitStatus.CANCELLED);
+          if (visit.getStatus() == VisitStatus.PLANNED) {
+            visit.setStatus(VisitStatus.EXPIRED);
             visitRepository.save(visit);
           }
         });
@@ -235,9 +235,9 @@ public class VisitGroupService {
       hostName = hostPerson.getGivenName() + " " + hostPerson.getSurname();
     }
 
-    int checkedIn = (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.ACTIVE).count();
-    int departed =
-        (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.COMPLETED).count();
+    int checkedIn =
+        (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.IN_BUILDING).count();
+    int departed = (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.DEPARTED).count();
 
     return new GroupVisitResponse(
         groupInVisit.getId(),
@@ -270,9 +270,9 @@ public class VisitGroupService {
   private GroupVisitListItemResponse buildListItemResponse(GroupInVisit groupInVisit) {
     List<Visit> visits = visitRepository.findByGroupInVisitId(groupInVisit.getId());
 
-    int checkedIn = (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.ACTIVE).count();
-    int departed =
-        (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.COMPLETED).count();
+    int checkedIn =
+        (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.IN_BUILDING).count();
+    int departed = (int) visits.stream().filter(v -> v.getStatus() == VisitStatus.DEPARTED).count();
 
     return new GroupVisitListItemResponse(
         groupInVisit.getId(),

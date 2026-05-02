@@ -265,8 +265,8 @@ class VisitGroupServiceTest {
     Person p2 = person("Roger", "Taylor");
     PersonInRole pir1 = personInRole(p1);
     PersonInRole pir2 = personInRole(p2);
-    Visit v1 = visit(pir1, giv, ap, VisitStatus.PRE_REGISTERED);
-    Visit v2 = visit(pir2, giv, ap, VisitStatus.ACTIVE);
+    Visit v1 = visit(pir1, giv, ap, VisitStatus.PLANNED);
+    Visit v2 = visit(pir2, giv, ap, VisitStatus.IN_BUILDING);
 
     when(groupInVisitRepository.findById(giv.getId())).thenReturn(Optional.of(giv));
     when(visitRepository.findByGroupInVisitId(giv.getId())).thenReturn(List.of(v1, v2));
@@ -287,8 +287,8 @@ class VisitGroupServiceTest {
     AccessPoint ap = building();
     Person p1 = person("Brian", "May");
     Person p2 = person("Roger", "Taylor");
-    Visit v1 = visit(personInRole(p1), giv, ap, VisitStatus.ACTIVE);
-    Visit v2 = visit(personInRole(p2), giv, ap, VisitStatus.COMPLETED);
+    Visit v1 = visit(personInRole(p1), giv, ap, VisitStatus.IN_BUILDING);
+    Visit v2 = visit(personInRole(p2), giv, ap, VisitStatus.DEPARTED);
 
     when(groupInVisitRepository.findById(giv.getId())).thenReturn(Optional.of(giv));
     when(visitRepository.findByGroupInVisitId(giv.getId())).thenReturn(List.of(v1, v2));
@@ -338,7 +338,7 @@ class VisitGroupServiceTest {
     Group grp = group("Queen");
     GroupInVisit giv = groupInVisit(grp);
     AccessPoint ap = building();
-    Visit v1 = visit(personInRole(person("Brian", "May")), giv, ap, VisitStatus.PRE_REGISTERED);
+    Visit v1 = visit(personInRole(person("Brian", "May")), giv, ap, VisitStatus.PLANNED);
     Pageable pageable = PageRequest.of(0, 20);
 
     when(groupInVisitRepository.findAllFiltered(null, null, null, pageable))
@@ -372,11 +372,10 @@ class VisitGroupServiceTest {
     Group grp = group("Queen");
     GroupInVisit giv = groupInVisit(grp);
     AccessPoint ap = building();
-    Visit preRegistered =
-        visit(personInRole(person("Brian", "May")), giv, ap, VisitStatus.PRE_REGISTERED);
-    Visit active = visit(personInRole(person("Roger", "Taylor")), giv, ap, VisitStatus.ACTIVE);
+    Visit preRegistered = visit(personInRole(person("Brian", "May")), giv, ap, VisitStatus.PLANNED);
+    Visit active = visit(personInRole(person("Roger", "Taylor")), giv, ap, VisitStatus.IN_BUILDING);
     Visit completed =
-        visit(personInRole(person("Freddie", "Mercury")), giv, ap, VisitStatus.COMPLETED);
+        visit(personInRole(person("Freddie", "Mercury")), giv, ap, VisitStatus.DEPARTED);
 
     when(groupInVisitRepository.findById(giv.getId())).thenReturn(Optional.of(giv));
     when(visitRepository.findByGroupInVisitId(giv.getId()))
@@ -384,9 +383,9 @@ class VisitGroupServiceTest {
 
     visitGroupService.cancel(giv.getId());
 
-    assertThat(preRegistered.getStatus()).isEqualTo(VisitStatus.CANCELLED);
-    assertThat(active.getStatus()).isEqualTo(VisitStatus.ACTIVE);
-    assertThat(completed.getStatus()).isEqualTo(VisitStatus.COMPLETED);
+    assertThat(preRegistered.getStatus()).isEqualTo(VisitStatus.EXPIRED);
+    assertThat(active.getStatus()).isEqualTo(VisitStatus.IN_BUILDING);
+    assertThat(completed.getStatus()).isEqualTo(VisitStatus.DEPARTED);
     verify(visitRepository, times(1)).save(any());
   }
 
@@ -395,16 +394,16 @@ class VisitGroupServiceTest {
     Group grp = group("Queen");
     GroupInVisit giv = groupInVisit(grp);
     AccessPoint ap = building();
-    Visit v1 = visit(personInRole(person("Brian", "May")), giv, ap, VisitStatus.PRE_REGISTERED);
-    Visit v2 = visit(personInRole(person("Roger", "Taylor")), giv, ap, VisitStatus.PRE_REGISTERED);
+    Visit v1 = visit(personInRole(person("Brian", "May")), giv, ap, VisitStatus.PLANNED);
+    Visit v2 = visit(personInRole(person("Roger", "Taylor")), giv, ap, VisitStatus.PLANNED);
 
     when(groupInVisitRepository.findById(giv.getId())).thenReturn(Optional.of(giv));
     when(visitRepository.findByGroupInVisitId(giv.getId())).thenReturn(List.of(v1, v2));
 
     visitGroupService.cancel(giv.getId());
 
-    assertThat(v1.getStatus()).isEqualTo(VisitStatus.CANCELLED);
-    assertThat(v2.getStatus()).isEqualTo(VisitStatus.CANCELLED);
+    assertThat(v1.getStatus()).isEqualTo(VisitStatus.EXPIRED);
+    assertThat(v2.getStatus()).isEqualTo(VisitStatus.EXPIRED);
     verify(visitRepository, times(2)).save(any());
   }
 
@@ -427,9 +426,9 @@ class VisitGroupServiceTest {
     Group grp = group("Queen");
     GroupInVisit giv = groupInVisit(grp);
     AccessPoint ap = building();
-    Visit active = visit(personInRole(person("Roger", "Taylor")), giv, ap, VisitStatus.ACTIVE);
+    Visit active = visit(personInRole(person("Roger", "Taylor")), giv, ap, VisitStatus.IN_BUILDING);
     Visit completed =
-        visit(personInRole(person("Freddie", "Mercury")), giv, ap, VisitStatus.COMPLETED);
+        visit(personInRole(person("Freddie", "Mercury")), giv, ap, VisitStatus.DEPARTED);
 
     when(groupInVisitRepository.findById(giv.getId())).thenReturn(Optional.of(giv));
     when(visitRepository.findByGroupInVisitId(giv.getId())).thenReturn(List.of(active, completed));
@@ -437,7 +436,7 @@ class VisitGroupServiceTest {
     visitGroupService.cancel(giv.getId());
 
     verify(visitRepository, never()).save(any());
-    assertThat(active.getStatus()).isEqualTo(VisitStatus.ACTIVE);
-    assertThat(completed.getStatus()).isEqualTo(VisitStatus.COMPLETED);
+    assertThat(active.getStatus()).isEqualTo(VisitStatus.IN_BUILDING);
+    assertThat(completed.getStatus()).isEqualTo(VisitStatus.EXPIRED);
   }
 }

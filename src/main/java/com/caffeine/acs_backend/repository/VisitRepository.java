@@ -1,7 +1,9 @@
 package com.caffeine.acs_backend.repository;
 
 import com.caffeine.acs_backend.entity.Visit;
+import com.caffeine.acs_backend.enums.VisitStatus;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -148,7 +150,7 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
 
   @Query(
       "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :since "
-          + "AND v.status != com.caffeine.acs_backend.enums.VisitStatus.CANCELLED "
+          + "AND v.status != com.caffeine.acs_backend.enums.VisitStatus.EXPIRED "
           + "AND v.accessPoint.id = :accessPointId")
   long countTodayVisitsByAccessPointId(
       @Param("since") LocalDateTime since, @Param("accessPointId") UUID accessPointId);
@@ -176,12 +178,12 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
 
   // Loendame tänased broneeringud (kõik, mis pole tühistatud ja on tänase kuupäevaga)
   @Query(
-      "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :startOfDay AND v.status != 'CANCELLED'")
+      "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :startOfDay AND v.status != 'EXPIRED'")
   long countTodayBookings(@Param("startOfDay") LocalDateTime startOfDay);
 
   @Query(
       "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :start AND v.arrivalTime < :end "
-          + "AND v.status != 'CANCELLED'")
+          + "AND v.status != 'EXPIRED'")
   long countVisitsInPeriod(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
   /**

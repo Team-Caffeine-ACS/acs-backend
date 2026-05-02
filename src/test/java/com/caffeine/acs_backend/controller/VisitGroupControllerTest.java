@@ -80,7 +80,7 @@ class VisitGroupControllerTest {
                 "Brian May",
                 "brian@test.com",
                 null,
-                VisitStatus.PRE_REGISTERED,
+                VisitStatus.PLANNED,
                 ARRIVAL,
                 null),
             new GroupMemberResponse(
@@ -89,7 +89,7 @@ class VisitGroupControllerTest {
                 "Roger Taylor",
                 "roger@test.com",
                 null,
-                VisitStatus.PRE_REGISTERED,
+                VisitStatus.PLANNED,
                 ARRIVAL,
                 null)));
   }
