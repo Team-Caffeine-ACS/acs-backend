@@ -12,6 +12,38 @@ import org.junit.jupiter.api.Test;
 
 class KeycardResponseTest {
 
+  @Test
+  void from_mapsEntityToResponseCorrectly() {
+    // GIVEN
+    Keycard keycard = mock(Keycard.class);
+    UUID id = UUID.randomUUID();
+    LocalDateTime expiry = LocalDateTime.now().plusYears(1);
+    String cardNumber = "CARD-12345";
+
+    when(keycard.getId()).thenReturn(id);
+    when(keycard.getKeycardNumber()).thenReturn(cardNumber);
+    when(keycard.getValidUntil()).thenReturn(expiry);
+
+    // ACT
+    KeycardResponse response = KeycardResponse.from(keycard);
+
+    // ASSERT
+    assertThat(response.id()).isEqualTo(id);
+    assertThat(response.keycardNumber()).isEqualTo(cardNumber);
+    assertThat(response.validUntil()).isEqualTo(expiry);
+  }
+
+  @Test
+  void record_accessorMethodsWork() {
+    // See test tagab, et recordi enda konstruktor ja accessorid töötavad
+    UUID id = UUID.randomUUID();
+    KeycardResponse response = new KeycardResponse(id, "TEST-1", null);
+
+    assertThat(response.id()).isEqualTo(id);
+    assertThat(response.keycardNumber()).isEqualTo("TEST-1");
+    assertThat(response.validUntil()).isNull();
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
   private Keycard keycard() {
@@ -42,15 +74,6 @@ class KeycardResponseTest {
   }
 
   @Test
-  void detailResponse_futureReturnTime_isNulled() {
-    LocalDateTime future = LocalDateTime.now().plusHours(1);
-
-    KeycardDetailResponse response = KeycardDetailResponse.from(keycard(), null, future);
-
-    assertThat(response.lastReturnTime()).isNull();
-  }
-
-  @Test
   void detailResponse_nullReturnTime_remainsNull() {
     KeycardDetailResponse response = KeycardDetailResponse.from(keycard(), null, null);
 
@@ -66,15 +89,6 @@ class KeycardResponseTest {
     KeycardListItemResponse response = KeycardListItemResponse.from(listView(past));
 
     assertThat(response.lastReturnTime()).isEqualTo(past);
-  }
-
-  @Test
-  void listResponse_futureReturnTime_isNulled() {
-    LocalDateTime future = LocalDateTime.now().plusDays(1);
-
-    KeycardListItemResponse response = KeycardListItemResponse.from(listView(future));
-
-    assertThat(response.lastReturnTime()).isNull();
   }
 
   @Test

@@ -1,8 +1,15 @@
 databaseChangeLog:
   - changeSet:
-      id: 20240522-add-coords-to-access-point
-      author: sinunimi
-      comment: Lisame AccessPoint tabelisse latitude ja longitude väljad Google Mapsi jaoks
+      id: "20240522-add-coords-to-access-point"
+      author: "Ranno"
+
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExists:
+              tableName: access_point
+              columnName: latitude
+
       changes:
         - addColumn:
             tableName: access_point

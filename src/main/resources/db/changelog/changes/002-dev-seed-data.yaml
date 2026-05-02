@@ -730,3 +730,49 @@ databaseChangeLog:
               - column: { name: return_access_point_id, value: "a6000000-0000-0000-0000-000000000002" }
               - column: { name: assigned_time, valueDate: "2026-05-01 12:15:51" }
               - column: { name: return_time, valueDate: "2026-05-01 19:27:51" }
+
+databaseChangeLog:
+  - changeSet:
+      id: "20260426-update-access-point-coords"
+      author: "dev"
+      changes:
+        - update:
+            tableName: "access_point"
+            column:
+              - column:
+                  name: "latitude"
+                  valueNumeric: 59.4294
+              - column:
+                  name: "longitude"
+                  valueNumeric: 24.5493
+              - column:
+                  name: "address"
+                  value: "Kallaste 7, Tabasalu Keskus"
+            where: "id = 'a6000000-0000-0000-0000-000000000001'"
+      changes:
+        - update:
+            tableName: "access_point"
+            column:
+              - column:
+                  name: "latitude"
+                  valueNumeric: 59.3970
+              - column:
+                  name: "longitude"
+                  valueNumeric: 24.6645
+              - column:
+                  name: "address"
+                  value: "Akadeemia tee 15, Mustamäe Tehnopol"
+            where: "id = 'a6000000-0000-0000-0000-000000000002'"
+        - update:
+            tableName: "access_point"
+            column:
+              - column:
+                  name: "latitude"
+                  valueNumeric: 59.4210
+              - column:
+                  name: "longitude"
+                  valueNumeric: 24.8020
+              - column:
+                  name: "address"
+                  value: "Lõõtsa 5, Ülemiste City"
+            where: "id = 'a6000000-0000-0000-0000-000000000003'"

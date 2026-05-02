@@ -53,7 +53,7 @@ public class Visit extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false, length = 32)
   @Builder.Default
-  private VisitStatus status = VisitStatus.PRE_REGISTERED;
+  private VisitStatus status = VisitStatus.PLANNED;
 
   @Column(name = "notes", length = 1024)
   private String notes;

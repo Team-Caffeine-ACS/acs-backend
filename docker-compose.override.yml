@@ -2,8 +2,11 @@ services:
   backend:
     ports:
       - "8080:8080"
+    mem_limit: 4g
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_TOOL_OPTIONS=-XX:HeapBaseMinAddress=6g
+      - JAVA_OPTS=-Xmx1g
 
   postgres:
     ports:

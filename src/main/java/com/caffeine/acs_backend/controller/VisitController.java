@@ -16,11 +16,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,6 @@ public class VisitController {
   private static final String ADMIN_OR_SECURITY_CHIEF = "hasAnyRole('ADMIN', 'SECURITY_CHIEF')";
   private static final String ADMIN_SECURITY_CHIEF_OR_RECEPTIONIST =
       "hasAnyRole('ADMIN', 'SECURITY_CHIEF', 'RECEPTIONIST')";
-
   private final VisitService visitService;
 
   @Operation(
@@ -60,8 +59,13 @@ public class VisitController {
           LocalDateTime dateFrom,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           LocalDateTime dateTo,
-      @PageableDefault(size = 20) Pageable pageable) {
-    return ResponseEntity.ok(visitService.getVisits(search, status, dateFrom, dateTo, pageable));
+      @RequestParam(required = false) UUID accessPoint,
+      @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+
+    Pageable sanitized = sanitizePageable(pageable);
+
+    return ResponseEntity.ok(
+        visitService.getVisits(search, status, dateFrom, dateTo, accessPoint, sanitized));
   }
 
   @Operation(
@@ -148,5 +152,24 @@ public class VisitController {
       @Valid @RequestBody CreateVisitRequest request, @AuthenticationPrincipal User currentUser) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(visitService.createVisit(request, currentUser));
+  }
+
+  private static final Set<String> ALLOWED_SORTS = Set.of("fullName", "entryTime", "status");
+
+  private Pageable sanitizePageable(Pageable pageable) {
+    // Filtreeri välja kõik sort väljad, mis pole lubatud
+    var filteredSort =
+        pageable.getSort().stream()
+            .filter(order -> ALLOWED_SORTS.contains(order.getProperty()))
+            .toList();
+
+    // Kui midagi ei jäänud alles → kasuta vaikimisi sortimist
+    var sort =
+        filteredSort.isEmpty()
+            ? org.springframework.data.domain.Sort.by("entryTime").descending()
+            : org.springframework.data.domain.Sort.by(filteredSort);
+
+    return org.springframework.data.domain.PageRequest.of(
+        pageable.getPageNumber(), pageable.getPageSize(), sort);
   }
 }
