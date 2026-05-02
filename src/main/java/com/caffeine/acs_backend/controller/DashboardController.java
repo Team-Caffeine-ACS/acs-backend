@@ -1,11 +1,9 @@
 package com.caffeine.acs_backend.controller;
 
 import com.caffeine.acs_backend.dto.dashboard.DashboardSummaryResponse;
-import com.caffeine.acs_backend.dto.visit.DashboardRecentVisitResponse;
 import com.caffeine.acs_backend.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +22,5 @@ public class DashboardController {
   public ResponseEntity<DashboardSummaryResponse> getSummary(
       @RequestParam(required = false) UUID accessPointId) {
     return ResponseEntity.ok(dashboardService.getSummary(accessPointId));
-  }
-
-  @GetMapping("/recent-visits")
-  @Operation(summary = "Get list of most recent visits for today")
-  public ResponseEntity<List<DashboardRecentVisitResponse>> getRecentVisits(
-      @RequestParam(required = false) UUID accessPointId,
-      @RequestParam(defaultValue = "10") int limit) {
-    return ResponseEntity.ok(dashboardService.getRecentVisits(accessPointId, limit));
   }
 }

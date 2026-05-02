@@ -10,6 +10,7 @@ import com.caffeine.acs_backend.dto.keycard.AssignKeycardRequest;
 import com.caffeine.acs_backend.dto.keycard.CreateKeycardRequest;
 import com.caffeine.acs_backend.dto.keycard.KeycardDetailResponse;
 import com.caffeine.acs_backend.dto.keycard.ReturnKeycardRequest;
+import com.caffeine.acs_backend.dto.keycard.UpdateKeycardRequest;
 import com.caffeine.acs_backend.entity.AccessPoint;
 import com.caffeine.acs_backend.entity.Keycard;
 import com.caffeine.acs_backend.entity.KeycardInPossession;
@@ -29,6 +30,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -320,5 +323,143 @@ class KeycardServiceTest {
     assertThat(response.assignedUser()).isNull();
     assertThat(response.lastReturnTime()).isNotNull();
     verify(keycardInPossessionRepository).save(possession);
+  }
+
+  @Test
+  void getKeycards_withBlankParams_callsRepoWithNulls() {
+    when(keycardRepository.findAllFiltered(null, null, PageRequest.of(0, 10)))
+        .thenReturn(Page.empty());
+
+    // Testime, et tühikud ja tühi string muutuvad nulliks
+    keycardService.getKeycards("   ", "", PageRequest.of(0, 10));
+
+    verify(keycardRepository).findAllFiltered(null, null, PageRequest.of(0, 10));
+  }
+
+  @Test
+  void getKeycards_withValidParams_trimsAndDowncases() {
+    when(keycardRepository.findAllFiltered("KC-1", "active", PageRequest.of(0, 10)))
+        .thenReturn(Page.empty());
+
+    // Testime trim'i ja status.toLowerCase() osa
+    keycardService.getKeycards(" KC-1 ", " ACTIVE ", PageRequest.of(0, 10));
+
+    verify(keycardRepository).findAllFiltered("KC-1", "active", PageRequest.of(0, 10));
+  }
+
+  @Test
+  void updateKeycard_partialUpdate_success() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+
+    // Request, kus osa välju on nullid
+    UpdateKeycardRequest request = new UpdateKeycardRequest("NEW-NUMBER", null, null);
+
+    keycardService.updateKeycard(id, request);
+
+    assertThat(keycard.getKeycardNumber()).isEqualTo("NEW-NUMBER");
+    assertThat(keycard.isActive()).isTrue(); // jäi vanaks
+    verify(keycardRepository).save(keycard);
+  }
+
+  @Test
+  void assignKeycard_cardExpired_throwsConflict() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    // Seame kehtivusaja minevikku
+    keycard.setValidUntil(LocalDateTime.now().minusDays(1));
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+
+    AssignKeycardRequest request =
+        new AssignKeycardRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+
+    assertThatThrownBy(() -> keycardService.assignKeycard(id, request))
+        .isInstanceOf(BusinessException.class)
+        .hasFieldOrPropertyWithValue("status", HttpStatus.CONFLICT);
+  }
+
+  @Test
+  void getKeycard_notActiveButHasHistory_returnsLatestReturnTime() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    LocalDateTime returnTime = LocalDateTime.now().minusDays(5);
+
+    KeycardInPossession history = new KeycardInPossession();
+    history.setReturnTime(returnTime);
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+
+    // Simuleerime ajaloo olemasolu
+    when(keycardInPossessionRepository.findLatestByKeycard(eq(keycard), any()))
+        .thenReturn(java.util.List.of(history));
+
+    KeycardDetailResponse response = keycardService.getKeycard(id);
+
+    assertThat(response.lastReturnTime()).isEqualTo(returnTime);
+  }
+
+  @Test
+  void updateKeycard_noChanges_doesNotModifyFields() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    String originalNumber = keycard.getKeycardNumber();
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+
+    // Kõik requesti väljad on nullid
+    UpdateKeycardRequest request = new UpdateKeycardRequest(null, null, null);
+
+    keycardService.updateKeycard(id, request);
+
+    assertThat(keycard.getKeycardNumber()).isEqualTo(originalNumber);
+    verify(keycardRepository).save(keycard);
+  }
+
+  @Test
+  void assignKeycard_withFutureExpiry_success() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    keycard.setValidUntil(LocalDateTime.now().plusYears(1)); // Kehtib!
+
+    // Kasutame su helperit, et vältida NPE-d nime kokkupanemisel
+    PersonInRole holder = personInRole("Alice", "Smith");
+    AccessPoint ap = accessPoint();
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.existsByKeycardAndReturnTimeIsNull(keycard))
+        .thenReturn(false);
+    when(personInRoleRepository.findById(any())).thenReturn(Optional.of(holder));
+    when(accessPointRepository.findById(any())).thenReturn(Optional.of(ap));
+
+    AssignKeycardRequest request =
+        new AssignKeycardRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+
+    // ACT
+    KeycardDetailResponse response = keycardService.assignKeycard(id, request);
+
+    // ASSERT
+    assertThat(response.assignedUser()).isEqualTo("Alice Smith");
+    verify(keycardInPossessionRepository).save(any(KeycardInPossession.class));
+  }
+
+  @Test
+  void getKeycard_noActiveNoHistory_returnsNulls() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+    when(keycardInPossessionRepository.findLatestByKeycard(eq(keycard), any()))
+        .thenReturn(Collections.emptyList()); // Ajalugu tühi
+
+    KeycardDetailResponse response = keycardService.getKeycard(id);
+
+    assertThat(response.assignedUser()).isNull();
+    assertThat(response.lastReturnTime()).isNull();
   }
 }
