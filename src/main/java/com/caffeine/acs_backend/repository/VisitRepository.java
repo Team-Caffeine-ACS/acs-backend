@@ -1,7 +1,9 @@
 package com.caffeine.acs_backend.repository;
 
 import com.caffeine.acs_backend.entity.Visit;
+import com.caffeine.acs_backend.enums.VisitStatus;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -143,4 +145,50 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       @Param("to") LocalDateTime to,
       @Param("search") String search,
       Pageable pageable);
+
+  long countByStatusAndAccessPointId(VisitStatus status, UUID accessPointId);
+
+  @Query(
+      "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :since "
+          + "AND v.status != com.caffeine.acs_backend.enums.VisitStatus.EXPIRED "
+          + "AND v.accessPoint.id = :accessPointId")
+  long countTodayVisitsByAccessPointId(
+      @Param("since") LocalDateTime since, @Param("accessPointId") UUID accessPointId);
+
+  @Query(
+      "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :start AND v.arrivalTime < :end "
+          + "AND v.accessPoint.id = :accessPointId")
+  long countVisitsInPeriodByAccessPointId(
+      @Param("start") LocalDateTime start,
+      @Param("end") LocalDateTime end,
+      @Param("accessPointId") UUID accessPointId);
+
+  // Toob nimekirja viimastest külastajatest (Recent Visits)
+  @Query(
+      "SELECT v FROM Visit v "
+          + "WHERE v.arrivalTime >= :since "
+          + "AND (:accessPointId IS NULL OR v.accessPoint.id = :accessPointId) "
+          + "ORDER BY v.arrivalTime DESC")
+  List<Visit> findRecentVisits(
+      @Param("since") LocalDateTime since,
+      @Param("accessPointId") UUID accessPointId,
+      Pageable pageable);
+
+  long countByStatus(VisitStatus status);
+
+  // Loendame tänased broneeringud (kõik, mis pole tühistatud ja on tänase kuupäevaga)
+  @Query(
+      "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :startOfDay AND v.status != 'EXPIRED'")
+  long countTodayBookings(@Param("startOfDay") LocalDateTime startOfDay);
+
+  @Query(
+      "SELECT COUNT(v) FROM Visit v WHERE v.arrivalTime >= :start AND v.arrivalTime < :end "
+          + "AND v.status != 'EXPIRED'")
+  long countVisitsInPeriod(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+  /**
+   * Find all individual visits belonging to a group visit. Used by VisitGroupService to list
+   * members and compute group-level statistics.
+   */
+  List<Visit> findByGroupInVisitId(UUID groupInVisitId);
 }
