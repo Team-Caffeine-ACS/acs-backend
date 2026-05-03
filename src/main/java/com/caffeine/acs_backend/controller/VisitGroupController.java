@@ -37,7 +37,7 @@ public class VisitGroupController {
       summary = "Create a group visit",
       description =
           "Creates a group visit with multiple visitors. Each visitor gets an individual"
-              + " visit record with PRE_REGISTERED status linked to the same group.")
+              + " visit record with PLANNED status linked to the same group.")
   @ApiResponse(responseCode = "201", description = "Group visit created")
   @ApiResponse(responseCode = "400", description = "Invalid request")
   @PreAuthorize(ADMIN_SECURITY_CHIEF_OR_RECEPTIONIST)
@@ -76,7 +76,7 @@ public class VisitGroupController {
   @Operation(
       summary = "Cancel a group visit",
       description =
-          "Cancels all PRE_REGISTERED visits in the group."
+          "Cancels all PLANNED visits in the group."
               + " Already checked-in or departed members are not affected.")
   @ApiResponse(responseCode = "204", description = "Group visit cancelled")
   @ApiResponse(responseCode = "404", description = "Group visit not found")

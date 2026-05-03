@@ -122,7 +122,11 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
               v.exit_time, v.group_in_visit_id, v.host_person_in_role_id,
               v.notes, v.status, v.visitor_person_in_role_id, v.created_at
           FROM visit v
-          WHERE (CAST(:status AS varchar) IS NULL OR v.status = CAST(:status AS varchar))
+          WHERE (
+            CAST(:status AS varchar) IS NULL
+            OR (:status = 'PLANNED' AND v.status IN ('PLANNED', 'PRE_REGISTERED'))
+            OR v.status = CAST(:status AS varchar)
+          )
           AND (CAST(:buildingId AS uuid) IS NULL OR v.access_point_id = CAST(:buildingId AS uuid))
           AND (CAST(:from AS timestamp) IS NULL OR v.arrival_time >= CAST(:from AS timestamp))
           AND (CAST(:to AS timestamp) IS NULL OR v.arrival_time < CAST(:to AS timestamp))
@@ -131,7 +135,11 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       countQuery =
           """
           SELECT COUNT(*) FROM visit v
-          WHERE (CAST(:status AS varchar) IS NULL OR v.status = CAST(:status AS varchar))
+          WHERE (
+            CAST(:status AS varchar) IS NULL
+            OR (:status = 'PLANNED' AND v.status IN ('PLANNED', 'PRE_REGISTERED'))
+            OR v.status = CAST(:status AS varchar)
+          )
           AND (CAST(:buildingId AS uuid) IS NULL OR v.access_point_id = CAST(:buildingId AS uuid))
           AND (CAST(:from AS timestamp) IS NULL OR v.arrival_time >= CAST(:from AS timestamp))
           AND (CAST(:to AS timestamp) IS NULL OR v.arrival_time < CAST(:to AS timestamp))
