@@ -148,7 +148,7 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       nativeQuery = true)
   Page<Visit> findPreRegistrations(
       @Param("status") String status,
-      @Param("accessPointId") UUID accessPointId,
+      @Param("buildingId") UUID accessPointId,
       @Param("from") LocalDateTime from,
       @Param("to") LocalDateTime to,
       @Param("search") String search,
