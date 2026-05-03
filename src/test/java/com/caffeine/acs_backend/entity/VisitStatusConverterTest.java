@@ -15,7 +15,22 @@ class VisitStatusConverterTest {
   }
 
   @Test
+  void convertToEntityAttribute_returnsNullForNullDatabaseValue() {
+    assertThat(converter.convertToEntityAttribute(null)).isNull();
+  }
+
+  @Test
+  void convertToEntityAttribute_normalizesTrimmedCaseInsensitiveValues() {
+    assertThat(converter.convertToEntityAttribute(" planned ")).isEqualTo(VisitStatus.PLANNED);
+  }
+
+  @Test
   void convertToDatabaseColumn_persistsCanonicalPlannedValue() {
     assertThat(converter.convertToDatabaseColumn(VisitStatus.PLANNED)).isEqualTo("PLANNED");
+  }
+
+  @Test
+  void convertToDatabaseColumn_returnsNullForNullAttribute() {
+    assertThat(converter.convertToDatabaseColumn(null)).isNull();
   }
 }
