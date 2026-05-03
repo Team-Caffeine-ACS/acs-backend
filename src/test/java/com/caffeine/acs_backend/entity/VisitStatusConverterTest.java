@@ -11,8 +11,7 @@ class VisitStatusConverterTest {
 
   @Test
   void convertToEntityAttribute_mapsLegacyPreRegisteredToPlanned() {
-    assertThat(converter.convertToEntityAttribute("PRE_REGISTERED"))
-        .isEqualTo(VisitStatus.PLANNED);
+    assertThat(converter.convertToEntityAttribute("PRE_REGISTERED")).isEqualTo(VisitStatus.PLANNED);
   }
 
   @Test
