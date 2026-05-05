@@ -16,12 +16,24 @@ public class VisitStatusConverter implements AttributeConverter<VisitStatus, Str
 
   @Override
   public VisitStatus convertToEntityAttribute(String dbData) {
-    if (dbData == null) {
+    return parseDatabaseValue(dbData);
+  }
+
+  public static VisitStatus parseDatabaseValue(String dbData) {
+    if (dbData == null || dbData.isBlank()) {
       return null;
     }
-    if (LEGACY_PRE_REGISTERED.equalsIgnoreCase(dbData.trim())) {
+
+    String normalizedData = dbData.trim().toUpperCase();
+
+    if (LEGACY_PRE_REGISTERED.equals(normalizedData)) {
       return VisitStatus.PLANNED;
     }
-    return VisitStatus.valueOf(dbData.trim().toUpperCase());
+
+    try {
+      return VisitStatus.valueOf(normalizedData);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalStateException("Unknown VisitStatus found in database: " + normalizedData, e);
+    }
   }
 }

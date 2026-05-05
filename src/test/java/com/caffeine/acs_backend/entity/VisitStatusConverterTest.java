@@ -1,6 +1,7 @@
 package com.caffeine.acs_backend.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.caffeine.acs_backend.enums.VisitStatus;
 import org.junit.jupiter.api.Test;
@@ -20,8 +21,20 @@ class VisitStatusConverterTest {
   }
 
   @Test
+  void convertToEntityAttribute_returnsNullForBlankDatabaseValue() {
+    assertThat(converter.convertToEntityAttribute("   ")).isNull();
+  }
+
+  @Test
   void convertToEntityAttribute_normalizesTrimmedCaseInsensitiveValues() {
     assertThat(converter.convertToEntityAttribute(" planned ")).isEqualTo(VisitStatus.PLANNED);
+  }
+
+  @Test
+  void convertToEntityAttribute_throwsDescriptiveExceptionForUnknownValue() {
+    assertThatThrownBy(() -> converter.convertToEntityAttribute("UNKNOWN_STATE_123"))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Unknown VisitStatus found in database: UNKNOWN_STATE_123");
   }
 
   @Test
