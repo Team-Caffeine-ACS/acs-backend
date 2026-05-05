@@ -18,3 +18,19 @@ databaseChangeLog:
             tableName: visit
             columnName: status
             defaultValue: PLANNED
+      rollback:
+        - dropDefaultValue:
+            tableName: visit
+            columnName: status
+            columnDataType: varchar(32)
+        - addDefaultValue:
+            tableName: visit
+            columnName: status
+            defaultValue: PRE_REGISTERED
+        - update:
+            tableName: visit
+            columns:
+              - column:
+                  name: status
+                  value: PRE_REGISTERED
+            where: status = 'PLANNED'

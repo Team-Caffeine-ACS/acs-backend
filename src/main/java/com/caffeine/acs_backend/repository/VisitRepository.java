@@ -29,7 +29,6 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
             v.arrival_time                                            AS "entryTime",
             v.exit_time                                               AS "exitTime",
             CASE
-              WHEN v.status = 'PRE_REGISTERED' THEN 'PLANNED'
               WHEN v.arrival_time > CURRENT_TIMESTAMP THEN 'PLANNED'
               WHEN v.exit_time IS NOT NULL AND v.exit_time <= CURRENT_TIMESTAMP THEN 'DEPARTED'
               WHEN v.exit_time IS NULL AND v.arrival_time < CURRENT_DATE THEN 'EXPIRED'
@@ -59,18 +58,15 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
             AND (
               CAST(:status AS text) IS NULL
               OR (UPPER(CAST(:status AS text)) = 'PLANNED'
-                  AND (v.status = 'PRE_REGISTERED' OR v.arrival_time > CURRENT_TIMESTAMP))
+                  AND v.arrival_time > CURRENT_TIMESTAMP)
               OR (UPPER(CAST(:status AS text)) = 'IN_BUILDING'
-                  AND v.status <> 'PRE_REGISTERED'
                   AND v.exit_time IS NULL
                   AND v.arrival_time <= CURRENT_TIMESTAMP
                   AND v.arrival_time >= CURRENT_DATE)
               OR (UPPER(CAST(:status AS text)) = 'DEPARTED'
-                  AND v.status <> 'PRE_REGISTERED'
                   AND v.exit_time IS NOT NULL
                   AND v.exit_time <= CURRENT_TIMESTAMP)
               OR (UPPER(CAST(:status AS text)) = 'EXPIRED'
-                  AND v.status <> 'PRE_REGISTERED'
                   AND v.exit_time IS NULL
                   AND v.arrival_time < CURRENT_DATE)
             )
@@ -103,18 +99,15 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
             AND (
               CAST(:status AS text) IS NULL
               OR (UPPER(CAST(:status AS text)) = 'PLANNED'
-                  AND (v.status = 'PRE_REGISTERED' OR v.arrival_time > CURRENT_TIMESTAMP))
+                  AND v.arrival_time > CURRENT_TIMESTAMP)
               OR (UPPER(CAST(:status AS text)) = 'IN_BUILDING'
-                  AND v.status <> 'PRE_REGISTERED'
                   AND v.exit_time IS NULL
                   AND v.arrival_time <= CURRENT_TIMESTAMP
                   AND v.arrival_time >= CURRENT_DATE)
               OR (UPPER(CAST(:status AS text)) = 'DEPARTED'
-                  AND v.status <> 'PRE_REGISTERED'
                   AND v.exit_time IS NOT NULL
                   AND v.exit_time <= CURRENT_TIMESTAMP)
               OR (UPPER(CAST(:status AS text)) = 'EXPIRED'
-                  AND v.status <> 'PRE_REGISTERED'
                   AND v.exit_time IS NULL
                   AND v.arrival_time < CURRENT_DATE)
             )
@@ -143,7 +136,6 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
           FROM visit v
           WHERE (
             CAST(:status AS varchar) IS NULL
-            OR (:status = 'PLANNED' AND v.status IN ('PLANNED', 'PRE_REGISTERED'))
             OR v.status = CAST(:status AS varchar)
           )
           AND (CAST(:buildingId AS uuid) IS NULL OR v.access_point_id = CAST(:buildingId AS uuid))
@@ -156,7 +148,6 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
           SELECT COUNT(*) FROM visit v
           WHERE (
             CAST(:status AS varchar) IS NULL
-            OR (:status = 'PLANNED' AND v.status IN ('PLANNED', 'PRE_REGISTERED'))
             OR v.status = CAST(:status AS varchar)
           )
           AND (CAST(:buildingId AS uuid) IS NULL OR v.access_point_id = CAST(:buildingId AS uuid))
