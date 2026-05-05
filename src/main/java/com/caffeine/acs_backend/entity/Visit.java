@@ -13,7 +13,6 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 public class Visit extends BaseEntity {
 
   @Column(name = "arrival_time", nullable = false)
