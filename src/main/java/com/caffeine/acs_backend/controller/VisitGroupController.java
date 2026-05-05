@@ -69,7 +69,9 @@ public class VisitGroupController {
   @PreAuthorize(ADMIN_SECURITY_CHIEF_OR_RECEPTIONIST)
   @GetMapping
   public ResponseEntity<Page<GroupVisitListItemResponse>> getAll(
-      @Parameter(description = "Filter visits by specific date in ISO format", example = "2026-05-01")
+      @Parameter(
+              description = "Filter visits by specific date in ISO format",
+              example = "2026-05-01")
           @RequestParam(required = false)
           LocalDate date,
       @Parameter(description = "Search by group name or comment", example = "Queen")

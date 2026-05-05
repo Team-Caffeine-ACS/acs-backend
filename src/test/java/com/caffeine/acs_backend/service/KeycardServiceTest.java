@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -313,13 +314,18 @@ class KeycardServiceTest {
     when(keycardInPossessionRepository.findActiveByKeycard(keycard))
         .thenReturn(Optional.of(possession));
     when(accessPointRepository.findById(apId)).thenReturn(Optional.of(returnAp));
-    when(keycardInPossessionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(keycardInPossessionRepository.save(any(KeycardInPossession.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     ReturnKeycardRequest request = new ReturnKeycardRequest(apId);
     KeycardDetailResponse response = keycardService.returnKeycard(id, request);
+    ArgumentCaptor<KeycardInPossession> captor = ArgumentCaptor.forClass(KeycardInPossession.class);
 
-    assertThat(possession.getReturnAccessPoint()).isEqualTo(returnAp);
-    assertThat(possession.getReturnTime()).isNotNull();
+    verify(keycardInPossessionRepository).save(captor.capture());
+    KeycardInPossession saved = captor.getValue();
+
+    assertThat(saved.getReturnAccessPoint()).isEqualTo(returnAp);
+    assertThat(saved.getReturnTime()).isNotNull();
     assertThat(response.assignedUser()).isNull();
     assertThat(response.lastReturnTime()).isNotNull();
     verify(keycardInPossessionRepository).save(possession);

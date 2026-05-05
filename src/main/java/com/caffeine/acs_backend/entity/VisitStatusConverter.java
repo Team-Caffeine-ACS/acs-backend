@@ -33,7 +33,8 @@ public class VisitStatusConverter implements AttributeConverter<VisitStatus, Str
     try {
       return VisitStatus.valueOf(normalizedData);
     } catch (IllegalArgumentException e) {
-      throw new IllegalStateException("Unknown VisitStatus found in database: " + normalizedData, e);
+      throw new IllegalStateException(
+          "Unknown VisitStatus found in database: " + normalizedData, e);
     }
   }
 }

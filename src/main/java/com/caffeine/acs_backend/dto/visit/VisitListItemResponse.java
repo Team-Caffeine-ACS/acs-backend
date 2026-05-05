@@ -41,11 +41,7 @@ public record VisitListItemResponse(
       try {
         visitStatusEnum = VisitStatusConverter.parseDatabaseValue(dbVisitStatus);
       } catch (IllegalStateException e) {
-        log.error(
-            "Unknown visit status '{}' found for visit {}",
-            dbVisitStatus,
-            view.getId(),
-            e);
+        log.error("Unknown visit status '{}' found for visit {}", dbVisitStatus, view.getId(), e);
       }
     }
 
