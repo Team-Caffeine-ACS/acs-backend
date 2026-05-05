@@ -610,9 +610,9 @@ class VisitServiceTest {
 
     visitService.getVisits("  search  ", " PLANNED ", null, null, null, pageable);
 
-    // Kontrollime, et search ja status on trimmitud ja status on lowercase
+    // Kontrollime, et search ja status on trimmitud ning status normaliseeritakse enum-vormingusse
     verify(visitRepository)
-        .findAllFiltered(eq("search"), eq("planned"), any(), any(), any(), any());
+        .findAllFiltered(eq("search"), eq("PLANNED"), any(), any(), any(), any());
   }
 
   @Test
