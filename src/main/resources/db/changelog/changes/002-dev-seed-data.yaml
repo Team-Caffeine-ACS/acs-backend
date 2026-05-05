@@ -606,6 +606,7 @@ databaseChangeLog:
             tableName: visit
             columns:
               - column: { name: id, value: "af000000-0000-0000-0000-000000000001" }
+              - column: { name: status, value: "PLANNED" }
               - column: { name: arrival_time, valueDate: "2026-05-01 09:00:00" }
               - column: { name: exit_time, valueDate: "2026-05-01 10:45:00" }
               - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
@@ -617,6 +618,7 @@ databaseChangeLog:
             tableName: visit
             columns:
               - column: { name: id, value: "af000000-0000-0000-0000-000000000002" }
+              - column: { name: status, value: "PLANNED" }
               - column: { name: arrival_time, valueDate: "2026-05-01 12:15:00" }
               - column: { name: exit_time, valueDate: "2026-05-01 19:27:00" }
               - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
@@ -630,6 +632,7 @@ databaseChangeLog:
             tableName: visit
             columns:
               - column: { name: id, value: "af000000-0000-0000-0000-000000000003" }
+              - column: { name: status, value: "PLANNED" }
               - column: { name: arrival_time, valueDate: "2026-05-01 12:15:17" }
               - column: { name: exit_time, valueDate: "2026-05-01 19:27:17" }
               - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
@@ -643,6 +646,7 @@ databaseChangeLog:
             tableName: visit
             columns:
               - column: { name: id, value: "af000000-0000-0000-0000-000000000004" }
+              - column: { name: status, value: "PLANNED" }
               - column: { name: arrival_time, valueDate: "2026-05-01 12:15:34" }
               - column: { name: exit_time, valueDate: "2026-05-01 19:27:34" }
               - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
@@ -656,6 +660,7 @@ databaseChangeLog:
             tableName: visit
             columns:
               - column: { name: id, value: "af000000-0000-0000-0000-000000000005" }
+              - column: { name: status, value: "PLANNED" }
               - column: { name: arrival_time, valueDate: "2026-05-01 12:15:51" }
               - column: { name: exit_time, valueDate: "2026-05-01 19:27:51" }
               - column: { name: access_point_id, value: "a6000000-0000-0000-0000-000000000001" }
