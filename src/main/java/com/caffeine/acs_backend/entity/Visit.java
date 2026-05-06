@@ -50,8 +50,8 @@ public class Visit extends BaseEntity {
   @Column(name = "comment", length = 1024)
   private String comment;
 
-  @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false, length = 32)
+  @Convert(converter = VisitStatusConverter.class)
   @Builder.Default
   private VisitStatus status = VisitStatus.PLANNED;
 

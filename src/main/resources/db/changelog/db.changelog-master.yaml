@@ -5,10 +5,16 @@ databaseChangeLog:
       file: db/changelog/changes/003-accessLevelImpl.yaml
   - include:
       file: db/changelog/changes/004-dev-fix-password-hashes.yaml
+      contextFilter: "@dev"
   - include:
       file: db/changelog/changes/005-dev-seed-employee-role.yaml
+      contextFilter: "@dev"
   - include:
       file: db/changelog/changes/006-alter-accesspoint-lat-long.yaml
-  # Dev data seeding should be last, so that it can rely on all schema changes being in place
+  - include:
+      file: db/changelog/changes/007-normalize-visit-status.yaml
+  # Dev-only seed data stays last so it can rely on the final schema shape.
+  # `contextFilter: "@dev"` keeps it out of non-dev environments.
   - include:
       file: db/changelog/changes/002-dev-seed-data.yaml
+      contextFilter: "@dev"

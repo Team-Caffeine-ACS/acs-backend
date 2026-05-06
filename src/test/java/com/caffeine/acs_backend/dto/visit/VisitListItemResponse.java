@@ -59,6 +59,16 @@ class VisitListItemResponseTest {
   }
 
   @Test
+  void from_withLegacyStatus_mapsToPlanned() {
+    VisitListView view = mock(VisitListView.class);
+    when(view.getVisitStatus()).thenReturn(" pre_registered ");
+
+    VisitListItemResponse response = VisitListItemResponse.from(view);
+
+    assertThat(response.status()).isEqualTo(VisitStatus.PLANNED);
+  }
+
+  @Test
   void from_mapsAllFieldsCorrectally() {
     // GIVEN
     VisitListView view = mock(VisitListView.class);

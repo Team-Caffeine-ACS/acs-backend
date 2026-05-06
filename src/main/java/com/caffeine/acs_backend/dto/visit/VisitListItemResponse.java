@@ -1,5 +1,6 @@
 package com.caffeine.acs_backend.dto.visit;
 
+import com.caffeine.acs_backend.entity.VisitStatusConverter;
 import com.caffeine.acs_backend.enums.VisitStatus;
 import com.caffeine.acs_backend.repository.VisitListView;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,15 +39,9 @@ public record VisitListItemResponse(
 
     if (dbVisitStatus != null) {
       try {
-        // Teisendame: väike täht -> suur, tühikud välja
-        visitStatusEnum = VisitStatus.valueOf(dbVisitStatus.trim().toUpperCase());
-      } catch (IllegalArgumentException e) {
-        // See on sinu "print" – näed konsoolis, mis andmebaasis tegelikult on
-        log.error(
-            "VIGA: Andmebaasis on tundmatu staatus: '{}' külastusel ID-ga: {}",
-            dbVisitStatus,
-            view.getId());
-        // et testida, kas ülejäänud kood töötab.
+        visitStatusEnum = VisitStatusConverter.parseDatabaseValue(dbVisitStatus);
+      } catch (IllegalStateException e) {
+        log.error("Unknown visit status '{}' found for visit {}", dbVisitStatus, view.getId(), e);
       }
     }
 

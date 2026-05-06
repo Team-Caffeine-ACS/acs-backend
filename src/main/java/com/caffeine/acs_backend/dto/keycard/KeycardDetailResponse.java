@@ -34,7 +34,7 @@ public record KeycardDetailResponse(
       assignedTime = activePossession.getAssignedTime();
     }
     LocalDateTime pastReturnTime =
-        lastReturnTime != null && lastReturnTime.isBefore(LocalDateTime.now())
+        lastReturnTime != null && !lastReturnTime.isAfter(LocalDateTime.now())
             ? lastReturnTime
             : null;
     return new KeycardDetailResponse(

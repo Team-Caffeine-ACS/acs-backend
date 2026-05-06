@@ -5,6 +5,7 @@ import com.caffeine.acs_backend.dto.visitgroup.GroupVisitListItemResponse;
 import com.caffeine.acs_backend.dto.visitgroup.GroupVisitResponse;
 import com.caffeine.acs_backend.service.VisitGroupService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,7 +38,7 @@ public class VisitGroupController {
       summary = "Create a group visit",
       description =
           "Creates a group visit with multiple visitors. Each visitor gets an individual"
-              + " visit record with PRE_REGISTERED status linked to the same group.")
+              + " visit record with PLANNED status linked to the same group.")
   @ApiResponse(responseCode = "201", description = "Group visit created")
   @ApiResponse(responseCode = "400", description = "Invalid request")
   @PreAuthorize(ADMIN_SECURITY_CHIEF_OR_RECEPTIONIST)
@@ -53,9 +54,10 @@ public class VisitGroupController {
   @ApiResponse(responseCode = "200", description = "Group visit found")
   @ApiResponse(responseCode = "404", description = "Group visit not found")
   @PreAuthorize(ADMIN_SECURITY_CHIEF_OR_RECEPTIONIST)
-  @GetMapping("/{groupInVisitId}")
-  public ResponseEntity<GroupVisitResponse> getById(@PathVariable UUID groupInVisitId) {
-    return ResponseEntity.ok(visitGroupService.getById(groupInVisitId));
+  @GetMapping("/{id}")
+  public ResponseEntity<GroupVisitResponse> getById(
+      @Parameter(description = "Group visit identifier") @PathVariable UUID id) {
+    return ResponseEntity.ok(visitGroupService.getById(id));
   }
 
   @Operation(
@@ -67,8 +69,14 @@ public class VisitGroupController {
   @PreAuthorize(ADMIN_SECURITY_CHIEF_OR_RECEPTIONIST)
   @GetMapping
   public ResponseEntity<Page<GroupVisitListItemResponse>> getAll(
-      @RequestParam(required = false) LocalDate date,
-      @RequestParam(required = false) String search,
+      @Parameter(
+              description = "Filter visits by specific date in ISO format",
+              example = "2026-05-01")
+          @RequestParam(required = false)
+          LocalDate date,
+      @Parameter(description = "Search by group name or comment", example = "Queen")
+          @RequestParam(required = false)
+          String search,
       @PageableDefault(size = 20) Pageable pageable) {
     return ResponseEntity.ok(visitGroupService.getAll(date, search, pageable));
   }
@@ -76,14 +84,15 @@ public class VisitGroupController {
   @Operation(
       summary = "Cancel a group visit",
       description =
-          "Cancels all PRE_REGISTERED visits in the group."
+          "Cancels all PLANNED visits in the group."
               + " Already checked-in or departed members are not affected.")
   @ApiResponse(responseCode = "204", description = "Group visit cancelled")
   @ApiResponse(responseCode = "404", description = "Group visit not found")
   @PreAuthorize(ADMIN_OR_SECURITY_CHIEF)
-  @DeleteMapping("/{groupInVisitId}")
-  public ResponseEntity<Void> cancel(@PathVariable UUID groupInVisitId) {
-    visitGroupService.cancel(groupInVisitId);
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> cancel(
+      @Parameter(description = "Group visit identifier") @PathVariable UUID id) {
+    visitGroupService.cancel(id);
     return ResponseEntity.noContent().build();
   }
 }
