@@ -14,6 +14,7 @@ import com.caffeine.acs_backend.repository.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -48,7 +49,8 @@ public class VisitService {
       UUID accessPointId,
       Pageable pageable) {
     String searchParam = (search == null || search.isBlank()) ? null : search.trim();
-    String statusParam = (status == null || status.isBlank()) ? null : status.trim().toLowerCase();
+    String statusParam =
+        (status == null || status.isBlank()) ? null : status.trim().toUpperCase(Locale.ROOT);
 
     // Loo uus Pageable, mis võtab kaasa ainult lehe numbri ja suuruse,
     // aga viskab sorteerimise välja. See hoiab ära "v.entrytime" vea.

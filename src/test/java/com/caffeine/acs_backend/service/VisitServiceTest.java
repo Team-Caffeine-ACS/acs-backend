@@ -610,9 +610,9 @@ class VisitServiceTest {
 
     visitService.getVisits("  search  ", " PLANNED ", null, null, null, pageable);
 
-    // Kontrollime, et search ja status on trimmitud ja status on lowercase
+    // Kontrollime, et search ja status on trimmitud ning status normaliseeritakse enum-vormingusse
     verify(visitRepository)
-        .findAllFiltered(eq("search"), eq("planned"), any(), any(), any(), any());
+        .findAllFiltered(eq("search"), eq("PLANNED"), any(), any(), any(), any());
   }
 
   @Test
@@ -627,5 +627,103 @@ class VisitServiceTest {
     assertThatThrownBy(() -> visitService.createVisit(req, userWithoutPerson))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("no linked Person");
+  }
+
+  @Test
+  void getVisit_withOrgAndDept_returnsFullDetail() {
+    UUID id = UUID.randomUUID();
+    PersonInRole visitor = personInRole("John", "Smith");
+    Person person = visitor.getPerson();
+
+    Organization org = new Organization();
+    org.setName("Caffeine Corp");
+    Department dept = new Department();
+    dept.setName("IT");
+    person.setOrganization(org);
+    person.setDepartment(dept);
+
+    Visit visit = visitWithVisitor(visitor);
+    visit.setId(id);
+
+    when(visitRepository.findById(id)).thenReturn(Optional.of(visit));
+    when(keycardInPossessionRepository.findActiveByHolder(visitor)).thenReturn(Optional.empty());
+
+    VisitDetailResponse response = visitService.getVisit(id);
+
+    assertThat(response.organization()).isEqualTo("Caffeine Corp");
+    assertThat(response.department()).isEqualTo("IT");
+  }
+
+  @Test
+  void createVisit_inactiveKeycard_throwsException() {
+    UUID cardId = UUID.randomUUID();
+    Keycard inactiveCard = new Keycard();
+    inactiveCard.setActive(false);
+
+    User assignorUser = new User();
+    assignorUser.setPerson(new Person());
+
+    when(personRepository.findById(any())).thenReturn(Optional.of(new Person()));
+    when(accessPointRepository.findById(any())).thenReturn(Optional.of(new AccessPoint()));
+    when(keycardRepository.findById(cardId)).thenReturn(Optional.of(inactiveCard));
+
+    CreateVisitRequest req =
+        new CreateVisitRequest(UUID.randomUUID(), UUID.randomUUID(), cardId, null, null, null);
+
+    assertThatThrownBy(() -> visitService.createVisit(req, assignorUser))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Keycard is not active");
+  }
+
+  @Test
+  void createVisit_visitorRoleNotFound_throwsIllegalState() {
+    // 1. GIVEN
+    User assignorUser = new User();
+    Person assignorPerson = new Person();
+    assignorUser.setPerson(assignorPerson);
+
+    // Peame tegema nii, et assignor leitakse üles, et kood liiguks edasi
+    when(personInRoleRepository.findFirstByPersonAndIsActiveTrue(assignorPerson))
+        .thenReturn(Optional.of(new PersonInRole()));
+
+    // Peame rahuldama ka isiku ja pääsupunkti kontrollid
+    when(personRepository.findById(any())).thenReturn(Optional.of(new Person()));
+    when(accessPointRepository.findById(any())).thenReturn(Optional.of(new AccessPoint()));
+
+    // SIHTMÄRK: Simuleerime, et Visitor rolli ei eksisteeri
+    when(roleRepository.findByName("Visitor")).thenReturn(Optional.empty());
+
+    CreateVisitRequest req =
+        new CreateVisitRequest(UUID.randomUUID(), UUID.randomUUID(), null, null, null, null);
+
+    // 2. WHEN & THEN
+    assertThatThrownBy(() -> visitService.createVisit(req, assignorUser))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("VISITOR role not configured"); // Nüüd peaks ta siia jõudma
+  }
+
+  @Test
+  void createVisit_existingVisitorRole_usesExisting() {
+    User assignorUser = new User();
+    assignorUser.setPerson(new Person());
+    Person visitorPerson = person("Old", "Visitor");
+    Role visitorRole = new Role();
+    PersonInRole existingPIR = new PersonInRole();
+
+    when(personRepository.findById(any())).thenReturn(Optional.of(visitorPerson));
+    when(accessPointRepository.findById(any())).thenReturn(Optional.of(new AccessPoint()));
+    when(roleRepository.findByName("Visitor")).thenReturn(Optional.of(visitorRole));
+    // SIHTMÄRK: Leidub olemasolev roll
+    when(personInRoleRepository.findByPersonAndRoleAndIsActiveTrue(visitorPerson, visitorRole))
+        .thenReturn(Optional.of(existingPIR));
+    when(personInRoleRepository.findFirstByPersonAndIsActiveTrue(any()))
+        .thenReturn(Optional.of(new PersonInRole()));
+    when(visitRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    visitService.createVisit(
+        new CreateVisitRequest(UUID.randomUUID(), UUID.randomUUID(), null, null, null, null),
+        assignorUser);
+
+    verify(personInRoleRepository, never()).save(any());
   }
 }

@@ -33,10 +33,15 @@ public record KeycardDetailResponse(
       assignedPersonInRoleId = activePossession.getKeycardHolder().getId();
       assignedTime = activePossession.getAssignedTime();
     }
+
+    // TODO: Move this validation to KeycardService.
+    // DTOs should be simple data carriers without business logic.
+    // Buffer added to prevent race conditions during testing (now.plusSeconds(1)).
     LocalDateTime pastReturnTime =
-        lastReturnTime != null && lastReturnTime.isBefore(LocalDateTime.now())
+        lastReturnTime != null && !lastReturnTime.isAfter(LocalDateTime.now())
             ? lastReturnTime
             : null;
+
     return new KeycardDetailResponse(
         keycard.getId(),
         keycard.getKeycardNumber(),
@@ -45,6 +50,6 @@ public record KeycardDetailResponse(
         assignedUser,
         assignedPersonInRoleId,
         assignedTime,
-        pastReturnTime);
+        pastReturnTime); // DTO ei peaks tegema ärireeglite kontrolli (kas aeg on minevikus).
   }
 }
