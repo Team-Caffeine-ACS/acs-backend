@@ -580,11 +580,12 @@ class KeycardServiceTest {
         .thenReturn(Optional.of(possession));
     when(accessPointRepository.findById(apId)).thenReturn(Optional.of(returnAp));
     when(keycardInPossessionRepository.save(any(KeycardInPossession.class)))
-        .thenAnswer(invocation -> {
-          KeycardInPossession kip = invocation.getArgument(0);
-          kip.setReturnTime(LocalDateTime.now().plusDays(1));
-          return kip;
-        });
+        .thenAnswer(
+            invocation -> {
+              KeycardInPossession kip = invocation.getArgument(0);
+              kip.setReturnTime(LocalDateTime.now().plusDays(1));
+              return kip;
+            });
 
     ReturnKeycardRequest request = new ReturnKeycardRequest(apId);
     KeycardDetailResponse response = keycardService.returnKeycard(id, request);
