@@ -736,14 +736,13 @@ databaseChangeLog:
               - column: { name: assigned_time, valueDate: "2026-05-01 12:15:51" }
               - column: { name: return_time, valueDate: "2026-05-01 19:27:51" }
 
-databaseChangeLog:
   - changeSet:
       id: "20260426-update-access-point-coords"
       author: "dev"
       changes:
         - update:
             tableName: "access_point"
-            column:
+            columns:
               - column:
                   name: "latitude"
                   valueNumeric: 59.4294
@@ -754,10 +753,9 @@ databaseChangeLog:
                   name: "address"
                   value: "Kallaste 7, Tabasalu Keskus"
             where: "id = 'a6000000-0000-0000-0000-000000000001'"
-      changes:
         - update:
             tableName: "access_point"
-            column:
+            columns:
               - column:
                   name: "latitude"
                   valueNumeric: 59.3970
@@ -770,7 +768,7 @@ databaseChangeLog:
             where: "id = 'a6000000-0000-0000-0000-000000000002'"
         - update:
             tableName: "access_point"
-            column:
+            columns:
               - column:
                   name: "latitude"
                   valueNumeric: 59.4210
