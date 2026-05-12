@@ -56,6 +56,7 @@ public class KeycardService {
           keycardInPossessionRepository.findLatestByKeycard(keycard, PageRequest.of(0, 1)).stream()
               .findFirst()
               .map(KeycardInPossession::getReturnTime)
+              .filter(t -> !t.isAfter(LocalDateTime.now()))
               .orElse(null);
     }
     return KeycardDetailResponse.from(keycard, active, lastReturn);
@@ -100,6 +101,7 @@ public class KeycardService {
           keycardInPossessionRepository.findLatestByKeycard(keycard, PageRequest.of(0, 1)).stream()
               .findFirst()
               .map(KeycardInPossession::getReturnTime)
+              .filter(t -> !t.isAfter(LocalDateTime.now()))
               .orElse(null);
     }
     return KeycardDetailResponse.from(keycard, active, lastReturn);
@@ -194,7 +196,11 @@ public class KeycardService {
     possession.setReturnTime(LocalDateTime.now());
     keycardInPossessionRepository.save(possession);
 
-    return KeycardDetailResponse.from(keycard, null, possession.getReturnTime());
+    LocalDateTime returnTime = possession.getReturnTime();
+    if (returnTime != null && returnTime.isAfter(LocalDateTime.now())) {
+      returnTime = null;
+    }
+    return KeycardDetailResponse.from(keycard, null, returnTime);
   }
 
   private Keycard findKeycardOrThrow(UUID id) {

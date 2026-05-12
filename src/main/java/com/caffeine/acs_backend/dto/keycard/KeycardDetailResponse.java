@@ -33,10 +33,7 @@ public record KeycardDetailResponse(
       assignedPersonInRoleId = activePossession.getKeycardHolder().getId();
       assignedTime = activePossession.getAssignedTime();
     }
-    LocalDateTime pastReturnTime =
-        lastReturnTime != null && !lastReturnTime.isAfter(LocalDateTime.now())
-            ? lastReturnTime
-            : null;
+
     return new KeycardDetailResponse(
         keycard.getId(),
         keycard.getKeycardNumber(),
@@ -45,6 +42,6 @@ public record KeycardDetailResponse(
         assignedUser,
         assignedPersonInRoleId,
         assignedTime,
-        pastReturnTime);
+        lastReturnTime);
   }
 }
