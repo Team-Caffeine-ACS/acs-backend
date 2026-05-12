@@ -50,15 +50,8 @@ public class KeycardService {
     Keycard keycard = findKeycardOrThrow(id);
     KeycardInPossession active =
         keycardInPossessionRepository.findActiveByKeycard(keycard).orElse(null);
-    LocalDateTime lastReturn = null;
-    if (active == null) {
-      lastReturn =
-          keycardInPossessionRepository.findLatestByKeycard(keycard, PageRequest.of(0, 1)).stream()
-              .findFirst()
-              .map(KeycardInPossession::getReturnTime)
-              .orElse(null);
-    }
-    return KeycardDetailResponse.from(keycard, active, lastReturn);
+    LocalDateTime validatedReturn = (active == null) ? getValidatedPastReturnTime(keycard) : null;
+    return KeycardDetailResponse.from(keycard, active, validatedReturn);
   }
 
   @Transactional
@@ -94,15 +87,8 @@ public class KeycardService {
     keycardRepository.save(keycard);
     KeycardInPossession active =
         keycardInPossessionRepository.findActiveByKeycard(keycard).orElse(null);
-    LocalDateTime lastReturn = null;
-    if (active == null) {
-      lastReturn =
-          keycardInPossessionRepository.findLatestByKeycard(keycard, PageRequest.of(0, 1)).stream()
-              .findFirst()
-              .map(KeycardInPossession::getReturnTime)
-              .orElse(null);
-    }
-    return KeycardDetailResponse.from(keycard, active, lastReturn);
+    LocalDateTime validatedReturn = (active == null) ? getValidatedPastReturnTime(keycard) : null;
+    return KeycardDetailResponse.from(keycard, active, validatedReturn);
   }
 
   @Transactional
@@ -206,5 +192,13 @@ public class KeycardService {
                     "Keycard not found: " + id,
                     ErrorCode.RESOURCE_NOT_FOUND,
                     HttpStatus.NOT_FOUND));
+  }
+
+  private LocalDateTime getValidatedPastReturnTime(Keycard keycard) {
+    return keycardInPossessionRepository.findLatestByKeycard(keycard, PageRequest.of(0, 1)).stream()
+        .findFirst()
+        .map(KeycardInPossession::getReturnTime)
+        .filter(returnTime -> returnTime != null && !returnTime.isAfter(LocalDateTime.now()))
+        .orElse(null);
   }
 }

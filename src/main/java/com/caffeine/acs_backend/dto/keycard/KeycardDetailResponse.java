@@ -23,20 +23,19 @@ public record KeycardDetailResponse(
         LocalDateTime lastReturnTime) {
 
   public static KeycardDetailResponse from(
-      Keycard keycard, KeycardInPossession activePossession, LocalDateTime lastReturnTime) {
+      Keycard keycard, KeycardInPossession activePossession, LocalDateTime pastReturnTime) {
+
     String assignedUser = null;
     UUID assignedPersonInRoleId = null;
     LocalDateTime assignedTime = null;
+
     if (activePossession != null) {
       var person = activePossession.getKeycardHolder().getPerson();
       assignedUser = person.getGivenName() + " " + person.getSurname();
       assignedPersonInRoleId = activePossession.getKeycardHolder().getId();
       assignedTime = activePossession.getAssignedTime();
     }
-    LocalDateTime pastReturnTime =
-        lastReturnTime != null && !lastReturnTime.isAfter(LocalDateTime.now())
-            ? lastReturnTime
-            : null;
+
     return new KeycardDetailResponse(
         keycard.getId(),
         keycard.getKeycardNumber(),
