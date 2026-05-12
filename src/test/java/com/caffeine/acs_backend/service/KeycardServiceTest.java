@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -319,13 +318,9 @@ class KeycardServiceTest {
 
     ReturnKeycardRequest request = new ReturnKeycardRequest(apId);
     KeycardDetailResponse response = keycardService.returnKeycard(id, request);
-    ArgumentCaptor<KeycardInPossession> captor = ArgumentCaptor.forClass(KeycardInPossession.class);
 
-    verify(keycardInPossessionRepository).save(captor.capture());
-    KeycardInPossession saved = captor.getValue();
-
-    assertThat(saved.getReturnAccessPoint()).isEqualTo(returnAp);
-    assertThat(saved.getReturnTime()).isNotNull();
+    assertThat(possession.getReturnAccessPoint()).isEqualTo(returnAp);
+    assertThat(possession.getReturnTime()).isNotNull();
     assertThat(response.assignedUser()).isNull();
     assertThat(response.lastReturnTime()).isNotNull();
     verify(keycardInPossessionRepository).save(possession);
@@ -467,5 +462,189 @@ class KeycardServiceTest {
 
     assertThat(response.assignedUser()).isNull();
     assertThat(response.lastReturnTime()).isNull();
+  }
+
+  // ── Additional branch coverage ───────────────────────────────────────────────
+
+  @Test
+  void getKeycards_withNullParams_callsRepoWithNulls() {
+    when(keycardRepository.findAllFiltered(null, null, PageRequest.of(0, 10)))
+        .thenReturn(Page.empty());
+
+    keycardService.getKeycards(null, null, PageRequest.of(0, 10));
+
+    verify(keycardRepository).findAllFiltered(null, null, PageRequest.of(0, 10));
+  }
+
+  @Test
+  void getKeycard_withActivePossession_returnsAssignedUser() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    PersonInRole holder = personInRole("Alice", "Smith");
+    KeycardInPossession possession =
+        KeycardInPossession.builder()
+            .keycard(keycard)
+            .keycardHolder(holder)
+            .keycardAssignor(personInRole("Bob", "Jones"))
+            .assigningAccessPoint(accessPoint())
+            .assignedTime(LocalDateTime.now().minusHours(1))
+            .build();
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard))
+        .thenReturn(Optional.of(possession));
+
+    KeycardDetailResponse response = keycardService.getKeycard(id);
+
+    assertThat(response.assignedUser()).isEqualTo("Alice Smith");
+    assertThat(response.lastReturnTime()).isNull();
+  }
+
+  @Test
+  void updateKeycard_withAllFields_changesAll() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    LocalDateTime future = LocalDateTime.now().plusYears(1);
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+
+    UpdateKeycardRequest request = new UpdateKeycardRequest("NEW-NUM", false, future);
+    keycardService.updateKeycard(id, request);
+
+    assertThat(keycard.getKeycardNumber()).isEqualTo("NEW-NUM");
+    assertThat(keycard.isActive()).isFalse();
+    assertThat(keycard.getValidUntil()).isEqualTo(future);
+    verify(keycardRepository).save(keycard);
+  }
+
+  @Test
+  void updateKeycard_withBlankKeycardNumber_doesNotUpdateNumber() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    String original = keycard.getKeycardNumber();
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+
+    UpdateKeycardRequest request = new UpdateKeycardRequest("", null, null);
+    keycardService.updateKeycard(id, request);
+
+    assertThat(keycard.getKeycardNumber()).isEqualTo(original);
+    verify(keycardRepository).save(keycard);
+  }
+
+  @Test
+  void updateKeycard_withActivePossession_returnsUserInResponse() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    PersonInRole holder = personInRole("Alice", "Smith");
+    KeycardInPossession possession =
+        KeycardInPossession.builder()
+            .keycard(keycard)
+            .keycardHolder(holder)
+            .keycardAssignor(personInRole("Bob", "Jones"))
+            .assigningAccessPoint(accessPoint())
+            .assignedTime(LocalDateTime.now().minusHours(1))
+            .build();
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard))
+        .thenReturn(Optional.of(possession));
+
+    UpdateKeycardRequest request = new UpdateKeycardRequest(null, null, null);
+    KeycardDetailResponse response = keycardService.updateKeycard(id, request);
+
+    assertThat(response.assignedUser()).isEqualTo("Alice Smith");
+    assertThat(response.lastReturnTime()).isNull();
+    verify(keycardRepository).save(keycard);
+  }
+
+  @Test
+  void returnKeycard_withFutureReturnTime_returnsNullLastReturn() {
+    UUID id = UUID.randomUUID();
+    UUID apId = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    AccessPoint returnAp = accessPoint();
+    KeycardInPossession possession =
+        KeycardInPossession.builder()
+            .keycard(keycard)
+            .keycardHolder(personInRole("Alice", "Smith"))
+            .keycardAssignor(personInRole("Bob", "Jones"))
+            .assigningAccessPoint(accessPoint())
+            .assignedTime(LocalDateTime.now().minusHours(1))
+            .build();
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard))
+        .thenReturn(Optional.of(possession));
+    when(accessPointRepository.findById(apId)).thenReturn(Optional.of(returnAp));
+    when(keycardInPossessionRepository.save(any(KeycardInPossession.class)))
+        .thenAnswer(invocation -> {
+          KeycardInPossession kip = invocation.getArgument(0);
+          kip.setReturnTime(LocalDateTime.now().plusDays(1));
+          return kip;
+        });
+
+    ReturnKeycardRequest request = new ReturnKeycardRequest(apId);
+    KeycardDetailResponse response = keycardService.returnKeycard(id, request);
+
+    assertThat(response.lastReturnTime()).isNull();
+  }
+
+  @Test
+  void getKeycard_withFutureReturnTime_filtersOut() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    KeycardInPossession history = new KeycardInPossession();
+    history.setReturnTime(LocalDateTime.now().plusDays(1));
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+    when(keycardInPossessionRepository.findLatestByKeycard(eq(keycard), any()))
+        .thenReturn(java.util.List.of(history));
+
+    KeycardDetailResponse response = keycardService.getKeycard(id);
+
+    assertThat(response.lastReturnTime()).isNull();
+  }
+
+  @Test
+  void updateKeycard_withPastReturnTime_returnsLastReturn() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    LocalDateTime pastReturn = LocalDateTime.now().minusDays(5);
+    KeycardInPossession history = new KeycardInPossession();
+    history.setReturnTime(pastReturn);
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+    when(keycardInPossessionRepository.findLatestByKeycard(eq(keycard), any()))
+        .thenReturn(java.util.List.of(history));
+
+    UpdateKeycardRequest request = new UpdateKeycardRequest(null, null, null);
+    KeycardDetailResponse response = keycardService.updateKeycard(id, request);
+
+    assertThat(response.lastReturnTime()).isEqualTo(pastReturn);
+    verify(keycardRepository).save(keycard);
+  }
+
+  @Test
+  void updateKeycard_withFutureReturnTime_filtersOut() {
+    UUID id = UUID.randomUUID();
+    Keycard keycard = activeKeycard();
+    KeycardInPossession history = new KeycardInPossession();
+    history.setReturnTime(LocalDateTime.now().plusDays(1));
+
+    when(keycardRepository.findById(id)).thenReturn(Optional.of(keycard));
+    when(keycardInPossessionRepository.findActiveByKeycard(keycard)).thenReturn(Optional.empty());
+    when(keycardInPossessionRepository.findLatestByKeycard(eq(keycard), any()))
+        .thenReturn(java.util.List.of(history));
+
+    UpdateKeycardRequest request = new UpdateKeycardRequest(null, null, null);
+    KeycardDetailResponse response = keycardService.updateKeycard(id, request);
+
+    assertThat(response.lastReturnTime()).isNull();
+    verify(keycardRepository).save(keycard);
   }
 }
